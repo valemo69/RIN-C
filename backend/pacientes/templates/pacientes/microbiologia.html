@@ -1,0 +1,379 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'pacientes/css/microbiologia.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- BREADCRUMB -->
+
+    <nav aria-label="breadcrumb" class="mb-4">
+
+        <ol class="breadcrumb">
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:inicio' %}">Inicio</a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}">
+                    Pacientes e Internaciones
+                </a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:internacion_detalle' internacion.pk %}">
+                    Internación
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active">
+
+                Microbiología
+
+            </li>
+
+        </ol>
+
+    </nav>
+
+
+
+    <!-- PACIENTE -->
+
+    <div class="card rinc-card rinc-patient-header">
+
+        <div class="card-body rinc-card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-8">
+
+                    <h2 class="fw-bold">
+
+                        {{ paciente.apellido }}, {{ paciente.nombre }}
+
+                    </h2>
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <strong>DNI</strong><br>
+
+                            {{ paciente.numero_documento }}
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <strong>Sexo</strong><br>
+
+                            {{ paciente.sexo }}
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <strong>Edad</strong><br>
+
+                            {{ paciente.edad }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- PROGRESO -->
+
+    <div class="card rinc-card mb-4">
+
+        <div class="card-body rinc-card-body text-center">
+
+            <span class="text-success me-4">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                Ficha principal
+
+            </span>
+
+            <span class="text-success me-4">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                Comorbilidades
+
+            </span>
+
+            <span class="fw-bold text-primary me-4">
+
+                <i class="bi bi-circle-fill"></i>
+
+                Microbiología
+
+            </span>
+
+            <span class="text-secondary me-4">
+
+                <i class="bi bi-circle"></i>
+
+                Estudios complementarios
+
+            </span>
+
+            <span class="text-secondary">
+
+                <i class="bi bi-circle"></i>
+
+                Tratamiento
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- NUEVA MUESTRA -->
+
+    <div class="card rinc-card mb-4">
+
+        <div class="card-header rinc-card-header">
+            <h5 class="mb-0">Nuevo estudio microbiológico</h5>
+        </div>
+
+        <div class="card-body rinc-card-body">
+
+            <form method="post" class="row g-3 align-items-end">
+
+                {% csrf_token %}
+
+                <div class="col-md-3">
+                    <label class="form-label">Fecha de toma</label>
+                    {{ form.fecha_toma }}
+                    {{ form.fecha_toma.errors }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Tipo de muestra</label>
+                    {{ form.tipo_muestra }}
+                    {{ form.tipo_muestra.errors }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Resultado</label>
+                    {{ form.resultado }}
+                    {{ form.resultado.errors }}
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-rinc-primary w-100">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Agregar
+                    </button>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        M. tuberculosis detectada (solo GeneXpert)
+                    </label>
+                    {{ form.mtb_detectado }}
+                    {{ form.mtb_detectado.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Resistencia a rifampicina (solo GeneXpert)
+                    </label>
+                    {{ form.resistencia_rifampicina }}
+                    {{ form.resistencia_rifampicina.errors }}
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- MUESTRAS EXISTENTES -->
+
+    {% for muestra in muestras %}
+
+    <div class="card rinc-card mb-4">
+
+        <div class="card-header rinc-card-header d-flex justify-content-between">
+
+            <strong>{{ muestra.tipo_muestra.descripcion|upper }}</strong>
+
+            <span>{{ muestra.fecha_toma|date:"d/m/Y" }}</span>
+
+        </div>
+
+        <div class="card-body rinc-card-body">
+
+            <p><strong>Resultado:</strong> {{ muestra.get_resultado_display }}</p>
+
+            {% if muestra.mtb_detectado %}
+            <p>
+                <strong>M. tuberculosis (GeneXpert):</strong>
+                {{ muestra.get_mtb_detectado_display }}
+            </p>
+            {% endif %}
+
+            {% if muestra.resistencia_rifampicina %}
+            <p>
+                <strong>Resistencia a rifampicina:</strong>
+                {{ muestra.get_resistencia_rifampicina_display }}
+            </p>
+            {% endif %}
+
+            <h6>Gérmenes aislados</h6>
+
+            <ul>
+
+                {% for aislamiento in muestra.aislamientos.all %}
+
+                <li>
+
+                    {{ aislamiento.germen.descripcion }}
+
+                    {% if not aislamiento.significativo %}
+                    <span class="badge bg-secondary ms-2">No significativo</span>
+                    {% endif %}
+
+                    {% for sensibilidad in aislamiento.sensibilidades.all %}
+                    <span class="badge bg-dark ms-1">
+                        {{ sensibilidad.antibiotico.descripcion }}: {{ sensibilidad.get_resultado_display }}
+                    </span>
+                    {% endfor %}
+
+                    <!-- antibiograma: agregar una sensibilidad a ESTE aislamiento -->
+                    <form method="post"
+                          action="{% url 'pacientes:sensibilidad_agregar' aislamiento.pk %}"
+                          class="row g-2 align-items-end mt-2 ms-1">
+
+                        {% csrf_token %}
+
+                        <div class="col-4">
+                            {{ sensibilidad_form.antibiotico }}
+                        </div>
+
+                        <div class="col-4">
+                            {{ sensibilidad_form.resultado }}
+                        </div>
+
+                        <div class="col-3">
+                            <button type="submit" class="btn btn-sm btn-rinc-primary">
+                                Antibiograma
+                            </button>
+                        </div>
+
+                    </form>
+
+                </li>
+
+                {% empty %}
+
+                <li class="text-muted">Sin gérmenes aislados todavía.</li>
+
+                {% endfor %}
+
+            </ul>
+
+            <!-- agregar un germen nuevo a ESTA muestra -->
+            <form method="post"
+                  action="{% url 'pacientes:aislamiento_agregar' muestra.pk %}"
+                  class="row g-2 align-items-end">
+
+                {% csrf_token %}
+
+                <div class="col-5">
+                    <label class="form-label">Germen</label>
+                    {{ aislamiento_form.germen }}
+                </div>
+
+                <div class="col-4">
+                    <div class="form-check mt-4">
+                        {{ aislamiento_form.significativo }}
+                        <label class="form-check-label">Significativo</label>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <button type="submit" class="btn btn-sm btn-outline-success w-100">
+                        <i class="bi bi-plus-lg"></i>
+                        Germen
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="rinc-empty mb-4">
+        <h5>Todavía no hay estudios microbiológicos cargados</h5>
+        <p>Usá el formulario de arriba para agregar el primero.</p>
+    </div>
+
+    {% endfor %}
+
+    <!-- BOTONERA -->
+
+    {% comment %} No hay un botón único de "Guardar" acá abajo porque cada
+       formulario de esta pantalla (muestra nueva, agregar germen,
+       agregar antibiograma) ya se guarda solo al tocar su propio
+       botón. "Estudios complementarios" queda deshabilitado porque
+       ese módulo todavía no está conectado (es el próximo paso
+       después de este). {% endcomment %}
+
+    <div class="rinc-actions">
+
+        <a href="{% url 'pacientes:comorbilidades' internacion.pk %}" class="btn btn-rinc-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Comorbilidades
+
+        </a>
+
+        <div class="rinc-actions-right">
+
+            <button type="button" class="btn btn-rinc-primary" disabled>
+
+                Estudios complementarios
+
+                <i class="bi bi-arrow-right ms-1"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

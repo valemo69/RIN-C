@@ -1,0 +1,106 @@
+/* ==========================================================
+   RIN-C DESIGN SYSTEM
+   TABLES
+   ========================================================== */
+
+.table-rinc{
+
+    width:100%;
+
+    margin-bottom:0;
+
+    color:var(--color-text);
+
+    vertical-align:middle;
+
+}
+
+.table-rinc thead{
+
+    background:rgba(255,255,255,.05);
+
+}
+
+.table-rinc thead th{
+
+    color:#9fc4ff;
+
+    font-size:.82rem;
+
+    font-weight:600;
+
+    text-transform:uppercase;
+
+    letter-spacing:.04em;
+
+    border-bottom:1px solid var(--color-border);
+
+    padding:.85rem 1rem;
+
+}
+
+.table-rinc tbody td{
+
+    padding:.85rem 1rem;
+
+    border-bottom:1px solid rgba(255,255,255,.05);
+
+}
+
+.table-rinc tbody tr{
+
+    transition:background var(--transition-fast);
+
+}
+
+.table-rinc tbody tr:hover{
+
+    background:rgba(255,255,255,.04);
+
+}
+
+.table-rinc tbody tr:last-child td{
+
+    border-bottom:none;
+
+}
+
+
+
+/* ==========================================================
+   TABLAS COMPACTAS
+   ========================================================== */
+
+.table-rinc.table-sm th,
+.table-rinc.table-sm td{
+
+    padding:.55rem .75rem;
+
+}
+
+
+
+/* ==========================================================
+   TABLAS CENTRADAS
+   ========================================================== */
+
+.table-rinc.text-center th,
+.table-rinc.text-center td{
+
+    text-align:center;
+
+}
+
+
+
+/* ==========================================================
+   TABLAS RESPONSIVE
+   ========================================================== */
+
+.table-rinc-responsive{
+
+    overflow-x:auto;
+
+    border-radius:var(--radius-md);
+
+}

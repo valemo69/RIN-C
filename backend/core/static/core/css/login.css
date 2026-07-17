@@ -1,0 +1,124 @@
+body {
+    background-color: #05080d;
+}
+
+
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #05080d, #101722);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.login-card {
+
+    width: 480px;
+    max-width: 90%;
+
+    background: #080d15;
+
+    border: 1px solid #263241;
+    border-radius: 8px;
+
+    padding: 40px;
+
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+
+}
+
+
+/* LOGO */
+
+.logo-login {
+    width: 180px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+
+/* TITULOS */
+
+.titulo-sistema {
+    color: white;
+    font-size: 3.2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+
+.subtitulo-sistema {
+    color: #e5e7eb;
+    font-size: 1.2rem;
+}
+
+
+.hospital {
+    color: #b8c2cc;
+    font-size: 1rem;
+}
+
+
+/* FORMULARIO */
+
+.form-label {
+    color: white;
+    font-weight: 600;
+}
+
+
+.form-control {
+    background-color: #0d141f;
+    border: 1px solid #354255;
+    color: white;
+    height: 52px;
+}
+
+
+.form-control:focus {
+    background-color: #0d141f;
+    color: white;
+    border-color: #0066ff;
+    box-shadow: none;
+}
+
+
+/* BOTON */
+
+.btn-primary {
+
+    background-color: #0759d8;
+    border-color: #0759d8;
+    height: 55px;
+    font-weight: 700;
+    font-size: 1.1rem;
+
+}
+
+
+.btn-primary:hover {
+
+    background-color: #0648b2;
+    border-color: #0648b2;
+
+}
+
+
+/* LINEA */
+
+hr {
+
+    border-color: #273140;
+
+}
+
+
+/* PIE */
+
+.text-secondary {
+
+    color: #8c98a8 !important;
+
+}

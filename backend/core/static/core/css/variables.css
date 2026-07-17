@@ -1,0 +1,118 @@
+/* ==========================================================
+   RIN-C Design System
+   Variables globales
+   ========================================================== */
+
+:root {
+
+   color-scheme: dark;
+
+   /* ==========================
+       Colores institucionales
+    ========================== */
+
+   --color-primary: #2563eb;
+   --color-primary-hover: #1d4ed8;
+
+   --color-bg: #0b1220;
+   --color-surface: #111827;
+   --color-surface-light: #1b2536;
+
+   --color-card: rgba(16, 24, 39, .90);
+
+   --color-border: rgba(255, 255, 255, .08);
+
+   --color-text: #f8fafc;
+   --color-text-muted: #9ca3af;
+
+   --color-success: #22c55e;
+   --color-danger: #ef4444;
+   --color-warning: #f59e0b;
+   --color-info: #38bdf8;
+
+
+   /* ==========================
+       Tipografía
+    ========================== */
+
+   --font-family:
+      "Segoe UI",
+      Roboto,
+      Helvetica,
+      Arial,
+      sans-serif;
+
+   --font-xs: .75rem;
+   --font-sm: .875rem;
+   --font-md: 1rem;
+   --font-lg: 1.125rem;
+   --font-xl: 1.5rem;
+   --font-xxl: 2rem;
+
+
+   /* ==========================
+       Espaciados
+    ========================== */
+
+   --space-1: .25rem;
+   --space-2: .50rem;
+   --space-3: .75rem;
+   --space-4: 1rem;
+   --space-5: 1.5rem;
+   --space-6: 2rem;
+   --space-7: 3rem;
+
+
+   /* ==========================
+       Bordes
+    ========================== */
+
+   --radius-sm: 6px;
+   --radius-md: 10px;
+   --radius-lg: 14px;
+   --radius-xl: 18px;
+
+
+   /* ==========================
+       Sombras
+    ========================== */
+
+   --shadow-sm: 0 2px 8px rgba(0, 0, 0, .18);
+
+   --shadow-md: 0 6px 18px rgba(0, 0, 0, .25);
+
+   --shadow-lg: 0 12px 32px rgba(0, 0, 0, .35);
+
+
+   /* ==========================
+       Transiciones
+    ========================== */
+
+   --transition-fast: .15s;
+   --transition-normal: .30s;
+
+
+   /* ==========================
+       Layout
+    ========================== */
+
+   --sidebar-width: 260px;
+
+   --header-height: 72px;
+
+   /* ==========================
+          Compatibilidad Bootstrap
+      ========================== */
+
+   --bs-body-color: var(--color-text);
+   --bs-body-bg: var(--color-bg);
+
+   --bs-card-color: var(--color-text);
+   --bs-card-bg: var(--color-surface-light);
+   --bs-card-border-color: var(--color-border);
+
+   --bs-border-color: var(--color-border);
+
+   --bs-primary: var(--color-primary);
+
+}

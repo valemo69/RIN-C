@@ -1,0 +1,49 @@
+body {
+    background-color: #05070b;
+}
+
+.menu-card {
+    background: linear-gradient(135deg, #1146b8 0%, #0f2f7f 100%);
+    border: 1px solid #2d6df6;
+    border-radius: 14px;
+    color: #ffffff;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.menu-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.menu-card .card-body {
+    padding: 2rem;
+}
+
+.menu-card .card-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.menu-card .card-text {
+    color: rgba(255,255,255,.88);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.menu-title {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.menu-subtitle {
+    color: #d7dce5;
+    font-weight: 300;
+}
+
+.menu-description {
+    color: #b9c2cf;
+    max-width: 900px;
+    line-height: 1.6;
+}

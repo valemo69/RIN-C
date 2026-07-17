@@ -1,0 +1,112 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+RIN-C | Menú Principal
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'core/css/menu.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="mb-5">
+
+        <h1 class="display-4 menu-title">
+            RIN-C
+        </h1>
+
+        <h3 class="menu-subtitle mb-3">
+            Registro de Internaciones Neumológicas
+        </h3>
+
+        <p class="lead menu-description">
+            Plataforma institucional para la gestión clínica, administrativa y estadística del Servicio de Clínica Neumonológica.
+        </p>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- PACIENTES -->
+
+        <div class="col-lg-6">
+
+            <a href="{% url 'pacientes:inicio' %}" class="text-decoration-none">
+
+                <div class="card menu-card h-100">
+
+                    <div class="card-body">
+
+                        <h3 class="card-title">
+                            <i class="bi bi-people-fill me-2"></i>
+                            Pacientes e Internaciones
+                        </h3>
+
+                        <p class="card-text">
+                            Gestión de pacientes, internaciones y toda la información clínica asociada.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+        <!-- REPORTES -->
+
+        <div class="col-lg-6">
+
+            <div class="card menu-card h-100">
+
+                <div class="card-body">
+
+                    <h3 class="card-title">
+                        <i class="bi bi-bar-chart-fill me-2"></i>
+                        Reportes y Estadísticas
+                    </h3>
+
+                    <p class="card-text">
+                        Reportes institucionales, estadísticas y análisis de datos.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ADMINISTRACIÓN -->
+
+        <div class="col-12">
+
+            <div class="card menu-card">
+
+                <div class="card-body">
+
+                    <h3 class="card-title text-center">
+                        <i class="bi bi-gear-fill me-2"></i>
+                        Administración del Sistema
+                    </h3>
+
+                    <p class="card-text text-center">
+                        Usuarios, permisos, catálogos y configuración general.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

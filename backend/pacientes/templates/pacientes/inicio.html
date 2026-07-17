@@ -1,0 +1,188 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+RIN-C | Pacientes
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <!-- ===================================================== -->
+    <!-- BÚSQUEDA -->
+    <!-- ===================================================== -->
+
+    <div class="rinc-card mb-4">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <h2 class="rinc-title mb-0">
+                <i class="bi bi-search me-2"></i>
+                Búsqueda de pacientes
+            </h2>
+
+            <a href="{% url 'pacientes:paciente_nuevo' %}" class="btn btn-success">
+                <i class="bi bi-person-plus me-1"></i>
+                Nuevo paciente
+            </a>
+
+        </div>
+
+        <div class="card-body">
+
+            <form method="get">
+
+                <div class="row align-items-end g-3">
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Documento
+                        </label>
+
+                        {{ form.numero_documento }}
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Apellido
+                        </label>
+
+                        {{ form.apellido }}
+
+                    </div>
+
+                    <div class="col-md-3 d-grid">
+
+                        <button class="btn btn-primary" type="submit">
+
+                            <i class="bi bi-search me-1"></i>
+
+                            Buscar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                {% if form.non_field_errors %}
+
+                <div class="alert alert-warning mt-3 mb-0">
+
+                    {{ form.non_field_errors }}
+
+                </div>
+
+                {% endif %}
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- RESULTADOS -->
+    <!-- ===================================================== -->
+
+    <div class="rinc-card">
+
+        <div class="card-header">
+
+            <h2 class="rinc-title mb-0">
+
+                <i class="bi bi-list-ul me-2"></i>
+
+                Resultados
+
+            </h2>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            {% if pacientes %}
+
+            <table class="table table-dark table-hover table-rinc mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Documento</th>
+                        <th>Apellido</th>
+                        <th>Nombre</th>
+                        <th>Sexo</th>
+                        <th>Estado</th>
+                        <th width="90" class="text-center">Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for paciente in pacientes %}
+
+                    <tr>
+
+                        <td>{{ paciente.numero_documento }}</td>
+
+                        <td>{{ paciente.apellido }}</td>
+
+                        <td>{{ paciente.nombre }}</td>
+
+                        <td>{{ paciente.sexo.descripcion }}</td>
+
+                        <td>{{ paciente.estado_vital.descripcion }}</td>
+
+                        <td class="text-center">
+
+                            <a href="{% url 'pacientes:paciente_ver' paciente.id %}"
+                               class="btn btn-outline-light btn-sm"
+                               title="Abrir ficha">
+
+                                <i class="bi bi-folder2-open"></i>
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="rinc-empty">
+
+                <h5>No hay pacientes para mostrar</h5>
+
+                <p>
+                    Ingrese un documento o un apellido y presione
+                    <strong>Buscar</strong>.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

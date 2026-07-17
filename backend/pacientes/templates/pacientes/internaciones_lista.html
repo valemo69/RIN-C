@@ -1,0 +1,115 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+RIN-C | Internaciones - {{ paciente.apellido }}, {{ paciente.nombre }}
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+
+        <ol class="breadcrumb">
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:inicio' %}">Pacientes</a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:paciente_editar' paciente.id %}">
+                    {{ paciente.apellido }}, {{ paciente.nombre }}
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active" aria-current="page">
+                Internaciones
+            </li>
+
+        </ol>
+
+    </nav>
+
+    <div class="rinc-card">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <h2 class="rinc-title mb-0">
+                <i class="bi bi-hospital me-2"></i>
+                Internaciones de {{ paciente.apellido }}, {{ paciente.nombre }}
+            </h2>
+
+            <a href="{% url 'pacientes:internacion_nueva' paciente.id %}" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i>
+                Nueva internación
+            </a>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            {% if internaciones %}
+
+            <table class="table table-dark table-hover table-rinc mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Fecha de ingreso</th>
+                        <th>Fecha de egreso</th>
+                        <th>Procedencia</th>
+                        <th>Destino al egreso</th>
+                        <th width="90" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for internacion in internaciones %}
+
+                    <tr>
+                        <td>{{ internacion.fecha_ingreso|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if internacion.fecha_egreso %}
+                                {{ internacion.fecha_egreso|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="badge bg-warning text-dark">En curso</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ internacion.procedencia.descripcion }}</td>
+                        <td>{{ internacion.destino_egreso.descripcion|default:"-" }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'pacientes:internacion_detalle' internacion.pk %}"
+                               class="btn btn-outline-light btn-sm"
+                               title="Abrir internación">
+                                <i class="bi bi-folder2-open"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="rinc-empty">
+                <h5>Este paciente todavía no tiene internaciones registradas</h5>
+                <p>Usá el botón <strong>Nueva internación</strong> para cargar la primera.</p>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

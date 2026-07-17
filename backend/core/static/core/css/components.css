@@ -1,0 +1,375 @@
+/* ==========================================================
+   RIN-C DESIGN SYSTEM
+   COMPONENTS
+   ========================================================== */
+
+
+
+/* ==========================================================
+   NAVBAR
+   ========================================================== */
+
+.navbar{
+    background:var(--color-surface);
+    border-bottom:1px solid var(--color-border);
+    box-shadow:var(--shadow-sm);
+}
+
+.navbar-brand{
+    color:var(--color-text);
+}
+
+.navbar-brand:hover{
+    color:var(--color-text);
+}
+
+
+
+/* ==========================================================
+   BREADCRUMB
+   ========================================================== */
+
+.breadcrumb{
+    margin-bottom:1.5rem;
+    background:transparent;
+}
+
+.breadcrumb-item{
+    font-size:.90rem;
+}
+
+.breadcrumb-item a{
+    color:var(--color-primary);
+    text-decoration:none;
+}
+
+.breadcrumb-item a:hover{
+    text-decoration:underline;
+}
+
+.breadcrumb-item.active{
+    color:var(--color-text-muted);
+}
+
+
+
+/* ==========================================================
+   CARDS
+   ========================================================== */
+
+.rinc-card{
+
+    background:var(--color-surface-light);
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-md);
+
+    box-shadow:var(--shadow-md);
+
+    margin-bottom:1.5rem;
+
+}
+
+.rinc-card-header{
+
+    background:var(--color-primary);
+
+    color:#fff;
+
+    padding:1rem 1.5rem;
+
+    border-bottom:1px solid var(--color-border);
+
+}
+
+.rinc-card-header h5{
+
+    margin:0;
+
+    font-size:1rem;
+
+    font-weight:600;
+
+}
+/* ----------------------------------------------------------
+   Contenido de las cards
+---------------------------------------------------------- */
+
+.rinc-card-body{
+    padding: 1rem 1.5rem;
+    color: var(--color-text);
+}
+
+.rinc-card-body p,
+.rinc-card-body li,
+.rinc-card-body span{
+    color: var(--color-text);
+}
+
+.rinc-card-body strong{
+    color: #ffffff;
+}
+
+.rinc-card-body a{
+    color:var(--color-primary);
+}
+
+.rinc-card-body ul{
+    margin-bottom: 1rem;
+}
+
+/* ==========================================================
+   CABECERA DEL PACIENTE
+   ========================================================== */
+
+.rinc-patient-header h4{
+    margin-bottom:.75rem;
+    font-size:1.35rem;
+    font-weight:600;
+    color:var(--color-text);
+}
+
+.rinc-patient-header strong{
+    display:block;
+    margin-bottom:.20rem;
+    font-size:.82rem;
+    font-weight:600;
+    color:#9fc4ff;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+
+.rinc-patient-header .row > div{
+    margin-bottom:.75rem;
+}
+
+.rinc-patient-header .btn{
+    min-width:180px;
+}
+
+/* ==========================================================
+   TARJETAS DE MÓDULOS
+   ========================================================== */
+
+.rinc-module-card{
+    text-align:center;
+    height:100%;
+}
+
+.rinc-module-card .rinc-card-body{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    min-height:180px;
+}
+
+.rinc-module-card h6{
+    color:var(--color-text-muted);
+    font-size:1rem;
+    font-weight:500;
+    text-transform:none;
+    letter-spacing:0;
+    margin-bottom:1.5rem;
+}
+
+.rinc-module-card .btn{
+    min-width:180px;
+}
+
+/* ==========================================================
+   BARRA DE PROGRESO
+   ========================================================== */
+
+.rinc-progress{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:2rem;
+
+    flex-wrap:wrap;
+
+}
+
+.rinc-progress-step{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.50rem;
+
+    font-size:.95rem;
+
+    color:var(--color-text-muted);
+
+}
+
+.rinc-progress-step i{
+
+    font-size:1rem;
+
+}
+
+.rinc-progress-step.completed{
+
+    color:var(--color-success);
+
+}
+
+.rinc-progress-step.active{
+
+    color:var(--color-primary);
+
+    font-weight:600;
+
+}
+
+/* ==========================================================
+   BOTONERAS
+   ========================================================== */
+
+.rinc-actions{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:1rem;
+
+    margin-top:2rem;
+
+    margin-bottom:2rem;
+
+    flex-wrap:wrap;
+
+}
+
+.rinc-actions-right{
+
+    display:flex;
+
+    gap:.75rem;
+
+    flex-wrap:wrap;
+
+}
+
+/* ==========================================================
+   BOTONES INSTITUCIONALES
+   ========================================================== */
+
+.btn-rinc-primary{
+
+    background:var(--color-primary);
+    border:1px solid var(--color-primary);
+    color:#fff;
+
+}
+
+.btn-rinc-primary:hover{
+
+    background:var(--color-primary-hover);
+    border-color:var(--color-primary-hover);
+    color:#fff;
+
+}
+
+.btn-rinc-primary:disabled{
+
+    background:var(--color-primary);
+    border-color:var(--color-primary);
+    color:#fff;
+    opacity:.65;
+
+}
+
+.btn-rinc-secondary{
+
+    background:transparent;
+    border:1px solid rgba(255,255,255,.20);
+    color:var(--color-text);
+
+}
+
+.btn-rinc-secondary:hover{
+
+    background:rgba(255,255,255,.08);
+    color:#fff;
+
+}
+
+.btn-rinc-success{
+
+    background:var(--color-success);
+    border:1px solid var(--color-success);
+    color:#fff;
+
+}
+
+.btn-rinc-success:hover{
+
+    filter:brightness(.95);
+    color:#fff;
+
+}
+
+/* ==========================================================
+   TITULOS
+   ========================================================== */
+
+.rinc-title{
+    color:var(--color-text);
+    font-size:1.60rem;
+    font-weight:600;
+    margin-bottom:1.50rem;
+}
+
+.rinc-subtitle{
+    color:var(--color-text-muted);
+    font-size:1rem;
+    margin-bottom:1rem;
+}
+
+.rinc-card h6{
+    color:#9fc4ff;
+    font-size:.90rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin:1.25rem 0 .75rem;
+}
+
+
+
+/* ==========================================================
+   TEXTO
+   ========================================================== */
+
+.rinc-card-text{
+    color:var(--color-text-muted);
+    line-height:1.5;
+}
+
+
+
+/* ==========================================================
+   SEPARADORES
+   ========================================================== */
+
+.rinc-card hr{
+
+    border:0;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+    margin:1.25rem 0;
+
+}

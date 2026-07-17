@@ -1,0 +1,175 @@
+/* ==========================================================
+   FORMULARIOS RIN-C
+   ========================================================== */
+
+.form-label{
+    color: #9fc4ff;
+    font-size: .82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: .45rem;
+}
+
+.form-control,
+.form-select{
+
+    background: #2a364a !important;
+    color: #ffffff !important;
+
+    border: 1px solid rgba(255,255,255,.10);
+
+    border-radius: 8px;
+
+    min-height: 44px;
+
+}
+
+.form-control::placeholder{
+    color:#9ca3af;
+}
+
+.form-control:focus,
+.form-select:focus{
+
+    background:#324156 !important;
+    color:#fff !important;
+
+    border-color: var(--color-primary);
+
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.20);
+
+}
+
+.form-check{
+    margin-bottom:.60rem;
+}
+
+.form-check-label{
+    color:var(--color-text);
+}
+
+.form-check-input{
+    background:#2a364a;
+    border:1px solid rgba(255,255,255,.20);
+}
+
+.form-check-input:checked{
+    background:var(--color-primary);
+    border-color:var(--color-primary);
+}
+
+/* ==========================================================
+   CAMPOS ESPECIALES
+   ========================================================== */
+
+textarea.form-control{
+
+    min-height:120px;
+
+    resize:vertical;
+
+}
+
+input[type="date"],
+input[type="time"],
+input[type="number"]{
+
+    background:#2a364a;
+    color:#fff;
+
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator{
+
+    filter:invert(1);
+
+    cursor:pointer;
+
+}
+
+
+
+/* ==========================================================
+   SOLO LECTURA / DESHABILITADOS
+   ========================================================== */
+
+.form-control:disabled,
+.form-select:disabled,
+.form-control[readonly]{
+
+    background:#202938;
+
+    color:var(--color-text-muted);
+
+    opacity:1;
+
+    cursor:not-allowed;
+
+}
+
+
+
+/* ==========================================================
+   FIELDSET
+   ========================================================== */
+
+fieldset{
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:10px;
+
+    padding:1rem 1.25rem;
+
+    margin-bottom:1.5rem;
+
+}
+
+legend{
+
+    width:auto;
+
+    padding:0 .50rem;
+
+    color:#9fc4ff;
+
+    font-size:.90rem;
+
+    font-weight:600;
+
+}
+
+
+
+/* ==========================================================
+   VALIDACIÓN
+   ========================================================== */
+
+.form-control.is-valid,
+.form-select.is-valid{
+
+    border-color:var(--color-success);
+
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid{
+
+    border-color:var(--color-danger);
+
+}
+
+
+
+/* ==========================================================
+   AUTOFILL
+   ========================================================== */
+
+input:-webkit-autofill{
+
+    -webkit-box-shadow:0 0 0 1000px #2a364a inset;
+
+    -webkit-text-fill-color:#fff;
+
+}

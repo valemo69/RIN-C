@@ -1,0 +1,211 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+RIN-C | {{ titulo }}
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}">
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container py-4">
+
+    <div class="rinc-card">
+
+        <div class="card-header">
+
+            <h2 class="rinc-title">
+
+                <i class="bi bi-person-vcard me-2"></i>
+
+                {{ titulo }}
+
+            </h2>
+
+        </div>
+
+        <div class="card-body">
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+
+                    {{ form.non_field_errors }}
+
+                </div>
+
+                {% endif %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Tipo de documento
+                        </label>
+
+                        {{ form.tipo_documento }}
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Número de documento
+                        </label>
+
+                        {{ form.numero_documento }}
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Apellido
+                        </label>
+
+                        {{ form.apellido }}
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Nombre
+                        </label>
+
+                        {{ form.nombre }}
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Sexo
+                        </label>
+
+                        {{ form.sexo }}
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Fecha de nacimiento
+                        </label>
+
+                        {{ form.fecha_nacimiento }}
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Cobertura
+                        </label>
+
+                        {{ form.cobertura }}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Número de afiliado
+                        </label>
+
+                        {{ form.numero_afiliado }}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Estado vital
+                        </label>
+
+                        {{ form.estado_vital }}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Fecha de fallecimiento
+                        </label>
+
+                        {{ form.fecha_fallecimiento }}
+
+                    </div>
+
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <a href="{% url 'pacientes:inicio' %}" class="btn btn-outline-secondary">
+
+                            <i class="bi bi-arrow-left me-1"></i>
+
+                            Volver
+
+                        </a>
+
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        {% if not es_nuevo %}
+
+                        <a href="{% url 'pacientes:paciente_editar' paciente.id %}" class="btn btn-warning">
+
+                            <i class="bi bi-pencil-square me-1"></i>
+
+                            Editar
+
+                        </a>
+
+                        <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}" class="btn btn-outline-info">
+
+                            <i class="bi bi-hospital me-1"></i>
+
+                            Internaciones
+
+                        </a>
+
+                        {% else %}
+
+                        <button type="submit" class="btn btn-success">
+
+                            <i class="bi bi-check-circle me-1"></i>
+
+                            Guardar
+
+                        </button>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

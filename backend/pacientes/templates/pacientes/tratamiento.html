@@ -1,0 +1,477 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+RIN-C | Tratamiento - {{ paciente.apellido }}, {{ paciente.nombre }}
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'pacientes/css/tratamiento.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- BREADCRUMB -->
+
+    <nav aria-label="breadcrumb" class="mb-4">
+
+        <ol class="breadcrumb">
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:inicio' %}">Inicio</a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}">
+                    Pacientes e Internaciones
+                </a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:internacion_detalle' internacion.pk %}">
+                    Internación
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active">
+                Tratamiento
+            </li>
+
+        </ol>
+
+    </nav>
+
+
+
+    <!-- PACIENTE -->
+
+    <div class="card rinc-card rinc-patient-header">
+
+        <div class="card-body rinc-card-body">
+
+            <div class="row">
+
+                <div class="col-lg-8">
+
+                    <h2 class="fw-bold">
+
+                        {{ paciente.apellido }}, {{ paciente.nombre }}
+
+                    </h2>
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <strong>DNI</strong><br>
+
+                            {{ paciente.numero_documento }}
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <strong>Sexo</strong><br>
+
+                            {{ paciente.sexo }}
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <strong>Edad</strong><br>
+
+                            {{ paciente.edad }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- PROGRESO -->
+
+    <div class="card rinc-card mb-4">
+
+        <div class="card-body rinc-card-body text-center">
+
+            <span class="text-success me-4">
+                <i class="bi bi-check-circle-fill"></i>
+                Ficha principal
+            </span>
+
+            <span class="text-success me-4">
+                <i class="bi bi-check-circle-fill"></i>
+                Comorbilidades
+            </span>
+
+            <span class="text-success me-4">
+                <i class="bi bi-check-circle-fill"></i>
+                Microbiología
+            </span>
+
+            <span class="text-success me-4">
+                <i class="bi bi-check-circle-fill"></i>
+                Estudios y Procedimientos
+            </span>
+
+            <span class="fw-bold text-primary">
+                <i class="bi bi-circle-fill"></i>
+                Tratamiento
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="row">
+
+        <!-- ANTIMICROBIANOS -->
+
+<div class="col-lg-8 mb-4">
+
+    <div class="card rinc-card h-100">
+
+        <div class="card-header rinc-card-header">
+
+            <h5 class="mb-0">
+                Tratamientos antimicrobianos
+            </h5>
+
+        </div>
+
+        <div class="card-body rinc-card-body">
+
+            {% comment %}
+            El mockup original separaba Antibióticos / Antituberculosos
+            / Antifúngicos / Antivirales en 4 bloques con checkboxes
+            sueltos. En el modelo real los 4 son lo mismo
+            (InternacionTratamientoAntimicrobiano: un antimicrobiano +
+            vía + dosis + fechas), así que quedan unificados en una
+            sola lista. Esto además permite algo que un checkbox no
+            podía: registrar dosis, vía y fechas de cada tratamiento,
+            no solo si se usó o no.
+            {% endcomment %}
+
+            <table class="table table-rinc mb-4">
+
+                <thead>
+                    <tr>
+                        <th>Antimicrobiano</th>
+                        <th>Indicación</th>
+                        <th>Vía</th>
+                        <th>Dosis</th>
+                        <th>Desde</th>
+                        <th>Hasta</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for tratamiento in tratamientos %}
+
+                    <tr>
+                        <td>{{ tratamiento.antimicrobiano.descripcion }}</td>
+                        <td>{{ tratamiento.indicacion.descripcion }}</td>
+                        <td>{{ tratamiento.via.descripcion }}</td>
+                        <td>{{ tratamiento.dosis }}</td>
+                        <td>{{ tratamiento.fecha_desde|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if tratamiento.fecha_hasta %}
+                                {{ tratamiento.fecha_hasta|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="badge bg-warning text-dark">En curso</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="6" class="text-muted">
+                            Todavía no hay tratamientos cargados.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            <h6>Agregar tratamiento</h6>
+
+            <form method="post" class="row g-3">
+
+                {% csrf_token %}
+
+                <div class="col-md-4">
+                    <label class="form-label">Antimicrobiano</label>
+                    {{ form.antimicrobiano }}
+                    {{ form.antimicrobiano.errors }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Indicación</label>
+                    {{ form.indicacion }}
+                    {{ form.indicacion.errors }}
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Vía</label>
+                    {{ form.via }}
+                    {{ form.via.errors }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Dosis</label>
+                    {{ form.dosis }}
+                    {{ form.dosis.errors }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Desde</label>
+                    {{ form.fecha_desde }}
+                    {{ form.fecha_desde.errors }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Hasta</label>
+                    {{ form.fecha_hasta }}
+                    {{ form.fecha_hasta.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Observaciones</label>
+                    {{ form.observaciones }}
+                    {{ form.observaciones.errors }}
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-rinc-primary">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Agregar tratamiento
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- CORTICOIDES -->
+
+
+
+<div class="col-lg-4 mb-4">
+
+    <div class="card rinc-card h-100">
+
+        <div class="card-header rinc-card-header">
+
+            <h5 class="mb-0">
+
+                Corticoides
+
+            </h5>
+
+        </div>
+
+        <div class="card-body rinc-card-body">
+
+            {% comment %}
+            Corticoides, Tratamiento respiratorio y Otros tratamientos
+            (más abajo) siguen siendo maqueta visual: no tienen modelo
+            en models.py todavía. Es una conversación de diseño aparte
+            (como hicimos con Comorbilidades) cuando quieras encararla.
+            {% endcomment %}
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" disabled>
+                <label class="form-check-label">Dexametasona</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" disabled>
+                <label class="form-check-label">Hidrocortisona</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" disabled>
+                <label class="form-check-label">Prednisona</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" disabled>
+                <label class="form-check-label">Metilprednisolona</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" disabled>
+                <label class="form-check-label">Pulsos de metilprednisolona</label>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+<div class="row">
+
+    <!-- TRATAMIENTO RESPIRATORIO -->
+
+    <div class="col-lg-6 mb-4">
+
+        <div class="card rinc-card h-100">
+
+            <div class="card-header rinc-card-header">
+
+                <h5 class="mb-0">
+
+                    Tratamiento respiratorio
+
+                </h5>
+
+            </div>
+
+            <div class="card-body rinc-card-body">
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        Triple terapia
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        LAMA + LABA
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        LABA + CSI
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        Montelukast
+                    </label>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- OTROS TRATAMIENTOS -->
+
+    <div class="col-lg-6 mb-4">
+
+        <div class="card rinc-card h-100">
+
+            <div class="card-header rinc-card-header">
+
+                <h5 class="mb-0">
+
+                    Otros tratamientos
+
+                </h5>
+
+            </div>
+
+            <div class="card-body rinc-card-body">
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        Diuréticos
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        Ácido tranexámico
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        Morfina
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        Insulina NPH
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled>
+                    <label class="form-check-label">
+                        Insulina rápida
+                    </label>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOTONERA -->
+
+    <div class="rinc-actions">
+
+        <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-rinc-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Microbiología
+
+        </a>
+
+        <div>
+
+            <a href="{% url 'pacientes:internacion_detalle' internacion.pk %}" class="btn btn-rinc-success">
+
+                Volver a la ficha de internación
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

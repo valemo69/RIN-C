@@ -1,0 +1,274 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+RIN-C | Comorbilidades - {{ paciente.apellido }}, {{ paciente.nombre }}
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'pacientes/css/comorbilidades.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- BREADCRUMB -->
+
+    <nav aria-label="breadcrumb" class="mb-4">
+
+        <ol class="breadcrumb">
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:inicio' %}">Inicio</a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}">
+                    Pacientes e Internaciones
+                </a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a href="{% url 'pacientes:internacion_detalle' internacion.pk %}">
+                    Internación
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active">
+
+                Comorbilidades
+
+            </li>
+
+        </ol>
+
+    </nav>
+
+
+    <!-- PACIENTE -->
+
+    <div class="card rinc-card rinc-patient-header">
+
+        <div class="card-body rinc-card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-8">
+
+                    <h2 class="fw-bold mb-2">
+
+                        {{ paciente.apellido }}, {{ paciente.nombre }}
+
+                    </h2>
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <strong>DNI</strong><br>
+
+                            {{ paciente.numero_documento }}
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <strong>Sexo</strong><br>
+
+                            {{ paciente.sexo }}
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <strong>Edad</strong><br>
+
+                            {{ paciente.edad }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BARRA DE PROGRESO -->
+
+    <div class="card rinc-card mb-4">
+        <div class="card-body rinc-card-body text-center">
+
+            <span class="me-4 text-success">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                Ficha principal
+
+            </span>
+
+            <span class="me-4 fw-bold text-primary">
+
+                <i class="bi bi-circle-fill"></i>
+
+                Comorbilidades
+
+            </span>
+
+            <span class="me-4 text-secondary">
+
+                <i class="bi bi-circle"></i>
+
+                Microbiología
+
+            </span>
+
+            <span class="text-secondary">
+
+                <i class="bi bi-circle"></i>
+
+                Tratamiento
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <div class="row">
+
+        {% for grupo, items in comorbilidades_por_grupo.items %}
+
+            <div class="col-lg-6 mb-4">
+
+                <div class="card rinc-card h-100">
+
+                    <div class="card-header rinc-card-header">
+                        <h5 class="mb-0">{{ grupo }}</h5>
+                    </div>
+
+                    <div class="card-body rinc-card-body">
+
+                        {% for item in items %}
+
+                        <div class="form-check">
+
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="comorbilidades"
+                                value="{{ item.pk }}"
+                                id="comorbilidad_{{ item.pk }}"
+                                {% if item.pk in ids_comorbilidades_seleccionadas %}checked{% endif %}>
+
+                            <label class="form-check-label" for="comorbilidad_{{ item.pk }}">
+                                {{ item.descripcion }}
+                            </label>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+        <div class="row">
+
+            <!-- INMUNIZACIONES -->
+
+            <div class="col-lg-6 mb-4">
+
+                <div class="card rinc-card h-100">
+
+                    <div class="card-header rinc-card-header">
+                        <h5 class="mb-0">Inmunizaciones</h5>
+                    </div>
+
+                    <div class="card-body rinc-card-body">
+
+                        {% for item in inmunizaciones %}
+
+                        <div class="form-check">
+
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="inmunizaciones"
+                                value="{{ item.pk }}"
+                                id="inmunizacion_{{ item.pk }}"
+                                {% if item.pk in ids_inmunizaciones_seleccionadas %}checked{% endif %}>
+
+                            <label class="form-check-label" for="inmunizacion_{{ item.pk }}">
+                                {{ item.descripcion }}
+                            </label>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- BOTONERA -->
+
+        <div class="rinc-actions">
+
+            <a href="{% url 'pacientes:internacion_detalle' internacion.pk %}" class="btn btn-rinc-secondary">
+
+                <i class="bi bi-arrow-left me-1"></i>
+
+                Ficha principal
+
+            </a>
+
+            <div class="rinc-actions-right">
+
+                <button type="submit" class="btn btn-rinc-primary me-2">
+
+                    <i class="bi bi-check-circle me-1"></i>
+
+                    Guardar comorbilidades
+
+                </button>
+
+                <a href="{% url 'pacientes:microbiologia' internacion.pk %}"
+                   class="btn btn-rinc-secondary">
+
+                    Microbiología
+
+                    <i class="bi bi-arrow-right ms-1"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
