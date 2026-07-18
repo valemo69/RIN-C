@@ -14,813 +14,362 @@ RIN-C | Internación
 <div class="container-fluid py-4">
 
     <!-- BREADCRUMB -->
-
     <nav aria-label="breadcrumb" class="mb-4">
-
         <ol class="breadcrumb">
-
-            <li class="breadcrumb-item">
-                <a href="#">Inicio</a>
-            </li>
-
-            <li class="breadcrumb-item">
-                <a href="{% url 'pacientes:inicio' %}">
-                    Pacientes e Internaciones
-                </a>
-            </li>
-
+            <li class="breadcrumb-item"><a href="{% url 'pacientes:inicio' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'pacientes:internaciones_paciente' paciente.id %}">Internaciones</a></li>
             <li class="breadcrumb-item active" aria-current="page">
-                {% if es_nueva %}Nueva internación{% else %}Internación{% endif %}
+                {% if es_nueva %}Nueva internación{% else %}{{ internacion }}{% endif %}
             </li>
-
         </ol>
-
     </nav>
 
-
     <!-- CABECERA PACIENTE -->
-
     <div class="card rinc-card rinc-patient-header">
-
         <div class="card-body rinc-card-body">
-
-            <div class="row align-items-center">
-
-                <div class="col-lg-10">
-
-                    <h4 class="fw-semibold mb-3">
-                        {{ paciente.apellido }}, {{ paciente.nombre }}
-                    </h4>
-
-                    <div class="row">
-
-                        <div class="col-md-3">
-                            <strong>DNI</strong>
-                            {{ paciente.numero_documento }}
-                        </div>
-
-                        <div class="col-md-3">
-                            <strong>Sexo</strong>
-                            {{ paciente.sexo }}
-                        </div>
-
-                        <div class="col-md-3">
-                            <strong>Fecha de nacimiento</strong>
-                            {{ paciente.fecha_nacimiento|date:"d/m/Y" }}
-                        </div>
-
-                        <div class="col-md-3">
-                            <strong>Edad</strong>
-                            {{ paciente.edad }}
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="col-lg-2 text-lg-end mt-3 mt-lg-0">
-
-                    <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}" class="btn btn-rinc-secondary">
-
-                        <i class="bi bi-arrow-left"></i>
-
-                        Volver
-
-                    </a>
-
-                </div>
-
+            <h4 class="fw-semibold mb-3">{{ paciente.apellido }}, {{ paciente.nombre }}</h4>
+            <div class="row">
+                <div class="col-md-3"><strong>DNI</strong> {{ paciente.numero_documento }}</div>
+                <div class="col-md-3"><strong>Sexo</strong> {{ paciente.sexo }}</div>
+                <div class="col-md-3"><strong>Fecha de nacimiento</strong> {{ paciente.fecha_nacimiento|date:"d/m/Y" }}</div>
+                <div class="col-md-3"><strong>Edad</strong> {{ paciente.edad }}</div>
             </div>
-
         </div>
-
     </div>
 
-    {% comment %} ==========================================================
-    A partir de acá arranca el <form> que envuelve todo lo que
-        SÍ está conectado a la base de datos (los campos de
-        Internación y, más abajo, el recorrido). El resto de las
-        secciones de esta pantalla (motivos, exposición inhalatoria,
-        antecedentes, gasometrías, soporte respiratorio) todavía son
-        una maqueta visual: no tienen un modelo en models.py detrás,
-        así que por ahora no se guardan. Se dejan como estaban para
-        que quede claro qué es "real" y qué falta como próximo paso. {% endcomment %}
+    <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
 
-        <form method="post">
-
-            {% csrf_token %}
-
-            {% if form.non_field_errors %}
-
-            <div class="alert alert-danger">
-                {{ form.non_field_errors }}
-            </div>
-
-            {% endif %}
-
-            <!-- DATOS DE INTERNACIÓN -->
-
-            <div class="card rinc-card">
-
-                <div class="card-header rinc-card-header">
-                    <h5>Datos de la internación</h5>
-                </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="row g-4">
-
-                        <div class="col-lg-3">
-
-                            <label for="{{ form.fecha_ingreso.id_for_label }}" class="form-label">
-                                Fecha de ingreso
-                            </label>
-
-                            {{ form.fecha_ingreso }}
-
-                            {{ form.fecha_ingreso.errors }}
-
-                        </div>
-
-                        <div class="col-lg-3">
-
-                            <label for="{{ form.fecha_egreso.id_for_label }}" class="form-label">
-                                Fecha de egreso
-                            </label>
-
-                            {{ form.fecha_egreso }}
-
-                            {{ form.fecha_egreso.errors }}
-
-                        </div>
-
-                        <div class="col-lg-3">
-
-                            <label for="{{ form.procedencia.id_for_label }}" class="form-label">
-                                Procedencia
-                            </label>
-
-                            {{ form.procedencia }}
-
-                            {{ form.procedencia.errors }}
-
-                        </div>
-
-                        <div class="col-lg-3">
-
-                            <label for="{{ form.destino_egreso.id_for_label }}" class="form-label">
-                                Destino al egreso
-                            </label>
-
-                            {{ form.destino_egreso }}
-
-                            {{ form.destino_egreso.errors }}
-
-                        </div>
-
+        <!-- ========================================================== -->
+        <!-- DATOS DE INTERNACIÓN                                        -->
+        <!-- ========================================================== -->
+        <div class="card rinc-card">
+            <div class="card-header rinc-card-header"><h5>Datos de la internación</h5></div>
+            <div class="card-body rinc-card-body">
+                <div class="row g-4">
+                    <div class="col-lg-3">
+                        <label for="{{ form.fecha_ingreso.id_for_label }}" class="form-label">Fecha de ingreso</label>
+                        {{ form.fecha_ingreso }}
+                        {{ form.fecha_ingreso.errors }}
                     </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- MOTIVOS PRINCIPALES DE INTERNACIÓN -->
-
-            <div class="card rinc-card">
-
-                <div class="card-header rinc-card-header">
-                    <h5>Motivos principales de internación</h5>
-                </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="row g-4">
-
-                        <div class="col-lg-6">
-
-                            <label for="motivo_infecciones" class="form-label">
-                                Infecciones
-                            </label>
-
-                            <select id="motivo_infecciones" name="motivo_infeccioso" class="form-select">
-                                <option value="" selected>Sin motivo infeccioso</option>
-
-                                {% for item in motivos_infecciosos %}
-                                {% if item.codigo != "SIN" %}
-                                <option value="{{ item.id }}">
-                                    {{ item.descripcion }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-
-                        </div>
-
-                        <div class="col-lg-6">
-
-                            <label for="motivo_obstructivas" class="form-label">
-                                Obstructivas
-                            </label>
-
-                            <select id="motivo_obstructivas" name="motivo_obstructivo" class="form-select">
-                                <option value="" selected>Sin motivo obstructivo</option>
-
-                                {% for item in motivos_obstructivos %}
-                                {% if item.codigo != "SIN" %}
-                                <option value="{{ item.id }}">
-                                    {{ item.descripcion }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-
-                        </div>
-
-                        <div class="col-lg-6">
-
-                            <label for="motivo_intersticiales" class="form-label">
-                                Intersticiales
-                            </label>
-
-                            <select id="motivo_intersticiales" name="motivo_intersticial" class="form-select">
-                                <option value="" selected>Sin motivo intersticial</option>
-
-                                {% for item in motivos_intersticiales %}
-                                {% if item.codigo != "SIN" %}
-                                <option value="{{ item.id }}">
-                                    {{ item.descripcion }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-
-                        </div>
-
-                        <div class="col-lg-6">
-
-                            <label for="motivo_pleura" class="form-label">
-                                Pleura
-                            </label>
-
-                            <select id="motivo_pleura" name="motivo_pleural" class="form-select">
-                                <option value="" selected>Sin patología pleural</option>
-
-                                {% for item in motivos_pleurales %}
-                                {% if item.codigo != "SIN" %}
-                                <option value="{{ item.id }}">
-                                    {{ item.descripcion }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-
-                        </div>
-
-                        <div class="col-lg-6">
-
-                            <label for="motivo_vasculares" class="form-label">
-                                Vasculares
-                            </label>
-
-                            <select id="motivo_vasculares" name="motivo_vascular" class="form-select">
-                                <option value="" selected>Sin patología vascular</option>
-
-                                {% for item in motivos_vasculares %}
-                                {% if item.codigo != "SIN" %}
-                                <option value="{{ item.id }}">
-                                    {{ item.descripcion }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-
-                        </div>
-
-                        <div class="col-lg-6">
-
-                            <label for="motivo_oncologicas" class="form-label">
-                                Oncológicas
-                            </label>
-
-                            <select id="motivo_oncologicas" name="motivo_oncologico" class="form-select">
-                                <option value="" selected>Sin patología oncológica</option>
-
-                                {% for item in motivos_oncologicos %}
-                                {% if item.codigo != "SIN" %}
-                                <option value="{{ item.id }}">
-                                    {{ item.descripcion }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-
-                        </div>
-
-                        <div class="col-lg-12">
-
-                            <label for="motivo_otras" class="form-label">
-                                Otras
-                            </label>
-
-                            <select id="motivo_otras" name="motivo_otro" class="form-select">
-                                <option value="" selected>Sin otros motivos</option>
-
-                                {% for item in motivos_otros %}
-                                {% if item.codigo != "SIN" %}
-                                <option value="{{ item.id }}">
-                                    {{ item.descripcion }}
-                                </option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-
-                        </div>
-
+                    <div class="col-lg-3">
+                        <label for="{{ form.fecha_egreso.id_for_label }}" class="form-label">Fecha de egreso</label>
+                        {{ form.fecha_egreso }}
+                        {{ form.fecha_egreso.errors }}
                     </div>
-
+                    <div class="col-lg-3">
+                        <label for="{{ form.procedencia.id_for_label }}" class="form-label">Procedencia</label>
+                        {{ form.procedencia }}
+                        {{ form.procedencia.errors }}
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="{{ form.destino_egreso.id_for_label }}" class="form-label">Destino al egreso</label>
+                        {{ form.destino_egreso }}
+                        {{ form.destino_egreso.errors }}
+                    </div>
                 </div>
-
             </div>
-            <!-- INSUFICIENCIA RESPIRATORIA -->
+        </div>
 
-            <div class="card rinc-card">
-
-                <div class="card-header rinc-card-header">
-                    <h5>Insuficiencia respiratoria</h5>
+        <!-- ========================================================== -->
+        <!-- MOTIVOS PRINCIPALES DE INTERNACIÓN                          -->
+        <!-- ========================================================== -->
+        <div class="card rinc-card">
+            <div class="card-header rinc-card-header"><h5>Motivos principales de internación</h5></div>
+            <div class="card-body rinc-card-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <label for="id_motivo_infeccioso" class="form-label">Infecciones</label>
+                        <select name="motivo_infeccioso" id="id_motivo_infeccioso" class="form-select">
+                            <option value="">Sin motivo infeccioso</option>
+                            {% for cat in motivos_infecciosos %}
+                            <option value="{{ cat.id }}" {% if internacion and internacion.motivo_infeccioso_id == cat.id %}selected{% endif %}>
+                                {{ cat.descripcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="id_motivo_obstructivo" class="form-label">Obstructivas</label>
+                        <select name="motivo_obstructivo" id="id_motivo_obstructivo" class="form-select">
+                            <option value="">Sin motivo obstructivo</option>
+                            {% for cat in motivos_obstructivos %}
+                            <option value="{{ cat.id }}" {% if internacion and internacion.motivo_obstructivo_id == cat.id %}selected{% endif %}>
+                                {{ cat.descripcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="id_motivo_intersticial" class="form-label">Intersticiales</label>
+                        <select name="motivo_intersticial" id="id_motivo_intersticial" class="form-select">
+                            <option value="">Sin motivo intersticial</option>
+                            {% for cat in motivos_intersticiales %}
+                            <option value="{{ cat.id }}" {% if internacion and internacion.motivo_intersticial_id == cat.id %}selected{% endif %}>
+                                {{ cat.descripcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="id_motivo_pleural" class="form-label">Pleura</label>
+                        <select name="motivo_pleural" id="id_motivo_pleural" class="form-select">
+                            <option value="">Sin patología pleural</option>
+                            {% for cat in motivos_pleurales %}
+                            <option value="{{ cat.id }}" {% if internacion and internacion.motivo_pleural_id == cat.id %}selected{% endif %}>
+                                {{ cat.descripcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="id_motivo_vascular" class="form-label">Vasculares</label>
+                        <select name="motivo_vascular" id="id_motivo_vascular" class="form-select">
+                            <option value="">Sin patología vascular</option>
+                            {% for cat in motivos_vasculares %}
+                            <option value="{{ cat.id }}" {% if internacion and internacion.motivo_vascular_id == cat.id %}selected{% endif %}>
+                                {{ cat.descripcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="id_motivo_oncologico" class="form-label">Oncológicas</label>
+                        <select name="motivo_oncologico" id="id_motivo_oncologico" class="form-select">
+                            <option value="">Sin patología oncológica</option>
+                            {% for cat in motivos_oncologicos %}
+                            <option value="{{ cat.id }}" {% if internacion and internacion.motivo_oncologico_id == cat.id %}selected{% endif %}>
+                                {{ cat.descripcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-12">
+                        <label for="id_motivo_otro" class="form-label">Otras</label>
+                        <select name="motivo_otro" id="id_motivo_otro" class="form-select">
+                            <option value="">Sin otros motivos</option>
+                            {% for cat in motivos_otros %}
+                            <option value="{{ cat.id }}" {% if internacion and internacion.motivo_otro_id == cat.id %}selected{% endif %}>
+                                {{ cat.descripcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-
-                <div class="card-body rinc-card-body">
-
-                    {% comment %} El mockup original tenía 4 radio buttons sueltos (No /
-                    Hipoxémica / Hipercápnica / Mixta). El modelo real
-                    (Internación.insuficiencia_respiratoria) es un FK a
-                    Catalogo, así que Django ya arma automáticamente un
-                    <select> con esas mismas opciones cargadas en la base
-                        (ver migración 0004_cargar_catalogos_basicos). Se
-                        podría volver a mostrar como radio buttons con un
-                        RadioSelect + queryset, pero eso es más código para
-                        el mismo resultado funcional; queda como próxima
-                        mejora si te interesa el aspecto visual exacto. {% endcomment %}
-
-                        <label for="{{ form.insuficiencia_respiratoria.id_for_label }}" class="form-label">
-                            Tipo de insuficiencia respiratoria
-                        </label>
-
-                        {{ form.insuficiencia_respiratoria }}
-
-                        {{ form.insuficiencia_respiratoria.errors }}
-
-                </div>
-
             </div>
+        </div>
 
-        </form>
+        <!-- ========================================================== -->
+        <!-- INSUFICIENCIA RESPIRATORIA                                  -->
+        <!-- ========================================================== -->
+        <div class="card rinc-card">
+            <div class="card-header rinc-card-header"><h5>Insuficiencia respiratoria</h5></div>
+            <div class="card-body rinc-card-body">
+                <label for="{{ form.insuficiencia_respiratoria.id_for_label }}" class="form-label">Tipo de insuficiencia respiratoria</label>
+                {{ form.insuficiencia_respiratoria }}
+                {{ form.insuficiencia_respiratoria.errors }}
+            </div>
+        </div>
 
+        <!-- ========================================================== -->
+        <!-- EXPOSICIÓN INHALATORIA + ANTECEDENTES                       -->
+        <!-- ========================================================== -->
         <div class="row">
-            <!-- SOPORTE RESPIRATORIO -->
-
-            <div class="col-lg-6 mb-4">
-
-                <div class="card rinc-card h-100">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Soporte respiratorio</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body">
-
-                        <div class="form-check mb-4">
-
-                           <input class="form-check-input" type="checkbox" id="sin_soporte">
-
-                            <label class="form-check-label" for="sin_soporte">
-                                Ningún soporte respiratorio
-                            </label>
-
-                        </div>
-
-                        <hr>
-
-                        <div class="form-check">
-
-                            <input class="form-check-input" type="checkbox" id="oxigeno">
-
-                            <label class="form-check-label" for="oxigeno">
-                                Oxígeno por cánula
-                            </label>
-
-                        </div>
-
-                        <div class="form-check">
-
-                            <input class="form-check-input" type="checkbox" id="venturi">
-
-                            <label class="form-check-label" for="venturi">
-                                Venturi
-                            </label>
-
-                        </div>
-
-                        <div class="form-check">
-
-                            <input class="form-check-input" type="checkbox" id="cnaf">
-
-                            <label class="form-check-label" for="cnaf">
-                                CNAF
-                            </label>
-
-                        </div>
-
-                        <div class="form-check">
-
-                            <input class="form-check-input" type="checkbox" id="vmni">
-
-                            <label class="form-check-label" for="vmni">
-                                VMNI
-                            </label>
-
-                        </div>
-
-                        <div class="form-check">
-
-                            <input class="form-check-input" type="checkbox" id="arm">
-
-                            <label class="form-check-label" for="arm">
-                                ARM
-                            </label>
-
-                        </div>
-
-                        <div class="form-check">
-
-                            <input class="form-check-input" type="checkbox" id="traqueostomia">
-
-                            <label class="form-check-label" for="traqueostomia">
-                                Traqueostomía
-                            </label>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
             <!-- EXPOSICIÓN INHALATORIA -->
-
             <div class="col-lg-6 mb-4">
-
                 <div class="card rinc-card h-100">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Exposición inhalatoria</h5>
-                    </div>
-
+                    <div class="card-header rinc-card-header"><h5>Exposición inhalatoria</h5></div>
                     <div class="card-body rinc-card-body">
-
+                        
                         <h6>Tabaquismo</h6>
+                        <div class="mb-3">
+                            {% for value, label in form.fields.tabaquismo.choices %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tabaquismo" id="id_tabaquismo_{{ forloop.counter }}" value="{{ value }}" {% if internacion and internacion.tabaquismo == value %}checked{% endif %}>
+                                <label class="form-check-label" for="id_tabaquismo_{{ forloop.counter }}">
+                                    {{ label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {{ form.tabaquismo.errors }}
+                        </div>
 
+                        <hr>
+                        <h6>Exposición pasiva al humo de tabaco</h6>
+                        <div class="mb-3">
+                            {% for cat in motivos_exposicion_pasiva %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="exposicion_pasiva" id="id_exposicion_pasiva_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in exposicion_pasiva_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="id_exposicion_pasiva_{{ cat.id }}">
+                                    {{ cat.descripcion }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {{ form.exposicion_pasiva.errors }}
+                        </div>
+
+                        <hr>
+                        <h6>Otros hábitos inhalatorios</h6>
+                        <div class="mb-3">
+                            {% for cat in motivos_otros_habitos %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="otros_habitos" id="id_otros_habitos_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in otros_habitos_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="id_otros_habitos_{{ cat.id }}">
+                                    {{ cat.descripcion }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {{ form.otros_habitos.errors }}
+                        </div>
+
+                        <hr>
+                        <h6>Exposiciones laborales / ambientales</h6>
+                        <div class="row">
+                            {% for cat in motivos_exposiciones_laborales %}
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="exposiciones_laborales" id="id_exposiciones_laborales_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in exposiciones_laborales_ids %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_exposiciones_laborales_{{ cat.id }}">
+                                        {{ cat.descripcion }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {{ form.exposiciones_laborales.errors }}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANTECEDENTES RESPIRATORIOS -->
+            <div class="col-lg-6 mb-4">
+                <div class="card rinc-card h-100">
+                    <div class="card-header rinc-card-header"><h5>Antecedentes respiratorios</h5></div>
+                    <div class="card-body rinc-card-body">
+                        <div class="row">
+                            {% for cat in motivos_antecedentes %}
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="antecedentes_respiratorios" id="id_antecedentes_respiratorios_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in antecedentes_ids %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_antecedentes_respiratorios_{{ cat.id }}">
+                                        {{ cat.descripcion }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {{ form.antecedentes_respiratorios.errors }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- SOPORTE RESPIRATORIO                                        -->
+        <!-- ========================================================== -->
+        <div class="card rinc-card mb-4">
+            <div class="card-header rinc-card-header"><h5>Soporte respiratorio</h5></div>
+            <div class="card-body rinc-card-body">
+                <div class="row">
+                    {% for cat in motivos_soporte %}
+                    <div class="col-md-4">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="tabaco" id="tabaco_nunca">
-                            <label class="form-check-label" for="tabaco_nunca">Nunca fumó</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="tabaco" id="tabaco_activo">
-                            <label class="form-check-label" for="tabaco_activo">Fumador activo</label>
-                        </div>
-
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="tabaco" id="tabaco_ex">
-                            <label class="form-check-label" for="tabaco_ex">Exfumador</label>
-                        </div>
-
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="tabaco_pasivo">
-                            <label class="form-check-label" for="tabaco_pasivo">
-                                Exposición pasiva al humo de tabaco
+                            <input class="form-check-input" type="checkbox" name="soporte_respiratorio" id="id_soporte_respiratorio_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in soporte_ids %}checked{% endif %}>
+                            <label class="form-check-label" for="id_soporte_respiratorio_{{ cat.id }}">
+                                {{ cat.descripcion }}
                             </label>
                         </div>
-
-                        <hr>
-
-                        <h6>Otros hábitos inhalatorios</h6>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="vaping">
-                            <label class="form-check-label" for="vaping">Vaping</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="cannabis">
-                            <label class="form-check-label" for="cannabis">Cannabis inhalado</label>
-                        </div>
-
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="cocaina">
-                            <label class="form-check-label" for="cocaina">Cocaína inhalada</label>
-                        </div>
-
-                        <hr>
-
-                        <h6>Exposiciones laborales / ambientales</h6>
-
-                        <div class="row">
-
-                            <div class="col-md-6">
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="silice">
-                                    <label class="form-check-label" for="silice">Sílice</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="asbesto">
-                                    <label class="form-check-label" for="asbesto">Asbesto</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="carbon">
-                                    <label class="form-check-label" for="carbon">Carbón</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="berilio">
-                                    <label class="form-check-label" for="berilio">Berilio</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="algodon">
-                                    <label class="form-check-label" for="algodon">Algodón</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="polvos">
-                                    <label class="form-check-label" for="polvos">Polvos orgánicos</label>
-                                </div>
-
-                            </div>
-
-                            <div class="col-md-6">
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="aves">
-                                    <label class="form-check-label" for="aves">Aves</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="hongos">
-                                    <label class="form-check-label" for="hongos">Hongos</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="agricultura">
-                                    <label class="form-check-label" for="agricultura">Agricultura / Heno</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="isocianatos">
-                                    <label class="form-check-label" for="isocianatos">Isocianatos</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="soldadura">
-                                    <label class="form-check-label" for="soldadura">Humos de soldadura</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="biomasa">
-                                    <label class="form-check-label" for="biomasa">Biomasa</label>
-                                </div>
-
-                            </div>
-
-                        </div>
-
                     </div>
-
+                    {% endfor %}
+                    {{ form.soporte_respiratorio.errors }}
                 </div>
-
             </div>
-
         </div>
 
-        <div class="row">
-            <!-- ANTECEDENTES RESPIRATORIOS -->
-
-            <div class="col-lg-6 mb-4">
-
-                <div class="card rinc-card h-100">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Antecedentes respiratorios</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body">
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="epoc">
-                            <label class="form-check-label" for="epoc">EPOC</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="asma">
-                            <label class="form-check-label" for="asma">Asma</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="bronquiectasias">
-                            <label class="form-check-label" for="bronquiectasias">Bronquiectasias</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="epi">
-                            <label class="form-check-label" for="epi">Enfermedad pulmonar intersticial</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="hp">
-                            <label class="form-check-label" for="hp">Hipertensión pulmonar</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="tb">
-                            <label class="form-check-label" for="tb">Tuberculosis previa</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="ca_pulmon">
-                            <label class="form-check-label" for="ca_pulmon">Cáncer de pulmón</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="tx_pulmon">
-                            <label class="form-check-label" for="tx_pulmon">Trasplante pulmonar</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="ocd">
-                            <label class="form-check-label" for="ocd">Oxígeno domiciliario crónico</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="vmni_dom">
-                            <label class="form-check-label" for="vmni_dom">VMNI domiciliaria</label>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-            
-
+        <!-- ========================================================== -->
+        <!-- BOTÓN GUARDAR                                              -->
+        <!-- ========================================================== -->
+        <div class="d-flex justify-content-end mb-4">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-check-circle me-1"></i>
+                {% if es_nueva %}Guardar{% else %}Guardar cambios{% endif %}
+            </button>
         </div>
 
-        
+    </form>
 
-
-
-        <!-- MÓDULOS -->
-
-        <div class="row">
-
-            <div class="col-lg-4 mb-4">
-
-                <div class="card rinc-card rinc-module-card">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Comorbilidades</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body text-center">
-
-                        {% if es_nueva %}
-
-                        <h6 class="mb-4">Guardá la internación primero</h6>
-
-                        <button class="btn btn-rinc-primary mt-4" disabled>
-                            Abrir módulo
-                        </button>
-
-                        {% else %}
-
-                        <h6 class="mb-4">Cargar comorbilidades e inmunizaciones</h6>
-
-                        <a href="{% url 'pacientes:comorbilidades' internacion.pk %}" class="btn btn-rinc-primary mt-4">
-                            Abrir módulo
-                        </a>
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-4 mb-4">
-
-                <div class="card rinc-card rinc-module-card">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Microbiología</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body text-center">
-
-                        {% if es_nueva %}
-
-                        <h6 class="mb-4">Guardá la internación primero</h6>
-
-                        <button class="btn btn-rinc-primary mt-4" disabled>
-                            Abrir módulo
-                        </button>
-
-                        {% else %}
-
-                        <h6 class="mb-4">Muestras, aislamientos y antibiogramas</h6>
-
-                        <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-rinc-primary mt-4">
-                            Abrir módulo
-                        </a>
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-4 mb-4">
-
-                <div class="card rinc-card rinc-module-card">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Tratamiento</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body text-center">
-
-                        {% if es_nueva %}
-
-                        <h6 class="mb-4">Guardá la internación primero</h6>
-
-                        <button class="btn btn-rinc-primary mt-4" disabled>
-                            Abrir módulo
-                        </button>
-
-                        {% else %}
-
-                        <h6 class="mb-4">Antimicrobianos, dosis y v&iacute;as</h6>
-
-                        <a href="{% url 'pacientes:tratamiento' internacion.pk %}" class="btn btn-rinc-primary mt-4">
-                            Abrir módulo
-                        </a>
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-        <!-- BOTONERA -->
-
-        {% comment %} El botón para guardar ya está más arriba, pegado a los
-        campos que realmente se guardan (Datos de la internación e
-        Insuficiencia respiratoria). Un segundo botón de guardar acá
-        abajo, después de secciones que ni siquiera están dentro del
-        <form>, iba a confundir: parecía que guardaba todo lo de la
-            pantalla, y en realidad solo guarda lo que sí tiene modelo.
-            Por eso acá dejamos solo el link para volver. {% endcomment %}
-
-            <div class="rinc-actions">
-
-                <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}" class="btn btn-rinc-secondary">
-
-                    <i class="bi bi-arrow-left"></i>
-                    Volver al listado
-
-                </a>
-
-                <button type="submit" class="btn btn-success">
-
-                    <i class="bi bi-check-circle me-1"></i>
-
+    <!-- ========================================================== -->
+    <!-- MÓDULOS                                                    -->
+    <!-- ========================================================== -->
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card rinc-card rinc-module-card">
+                <div class="card-header rinc-card-header"><h5>Comorbilidades</h5></div>
+                <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
-                    Guardar
+                    <h6 class="mb-4">Guardá la internación primero</h6>
+                    <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
-                    Guardar cambios
+                    <h6 class="mb-4">Cargar comorbilidades e inmunizaciones</h6>
+                    <a href="{% url 'pacientes:comorbilidades' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir módulo</a>
                     {% endif %}
-
-                </button>
-
+                </div>
             </div>
+        </div>
+        <div class="col-lg-3 mb-4">
+            <div class="card rinc-card rinc-module-card">
+                <div class="card-header rinc-card-header"><h5>Microbiología</h5></div>
+                <div class="card-body rinc-card-body text-center">
+                    {% if es_nueva %}
+                    <h6 class="mb-4">Guardá la internación primero</h6>
+                    <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
+                    {% else %}
+                    <h6 class="mb-4">Muestras, aislamientos y antibiogramas</h6>
+                    <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir módulo</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 mb-4">
+            <div class="card rinc-card rinc-module-card">
+                <div class="card-header rinc-card-header"><h5>Estudios y Procedimientos</h5></div>
+                <div class="card-body rinc-card-body text-center">
+                    {% if es_nueva %}
+                    <h6 class="mb-4">Guardá la internación primero</h6>
+                    <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
+                    {% else %}
+                    <h6 class="mb-4">Cargar estudios y procedimientos</h6>
+                    <a href="{% url 'pacientes:estudios_procedimientos' %}" class="btn btn-rinc-primary mt-4">Abrir módulo</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 mb-4">
+            <div class="card rinc-card rinc-module-card">
+                <div class="card-header rinc-card-header"><h5>Tratamiento</h5></div>
+                <div class="card-body rinc-card-body text-center">
+                    {% if es_nueva %}
+                    <h6 class="mb-4">Guardá la internación primero</h6>
+                    <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
+                    {% else %}
+                    <h6 class="mb-4">Antimicrobianos, dosis y vías</h6>
+                    <a href="{% url 'pacientes:tratamiento' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir módulo</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VOLVER AL LISTADO -->
+    <div class="d-flex justify-content-start mt-3">
+        <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}" class="btn btn-rinc-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al listado
+        </a>
+    </div>
 
 </div>
 
@@ -829,216 +378,3 @@ RIN-C | Internación
 {% block js %}
 <script src="{% static 'pacientes/js/internacion.js' %}"></script>
 {% endblock %}
-
-*****************************
-<!-- RECORRIDO DURANTE LA INTERNACIÓN -->
-
-            <div class="col-lg-6 mb-4">
-
-                <div class="card rinc-card h-100">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Recorrido durante la internación</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body">
-
-                        {% if es_nueva %}
-
-                        <p class="text-muted mb-0">
-                            Guardá la internación primero para poder cargar
-                            el recorrido por los distintos sectores.
-                        </p>
-
-                        {% else %}
-
-                        <table class="table table-rinc mb-3">
-
-                            <thead>
-
-                                <tr>
-                                    <th>Sector</th>
-                                    <th>Desde</th>
-                                    <th>Hasta</th>
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                {% for recorrido in recorridos %}
-
-                                <tr>
-                                    <td>{{ recorrido.sector.descripcion }}</td>
-                                    <td>{{ recorrido.fecha_desde|date:"d/m/Y" }}</td>
-                                    <td>
-                                        {% if recorrido.fecha_hasta %}
-                                        {{ recorrido.fecha_hasta|date:"d/m/Y" }}
-                                        {% else %}
-                                        <span class="badge bg-warning text-dark">Actual</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-
-                                {% empty %}
-
-                                <tr>
-                                    <td colspan="3" class="text-muted">
-                                        Todavía no se cargó ningún sector.
-                                    </td>
-                                </tr>
-
-                                {% endfor %}
-
-                            </tbody>
-
-                        </table>
-
-                        {% comment %} Esta es una <form> aparte (no la de arriba)
-                            porque envía los datos a una vista distinta
-                            (recorrido_agregar). Un <form> de HTML no
-                                puede ir anidado dentro de otro <form>, por
-                                    eso el <form> de "Datos de la internación"
-                                        ya se cerró más arriba, antes de esta sección. {% endcomment %}
-
-                                        <form method="post"
-                                            action="{% url 'pacientes:recorrido_agregar' internacion.pk %}"
-                                            class="row g-2 align-items-end">
-
-                                            {% csrf_token %}
-
-                                            <div class="col-7">
-                                                <label class="form-label">Sector</label>
-                                                {{ recorrido_form.sector }}
-                                            </div>
-
-                                            <div class="col-4">
-                                                <label class="form-label">Hasta</label>
-                                                {{ recorrido_form.fecha_hasta }}
-                                            </div>
-
-                                            <div class="col-1">
-                                                <button type="submit" class="btn btn-outline-success">
-                                                    <i class="bi bi-plus-lg"></i>
-                                                </button>
-                                            </div>
-
-                                        </form>
-
-                                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-            ******************
-            <!-- GASOMETRÍAS -->
-
-        <div class="row">
-
-            <div class="col-lg-6 mb-4">
-
-                <div class="card rinc-card">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Gasometría al ingreso</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body">
-
-                        <div class="row g-3">
-
-                            <div class="col-3">
-
-                                <label for="ph_ingreso" class="form-label">pH</label>
-
-                                <input id="ph_ingreso" type="text" class="form-control">
-
-                            </div>
-
-                            <div class="col-3">
-
-                                <label for="pao2_ingreso" class="form-label">PaO₂</label>
-
-                                <input id="pao2_ingreso" type="text" class="form-control">
-
-                            </div>
-
-                            <div class="col-3">
-
-                                <label for="paco2_ingreso" class="form-label">PaCO₂</label>
-
-                                <input id="paco2_ingreso" type="text" class="form-control">
-
-                            </div>
-
-                            <div class="col-3">
-
-                                <label for="hco3_ingreso" class="form-label">HCO₃</label>
-
-                                <input id="hco3_ingreso" type="text" class="form-control">
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-6 mb-4">
-
-                <div class="card rinc-card">
-
-                    <div class="card-header rinc-card-header">
-                        <h5>Última gasometría disponible</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body">
-
-                        <div class="row g-3">
-
-                            <div class="col-3">
-
-                                <label for="ph_ultima" class="form-label">pH</label>
-
-                                <input id="ph_ultima" type="text" class="form-control">
-
-                            </div>
-
-                            <div class="col-3">
-
-                                <label for="pao2_ultima" class="form-label">PaO₂</label>
-
-                                <input id="pao2_ultima" type="text" class="form-control">
-
-                            </div>
-
-                            <div class="col-3">
-
-                                <label for="paco2_ultima" class="form-label">PaCO₂</label>
-
-                                <input id="paco2_ultima" type="text" class="form-control">
-
-                            </div>
-
-                            <div class="col-3">
-
-                                <label for="hco3_ultima" class="form-label">HCO₃</label>
-
-                                <input id="hco3_ultima" type="text" class="form-control">
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>

@@ -248,13 +248,7 @@ class Paciente(ModeloBase):
 
         return edad
 
-# ==========================================================
-# INTERNACIONES
-# ==========================================================
-
-
 class Internacion(ModeloBase):
-
     paciente = models.ForeignKey(
         Paciente,
         on_delete=models.PROTECT,
@@ -263,10 +257,7 @@ class Internacion(ModeloBase):
     )
 
     fecha_ingreso = models.DateField(verbose_name="Fecha de ingreso")
-
-    fecha_egreso = models.DateField(
-        null=True, blank=True, verbose_name="Fecha de egreso"
-    )
+    fecha_egreso = models.DateField(null=True, blank=True, verbose_name="Fecha de egreso")
 
     procedencia = models.ForeignKey(
         Catalogo,
@@ -296,105 +287,197 @@ class Internacion(ModeloBase):
         blank=True,
     )
 
-    observaciones = models.TextField(blank=True, verbose_name="Observaciones")
+    # =====================================================
+    # MOTIVOS DE INTERNACIÓN (UNO POR CATEGORÍA - FK)
+    # =====================================================
+    motivo_infeccioso = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "MOTIVO_INFECCIOSO", "activo": True},
+        null=True,
+        blank=True,
+        verbose_name="Motivo infeccioso",
+    )
+    motivo_obstructivo = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "MOTIVO_OBSTRUCTIVO", "activo": True},
+        null=True,
+        blank=True,
+        verbose_name="Motivo obstructivo",
+    )
+    motivo_intersticial = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "MOTIVO_INTERSTICIAL", "activo": True},
+        null=True,
+        blank=True,
+        verbose_name="Motivo intersticial",
+    )
+    motivo_pleural = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "MOTIVO_PLEURAL", "activo": True},
+        null=True,
+        blank=True,
+        verbose_name="Motivo pleural",
+    )
+    motivo_vascular = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "MOTIVO_VASCULAR", "activo": True},
+        null=True,
+        blank=True,
+        verbose_name="Motivo vascular",
+    )
+    motivo_oncologico = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "MOTIVO_ONCOLOGICO", "activo": True},
+        null=True,
+        blank=True,
+        verbose_name="Motivo oncológico",
+    )
+    motivo_otro = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "MOTIVO_OTRO", "activo": True},
+        null=True,
+        blank=True,
+        verbose_name="Otro motivo",
+    )
+
+    # =====================================================
+    # ANTECEDENTES RESPIRATORIOS (MÚLTIPLES - MANYTOMANY)
+    # =====================================================
+    antecedentes_respiratorios = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "ANTECEDENTE_RESPIRATORIO", "activo": True},
+        blank=True,
+        verbose_name="Antecedentes respiratorios",
+    )
+
+    # =====================================================
+    # SOPORTE RESPIRATORIO (MÚLTIPLES - MANYTOMANY)
+    # =====================================================
+    soporte_respiratorio = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "SOPORTE_RESPIRATORIO", "activo": True},
+        blank=True,
+        verbose_name="Soporte respiratorio",
+    )
+
+    # =====================================================
+    # EXPOSICIÓN INHALATORIA
+    # =====================================================
+    tabaquismo = models.CharField(
+        max_length=20,
+        choices=[
+            ("NUNCA", "Nunca fumó"),
+            ("ACTIVO", "Fumador activo"),
+            ("EXFUMADOR", "Exfumador"),
+        ],
+        blank=True,
+        verbose_name="Tabaquismo",
+    )
+
+    exposicion_pasiva = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "EXPOSICION_PASIVA", "activo": True},
+        blank=True,
+        verbose_name="Exposición pasiva al humo de tabaco",
+    )
+
+    otros_habitos = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "HABITO_INHALATORIO", "activo": True},
+        blank=True,
+        verbose_name="Otros hábitos inhalatorios",
+    )
+
+    exposiciones_laborales = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "EXPOSICION_LABORAL", "activo": True},
+        blank=True,
+        verbose_name="Exposiciones laborales y ambientales",
+    )
 
     class Meta:
         verbose_name = "Internación"
         verbose_name_plural = "Internaciones"
-
-        ordering = [
-            "-fecha_ingreso",
-            "paciente",
-        ]
+        ordering = ["-fecha_ingreso", "paciente"]
 
     def __str__(self):
-        return f"{self.paciente} - " f"{self.fecha_ingreso:%d/%m/%Y}"
+        return f"{self.paciente} - {self.fecha_ingreso:%d/%m/%Y}"
 
-
-# ==========================================================
-# RECORRIDO DE LA INTERNACIÓN
-# ==========================================================
-
-
-class RecorridoInternacion(EventoInternacion):
-
-    internacion = models.ForeignKey(
-        Internacion,
-        on_delete=models.CASCADE,
-        related_name="recorridos",
-        verbose_name="Internación",
-    )
-
-    sector = models.ForeignKey(
+    # =====================================================
+    # SOPORTE RESPIRATORIO (MÚLTIPLES - MANYTOMANY)
+    # =====================================================
+    soporte_respiratorio = models.ManyToManyField(
         Catalogo,
-        on_delete=models.PROTECT,
-        related_name="recorridos_sector",
-        limit_choices_to={"tipo__codigo": "SECTOR", "activo": True},
-        verbose_name="Sector",
-    )
-
-    orden = models.PositiveSmallIntegerField(
-        default=1,
-        verbose_name="Orden",
-    )
-
-    class Meta:
-        verbose_name = "Recorrido de internación"
-        verbose_name_plural = "Recorridos de internación"
-
-        ordering = [
-    "internacion",
-    "orden",
-    "fecha_desde",
-]
-
-    @property
-    def fecha_ingreso(self):
-        return self.fecha_desde
-
-    @property
-    def fecha_egreso(self):
-        return self.fecha_hasta
-
-    def __str__(self):
-        return f"{self.internacion} - {self.sector.descripcion}"
-
-# ==========================================================
-# SOPORTES RESPIRATORIOS
-# ==========================================================
-
-class InternacionSoporteRespiratorio(EventoInternacion):
-
-    internacion = models.ForeignKey(
-        Internacion,
-        on_delete=models.CASCADE,
-        related_name="soportes_respiratorios",
-        verbose_name="Internación",
-    )
-
-    soporte = models.ForeignKey(
-        Catalogo,
-        on_delete=models.PROTECT,
-        related_name="internaciones_soporte",
+        related_name='+',
         limit_choices_to={"tipo__codigo": "SOPORTE_RESPIRATORIO", "activo": True},
+        blank=True,
         verbose_name="Soporte respiratorio",
     )
 
-    class Meta:
-        verbose_name = "Soporte respiratorio"
-        verbose_name_plural = "Soportes respiratorios"
+    # =====================================================
+    # EXPOSICIÓN INHALATORIA
+    # =====================================================
+    tabaquismo = models.CharField(
+        max_length=20,
+        choices=[
+            ("NUNCA", "Nunca fumó"),
+            ("ACTIVO", "Fumador activo"),
+            ("EXFUMADOR", "Exfumador"),
+        ],
+        blank=True,
+        verbose_name="Tabaquismo",
+    )
 
-        ordering = [
-            "internacion",
-            "fecha_desde",
-        ]
+    exposicion_pasiva = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "EXPOSICION_PASIVA", "activo": True},
+        blank=True,
+        verbose_name="Exposición pasiva al humo de tabaco",
+    )
+
+    otros_habitos = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "HABITO_INHALATORIO", "activo": True},
+        blank=True,
+        verbose_name="Otros hábitos inhalatorios",
+    )
+
+    exposiciones_laborales = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "EXPOSICION_LABORAL", "activo": True},
+        blank=True,
+        verbose_name="Exposiciones laborales y ambientales",
+    )
+
+    class Meta:
+        verbose_name = "Internación"
+        verbose_name_plural = "Internaciones"
+        ordering = ["-fecha_ingreso", "paciente"]
 
     def __str__(self):
-        return (
-            f"{self.soporte.descripcion} "
-            f"({self.fecha_desde} - {self.fecha_hasta})"
-        )
-
+        return f"{self.paciente} - {self.fecha_ingreso:%d/%m/%Y}"
 # ==========================================================
 # TRATAMIENTO ANTIMICROBIANO
 # ==========================================================
@@ -452,12 +535,11 @@ class InternacionTratamientoAntimicrobiano(EventoInternacion):
         ]
 
     def __str__(self):
-        return (
-            f"{self.antimicrobiano.descripcion}"
-        )
+        return f"{self.antimicrobiano.descripcion}"
 
 # ==========================================================
 # RELACIÓN ENTRE INTERNACIÓN Y CATÁLOGOS
+# (se mantiene igual, no se toca)
 # ==========================================================
 
 
@@ -499,11 +581,12 @@ class InternacionCatalogo(ModeloBase):
         ]
 
     def __str__(self):
-        return f"{self.internacion} - " f"{self.catalogo.descripcion}"
+        return f"{self.internacion} - {self.catalogo.descripcion}"
 
 
 # ==========================================================
 # MUESTRAS MICROBIOLÓGICAS
+# (se mantiene igual, no se toca)
 # ==========================================================
 
 
@@ -587,11 +670,12 @@ class MuestraMicrobiologica(ModeloBase):
         ]
 
     def __str__(self):
-        return f"{self.fecha_toma:%d/%m/%Y} - " f"{self.tipo_muestra.descripcion}"
+        return f"{self.fecha_toma:%d/%m/%Y} - {self.tipo_muestra.descripcion}"
 
 
 # ==========================================================
 # AISLAMIENTOS MICROBIOLÓGICOS
+# (se mantiene igual, no se toca)
 # ==========================================================
 
 
@@ -629,6 +713,7 @@ class AislamientoMicrobiologico(ModeloBase):
 
 # ==========================================================
 # SENSIBILIDAD MICROBIOLÓGICA
+# (se mantiene igual, no se toca)
 # ==========================================================
 
 
@@ -669,5 +754,3 @@ class SensibilidadMicrobiologica(ModeloBase):
 
     def __str__(self):
         return f"{self.antibiotico.descripcion} ({self.resultado})"
-
-

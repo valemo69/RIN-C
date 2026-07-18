@@ -9,83 +9,54 @@ urlpatterns = [
     # ==========================================================
     # PACIENTES
     # ==========================================================
-
-    path(
-        "nuevo/",
-        views.paciente_nuevo,
-        name="paciente_nuevo",
-    ),
-
-    path(
-        "<int:pk>/",
-        views.paciente_ver,
-        name="paciente_ver",
-    ),
-
-    path(
-        "<int:pk>/editar/",
-        views.paciente_editar,
-        name="paciente_editar",
-    ),
+    path("nuevo/", views.paciente_nuevo, name="paciente_nuevo"),
+    path("<int:pk>/", views.paciente_ver, name="paciente_ver"),
+    path("<int:pk>/editar/", views.paciente_editar, name="paciente_editar"),
 
     # ==========================================================
     # INTERNACIÓN
     # ==========================================================
-
     path(
         "<int:paciente_pk>/internaciones/",
         views.internaciones_paciente,
         name="internaciones_paciente",
     ),
-
     path(
         "<int:paciente_pk>/internaciones/nueva/",
         views.internacion_nueva,
         name="internacion_nueva",
     ),
-
     path(
         "internaciones/<int:pk>/",
         views.internacion_detalle,
         name="internacion_detalle",
     ),
-
-    path(
-        "internaciones/<int:internacion_pk>/recorrido/agregar/",
-        views.recorrido_agregar,
-        name="recorrido_agregar",
-    ),
-
+    # La URL de recorrido_agregar fue eliminada porque el modelo ya no existe
     path(
         "internaciones/<int:pk>/comorbilidades/",
         views.comorbilidades_view,
         name="comorbilidades",
     ),
-
     path(
         "internaciones/<int:pk>/microbiologia/",
         views.microbiologia_view,
         name="microbiologia",
     ),
-
     path(
         "microbiologia/muestras/<int:muestra_pk>/aislamientos/agregar/",
         views.aislamiento_agregar,
         name="aislamiento_agregar",
     ),
-
     path(
         "microbiologia/aislamientos/<int:aislamiento_pk>/sensibilidades/agregar/",
         views.sensibilidad_agregar,
         name="sensibilidad_agregar",
     ),
-
     path(
         "estudios_procedimientos/",
         views.estudios_procedimientos_view,
         name="estudios_procedimientos",
     ),
-
     path(
         "internaciones/<int:pk>/tratamiento/",
         views.tratamiento_view,

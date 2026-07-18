@@ -5,9 +5,7 @@ from .models import (
     Catalogo,
     Paciente,
     Internacion,
-    RecorridoInternacion,
     InternacionCatalogo,
-    InternacionSoporteRespiratorio,
     InternacionTratamientoAntimicrobiano,
     MuestraMicrobiologica,
     AislamientoMicrobiologico,
@@ -18,41 +16,26 @@ from .models import (
 # INLINES
 # ==========================================================
 
-
-class RecorridoInternacionInline(admin.TabularInline):
-    model = RecorridoInternacion
-    extra = 0
-
-
 class InternacionCatalogoInline(admin.TabularInline):
     model = InternacionCatalogo
     extra = 0
-
-
-class InternacionSoporteRespiratorioInline(admin.TabularInline):
-    model = InternacionSoporteRespiratorio
-    extra = 0
-
 
 class InternacionTratamientoAntimicrobianoInline(admin.TabularInline):
     model = InternacionTratamientoAntimicrobiano
     extra = 0
 
-
 class MuestraMicrobiologicaInline(admin.TabularInline):
     model = MuestraMicrobiologica
     extra = 0
-
 
 class AislamientoMicrobiologicoInline(admin.TabularInline):
     model = AislamientoMicrobiologico
     extra = 0
 
-
 class SensibilidadMicrobiologicaInline(admin.TabularInline):
     model = SensibilidadMicrobiologica
     extra = 0
-    
+
 # ==========================================================
 # TIPOS DE CATÁLOGOS
 # ==========================================================
@@ -61,12 +44,12 @@ class SensibilidadMicrobiologicaInline(admin.TabularInline):
 class TipoCatalogoAdmin(admin.ModelAdmin):
 
     list_display = (
-    "codigo",
-    "nombre",
-    "protegido",
-    "orden",
-    "activo",
-)
+        "codigo",
+        "nombre",
+        "protegido",
+        "orden",
+        "activo",
+    )
 
     search_fields = (
         "codigo",
@@ -74,14 +57,14 @@ class TipoCatalogoAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
-    "protegido",
-    "activo",
-)
+        "protegido",
+        "activo",
+    )
 
     ordering = (
-    "orden",
-    "nombre",
-)
+        "orden",
+        "nombre",
+    )
 
 
 # ==========================================================
@@ -127,7 +110,8 @@ class CatalogoAdmin(admin.ModelAdmin):
     list_select_related = (
         "tipo",
     )
-    
+
+
 # ==========================================================
 # PACIENTES
 # ==========================================================
@@ -191,8 +175,9 @@ class PacienteAdmin(admin.ModelAdmin):
 
     inlines = [
         InternacionInline,
-    ] 
-    
+    ]
+
+
 # ==========================================================
 # INTERNACIONES
 # ==========================================================
@@ -240,9 +225,7 @@ class InternacionAdmin(admin.ModelAdmin):
     )
 
     inlines = [
-        RecorridoInternacionInline,
         InternacionCatalogoInline,
-        InternacionSoporteRespiratorioInline,
         InternacionTratamientoAntimicrobianoInline,
         MuestraMicrobiologicaInline,
     ]
@@ -266,15 +249,9 @@ class InternacionAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        (
-            "Observaciones",
-            {
-                "fields": (
-                    "observaciones",
-                )
-            },
-        ),
-    )   
+        # El campo observaciones ya no existe, lo eliminamos
+    )
+
 
 # ==========================================================
 # MICROBIOLOGÍA
@@ -373,31 +350,6 @@ class SensibilidadMicrobiologicaAdmin(admin.ModelAdmin):
     list_select_related = (
         "aislamiento",
         "antibiotico",
-    )
-
-
-# ==========================================================
-# SOPORTES RESPIRATORIOS
-# ==========================================================
-
-@admin.register(InternacionSoporteRespiratorio)
-class InternacionSoporteRespiratorioAdmin(admin.ModelAdmin):
-
-    list_display = (
-        "internacion",
-        "soporte",
-        "fecha_desde",
-        "fecha_hasta",
-    )
-
-    autocomplete_fields = (
-        "internacion",
-        "soporte",
-    )
-
-    list_select_related = (
-        "internacion",
-        "soporte",
     )
 
 
