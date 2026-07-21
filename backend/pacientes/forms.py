@@ -232,6 +232,8 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
             "anos_fumando",
             "indice_paquetes_anio",
             "exposicion_pasiva",
+            "otros_habitos",
+            "exposiciones_laborales",
         )
         widgets = {
             "fecha_ingreso": forms.DateInput(attrs={"type": "date"}),
@@ -241,7 +243,6 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
             "anos_fumando": forms.NumberInput(),
             "indice_paquetes_anio": forms.NumberInput(attrs={"readonly": True}),
         }
-        
     
 
     def __init__(self, *args, **kwargs):
