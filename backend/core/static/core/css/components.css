@@ -123,30 +123,33 @@
    CABECERA DEL PACIENTE
    ========================================================== */
 
-.rinc-patient-header h4{
-    margin-bottom:.75rem;
-    font-size:1.35rem;
-    font-weight:600;
-    color:var(--color-text);
+.rinc-patient-header {
+    background: linear-gradient(135deg, #0b1a33 0%, #1a3c6e 100%) !important;
+    border-left: 4px solid #2563eb !important;
+    border-radius: var(--radius-md) !important;
 }
 
-.rinc-patient-header strong{
-    display:block;
-    margin-bottom:.20rem;
-    font-size:.82rem;
-    font-weight:600;
-    color:#9fc4ff;
-    text-transform:uppercase;
-    letter-spacing:.04em;
+.rinc-patient-header .rinc-card-body {
+    padding: 1.5rem !important;
 }
 
-.rinc-patient-header .row > div{
-    margin-bottom:.75rem;
+.rinc-patient-header h4 {
+    color: #ffffff !important;
+    font-weight: 600 !important;
 }
 
-.rinc-patient-header .btn{
-    min-width:180px;
+.rinc-patient-header strong {
+    color: #9fc4ff !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.04em !important;
 }
+
+.rinc-patient-header .row > div {
+    color: #e2e8f0 !important;
+}
+
 
 /* ==========================================================
    TARJETAS DE MÓDULOS

@@ -17,6 +17,7 @@ from .models import (
 # BÚSQUEDA DE PACIENTES
 # ==========================================================
 
+
 class BusquedaPacienteForm(BootstrapFormMixin, forms.Form):
 
     numero_documento = forms.CharField(
@@ -46,20 +47,20 @@ class BusquedaPacienteForm(BootstrapFormMixin, forms.Form):
         if numero_documento:
             if not numero_documento.isdigit():
                 self.add_error(
-                    "numero_documento",
-                    "El documento debe contener únicamente números."
+                    "numero_documento", "El documento debe contener únicamente números."
                 )
             elif len(numero_documento) not in (7, 8):
                 self.add_error(
-                    "numero_documento",
-                    "El documento debe tener 7 u 8 dígitos."
+                    "numero_documento", "El documento debe tener 7 u 8 dígitos."
                 )
 
         return cleaned_data
 
+
 # ==========================================================
 # PACIENTES
 # ==========================================================
+
 
 class PacienteForm(BootstrapFormMixin, forms.ModelForm):
 
@@ -111,9 +112,11 @@ class PacienteForm(BootstrapFormMixin, forms.ModelForm):
             tipo__codigo="COBERTURA"
         ).order_by("descripcion")
 
+
 # ==========================================================
 # INTERNACIÓN
 # ==========================================================
+
 
 class InternacionForm(BootstrapFormMixin, forms.ModelForm):
     # Motivos (ForeignKey -> select)
@@ -121,78 +124,90 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
         queryset=Catalogo.objects.filter(tipo__codigo="MOTIVO_INFECCIOSO", activo=True),
         required=False,
         empty_label="Sin motivo infeccioso",
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     motivo_obstructivo = forms.ModelChoiceField(
-        queryset=Catalogo.objects.filter(tipo__codigo="MOTIVO_OBSTRUCTIVO", activo=True),
+        queryset=Catalogo.objects.filter(
+            tipo__codigo="MOTIVO_OBSTRUCTIVO", activo=True
+        ),
         required=False,
         empty_label="Sin motivo obstructivo",
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     motivo_intersticial = forms.ModelChoiceField(
-        queryset=Catalogo.objects.filter(tipo__codigo="MOTIVO_INTERSTICIAL", activo=True),
+        queryset=Catalogo.objects.filter(
+            tipo__codigo="MOTIVO_INTERSTICIAL", activo=True
+        ),
         required=False,
         empty_label="Sin motivo intersticial",
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     motivo_pleural = forms.ModelChoiceField(
         queryset=Catalogo.objects.filter(tipo__codigo="MOTIVO_PLEURAL", activo=True),
         required=False,
         empty_label="Sin patología pleural",
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     motivo_vascular = forms.ModelChoiceField(
         queryset=Catalogo.objects.filter(tipo__codigo="MOTIVO_VASCULAR", activo=True),
         required=False,
         empty_label="Sin patología vascular",
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     motivo_oncologico = forms.ModelChoiceField(
         queryset=Catalogo.objects.filter(tipo__codigo="MOTIVO_ONCOLOGICO", activo=True),
         required=False,
         empty_label="Sin patología oncológica",
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     motivo_otro = forms.ModelChoiceField(
         queryset=Catalogo.objects.filter(tipo__codigo="MOTIVO_OTRO", activo=True),
         required=False,
         empty_label="Sin otros motivos",
-        widget=forms.Select(attrs={'class': 'form-select'}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
 
     # Antecedentes (ManyToMany -> checkboxes)
     antecedentes_respiratorios = forms.ModelMultipleChoiceField(
-        queryset=Catalogo.objects.filter(tipo__codigo="ANTECEDENTE_RESPIRATORIO", activo=True),
+        queryset=Catalogo.objects.filter(
+            tipo__codigo="ANTECEDENTE_RESPIRATORIO", activo=True
+        ),
         required=False,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
     )
 
     # Soporte respiratorio (ManyToMany -> checkboxes)
     soporte_respiratorio = forms.ModelMultipleChoiceField(
-        queryset=Catalogo.objects.filter(tipo__codigo="SOPORTE_RESPIRATORIO", activo=True),
+        queryset=Catalogo.objects.filter(
+            tipo__codigo="SOPORTE_RESPIRATORIO", activo=True
+        ),
         required=False,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
     )
 
     # Exposición pasiva (ManyToMany -> checkboxes)
     exposicion_pasiva = forms.ModelMultipleChoiceField(
         queryset=Catalogo.objects.filter(tipo__codigo="EXPOSICION_PASIVA", activo=True),
         required=False,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
     )
 
     # Otros hábitos (ManyToMany -> checkboxes)
     otros_habitos = forms.ModelMultipleChoiceField(
-        queryset=Catalogo.objects.filter(tipo__codigo="HABITO_INHALATORIO", activo=True),
+        queryset=Catalogo.objects.filter(
+            tipo__codigo="HABITO_INHALATORIO", activo=True
+        ),
         required=False,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
     )
 
     # Exposiciones laborales (ManyToMany -> checkboxes)
     exposiciones_laborales = forms.ModelMultipleChoiceField(
-        queryset=Catalogo.objects.filter(tipo__codigo="EXPOSICION_LABORAL", activo=True),
+        queryset=Catalogo.objects.filter(
+            tipo__codigo="EXPOSICION_LABORAL", activo=True
+        ),
         required=False,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
     )
 
     class Meta:
@@ -213,19 +228,38 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
             "antecedentes_respiratorios",
             "soporte_respiratorio",
             "tabaquismo",
+            "cigarrillos_por_dia",
+            "anos_fumando",
+            "indice_paquetes_anio",
             "exposicion_pasiva",
-            "otros_habitos",
-            "exposiciones_laborales",
         )
         widgets = {
             "fecha_ingreso": forms.DateInput(attrs={"type": "date"}),
             "fecha_egreso": forms.DateInput(attrs={"type": "date"}),
-            "tabaquismo": forms.RadioSelect(attrs={'class': 'form-check-input'}),
+            "tabaquismo": forms.RadioSelect(attrs={"class": "form-check-input"}),
+            "cigarrillos_por_dia": forms.NumberInput(),
+            "anos_fumando": forms.NumberInput(),
+            "indice_paquetes_anio": forms.NumberInput(attrs={"readonly": True}),
         }
+        
+    
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # 1. Quitar la opción nula '---------' inyectada por el mixin/Django
+        if "tabaquismo" in self.fields:
+            self.fields["tabaquismo"].empty_label = None
+            
+            # 2. Asegurar que las opciones de radio usen la clase 'form-check-input' 
+            # y no la clase 'form-control' que inyecta el BootstrapFormMixin
+            self.fields["tabaquismo"].widget.attrs["class"] = "form-check-input"
+
 
 # ==========================================================
 # COMORBILIDADES E INMUNIZACIONES
 # ==========================================================
+
 
 class ComorbilidadesForm(BootstrapFormMixin, forms.Form):
     comorbilidades = forms.ModelMultipleChoiceField(
@@ -240,18 +274,22 @@ class ComorbilidadesForm(BootstrapFormMixin, forms.Form):
         widget=forms.CheckboxSelectMultiple,
     )
 
+
 # ==========================================================
 # ELEMENTOS DE LA INTERNACIÓN
 # ==========================================================
+
 
 class InternacionCatalogoForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = InternacionCatalogo
         fields = ("internacion", "catalogo")
 
+
 # ==========================================================
 # TRATAMIENTOS ANTIMICROBIANOS
 # ==========================================================
+
 
 class InternacionTratamientoAntimicrobianoForm(BootstrapFormMixin, forms.ModelForm):
 
@@ -279,15 +317,16 @@ class InternacionTratamientoAntimicrobianoForm(BootstrapFormMixin, forms.ModelFo
 
         if desde and hasta and hasta < desde:
             self.add_error(
-                "fecha_hasta",
-                "La fecha hasta no puede ser anterior a la fecha desde."
+                "fecha_hasta", "La fecha hasta no puede ser anterior a la fecha desde."
             )
 
         return cleaned_data
 
+
 # ==========================================================
 # MUESTRAS MICROBIOLÓGICAS
 # ==========================================================
+
 
 class MuestraMicrobiologicaForm(BootstrapFormMixin, forms.ModelForm):
 
@@ -309,18 +348,22 @@ class MuestraMicrobiologicaForm(BootstrapFormMixin, forms.ModelForm):
         self.fields["mtb_detectado"].required = False
         self.fields["resistencia_rifampicina"].required = False
 
+
 # ==========================================================
 # AISLAMIENTOS
 # ==========================================================
+
 
 class AislamientoMicrobiologicoForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = AislamientoMicrobiologico
         fields = ("germen", "significativo")
 
+
 # ==========================================================
 # SENSIBILIDAD
 # ==========================================================
+
 
 class SensibilidadMicrobiologicaForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:

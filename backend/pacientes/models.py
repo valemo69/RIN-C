@@ -354,8 +354,50 @@ class Internacion(ModeloBase):
         verbose_name="Otro motivo",
     )
 
+  
+    
+
     # =====================================================
-    # ANTECEDENTES RESPIRATORIOS (MÚLTIPLES - MANYTOMANY)
+    # EXPOSICIÓN INHALATORIA
+    # =====================================================
+    tabaquismo = models.CharField(
+        max_length=20,
+        choices=[
+            ("NUNCA", "Nunca fumó"),
+            ("ACTIVO", "Fumador activo"),
+            ("EXFUMADOR", "Exfumador"),
+        ],
+        blank=True,
+        verbose_name="Tabaquismo",
+    )
+
+    exposicion_pasiva = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "EXPOSICION_PASIVA", "activo": True},
+        blank=True,
+        verbose_name="Exposición pasiva al humo de tabaco",
+    )
+
+    otros_habitos = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "HABITO_INHALATORIO", "activo": True},
+        blank=True,
+        verbose_name="Otros hábitos inhalatorios",
+    )
+
+    exposiciones_laborales = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "EXPOSICION_LABORAL", "activo": True},
+        blank=True,
+        verbose_name="Exposiciones laborales y ambientales",
+    )
+
+
+    # =====================================================
+    # ANTECEDENTES RESPIRATORIOS
     # =====================================================
     antecedentes_respiratorios = models.ManyToManyField(
         Catalogo,
@@ -366,7 +408,7 @@ class Internacion(ModeloBase):
     )
 
     # =====================================================
-    # SOPORTE RESPIRATORIO (MÚLTIPLES - MANYTOMANY)
+    # SOPORTE RESPIRATORIO
     # =====================================================
     soporte_respiratorio = models.ManyToManyField(
         Catalogo,
@@ -376,42 +418,24 @@ class Internacion(ModeloBase):
         verbose_name="Soporte respiratorio",
     )
 
-    # =====================================================
-    # EXPOSICIÓN INHALATORIA
-    # =====================================================
-    tabaquismo = models.CharField(
-        max_length=20,
-        choices=[
-            ("NUNCA", "Nunca fumó"),
-            ("ACTIVO", "Fumador activo"),
-            ("EXFUMADOR", "Exfumador"),
-        ],
+    cigarrillos_por_dia = models.PositiveSmallIntegerField(
+        null=True,
         blank=True,
-        verbose_name="Tabaquismo",
+        verbose_name="Cigarrillos por día",
     )
 
-    exposicion_pasiva = models.ManyToManyField(
-        Catalogo,
-        related_name='+',
-        limit_choices_to={"tipo__codigo": "EXPOSICION_PASIVA", "activo": True},
+    anos_fumando = models.PositiveSmallIntegerField(
+        null=True,
         blank=True,
-        verbose_name="Exposición pasiva al humo de tabaco",
+        verbose_name="Años fumando",
     )
 
-    otros_habitos = models.ManyToManyField(
-        Catalogo,
-        related_name='+',
-        limit_choices_to={"tipo__codigo": "HABITO_INHALATORIO", "activo": True},
+    indice_paquetes_anio = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
         blank=True,
-        verbose_name="Otros hábitos inhalatorios",
-    )
-
-    exposiciones_laborales = models.ManyToManyField(
-        Catalogo,
-        related_name='+',
-        limit_choices_to={"tipo__codigo": "EXPOSICION_LABORAL", "activo": True},
-        blank=True,
-        verbose_name="Exposiciones laborales y ambientales",
+        verbose_name="Índice paquetes-año",
     )
 
     class Meta:
@@ -422,62 +446,8 @@ class Internacion(ModeloBase):
     def __str__(self):
         return f"{self.paciente} - {self.fecha_ingreso:%d/%m/%Y}"
 
-    # =====================================================
-    # SOPORTE RESPIRATORIO (MÚLTIPLES - MANYTOMANY)
-    # =====================================================
-    soporte_respiratorio = models.ManyToManyField(
-        Catalogo,
-        related_name='+',
-        limit_choices_to={"tipo__codigo": "SOPORTE_RESPIRATORIO", "activo": True},
-        blank=True,
-        verbose_name="Soporte respiratorio",
-    )
 
-    # =====================================================
-    # EXPOSICIÓN INHALATORIA
-    # =====================================================
-    tabaquismo = models.CharField(
-        max_length=20,
-        choices=[
-            ("NUNCA", "Nunca fumó"),
-            ("ACTIVO", "Fumador activo"),
-            ("EXFUMADOR", "Exfumador"),
-        ],
-        blank=True,
-        verbose_name="Tabaquismo",
-    )
-
-    exposicion_pasiva = models.ManyToManyField(
-        Catalogo,
-        related_name='+',
-        limit_choices_to={"tipo__codigo": "EXPOSICION_PASIVA", "activo": True},
-        blank=True,
-        verbose_name="Exposición pasiva al humo de tabaco",
-    )
-
-    otros_habitos = models.ManyToManyField(
-        Catalogo,
-        related_name='+',
-        limit_choices_to={"tipo__codigo": "HABITO_INHALATORIO", "activo": True},
-        blank=True,
-        verbose_name="Otros hábitos inhalatorios",
-    )
-
-    exposiciones_laborales = models.ManyToManyField(
-        Catalogo,
-        related_name='+',
-        limit_choices_to={"tipo__codigo": "EXPOSICION_LABORAL", "activo": True},
-        blank=True,
-        verbose_name="Exposiciones laborales y ambientales",
-    )
-
-    class Meta:
-        verbose_name = "Internación"
-        verbose_name_plural = "Internaciones"
-        ordering = ["-fecha_ingreso", "paciente"]
-
-    def __str__(self):
-        return f"{self.paciente} - {self.fecha_ingreso:%d/%m/%Y}"
+   
 # ==========================================================
 # TRATAMIENTO ANTIMICROBIANO
 # ==========================================================

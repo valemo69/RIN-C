@@ -5,9 +5,6 @@
 RIN-C | Internación
 {% endblock %}
 
-{% block css %}
-<link rel="stylesheet" href="{% static 'pacientes/css/internacion.css' %}">
-{% endblock %}
 
 {% block content %}
 
@@ -17,7 +14,8 @@ RIN-C | Internación
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'pacientes:inicio' %}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'pacientes:internaciones_paciente' paciente.id %}">Internaciones</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'pacientes:internaciones_paciente' paciente.id %}">Internaciones</a></li>
             <li class="breadcrumb-item active" aria-current="page">
                 {% if es_nueva %}Nueva internación{% else %}{{ internacion }}{% endif %}
             </li>
@@ -31,7 +29,8 @@ RIN-C | Internación
             <div class="row">
                 <div class="col-md-3"><strong>DNI</strong> {{ paciente.numero_documento }}</div>
                 <div class="col-md-3"><strong>Sexo</strong> {{ paciente.sexo }}</div>
-                <div class="col-md-3"><strong>Fecha de nacimiento</strong> {{ paciente.fecha_nacimiento|date:"d/m/Y" }}</div>
+                <div class="col-md-3"><strong>Fecha de nacimiento</strong> {{ paciente.fecha_nacimiento|date:"d/m/Y" }}
+                </div>
                 <div class="col-md-3"><strong>Edad</strong> {{ paciente.edad }}</div>
             </div>
         </div>
@@ -47,7 +46,9 @@ RIN-C | Internación
         <!-- DATOS DE INTERNACIÓN                                        -->
         <!-- ========================================================== -->
         <div class="card rinc-card">
-            <div class="card-header rinc-card-header"><h5>Datos de la internación</h5></div>
+            <div class="card-header rinc-card-header">
+                <h5>Datos de la internación</h5>
+            </div>
             <div class="card-body rinc-card-body">
                 <div class="row g-4">
                     <div class="col-lg-3">
@@ -78,7 +79,9 @@ RIN-C | Internación
         <!-- MOTIVOS PRINCIPALES DE INTERNACIÓN                          -->
         <!-- ========================================================== -->
         <div class="card rinc-card">
-            <div class="card-header rinc-card-header"><h5>Motivos principales de internación</h5></div>
+            <div class="card-header rinc-card-header">
+                <h5>Motivos principales de internación</h5>
+            </div>
             <div class="card-body rinc-card-body">
                 <div class="row g-4">
                     <div class="col-lg-6">
@@ -86,9 +89,11 @@ RIN-C | Internación
                         <select name="motivo_infeccioso" id="id_motivo_infeccioso" class="form-select">
                             <option value="">Sin motivo infeccioso</option>
                             {% for cat in motivos_infecciosos %}
+
                             <option value="{{ cat.id }}" {% if internacion and internacion.motivo_infeccioso_id == cat.id %}selected{% endif %}>
                                 {{ cat.descripcion }}
                             </option>
+
                             {% endfor %}
                         </select>
                     </div>
@@ -97,9 +102,11 @@ RIN-C | Internación
                         <select name="motivo_obstructivo" id="id_motivo_obstructivo" class="form-select">
                             <option value="">Sin motivo obstructivo</option>
                             {% for cat in motivos_obstructivos %}
+
                             <option value="{{ cat.id }}" {% if internacion and internacion.motivo_obstructivo_id == cat.id %}selected{% endif %}>
                                 {{ cat.descripcion }}
                             </option>
+
                             {% endfor %}
                         </select>
                     </div>
@@ -107,11 +114,13 @@ RIN-C | Internación
                         <label for="id_motivo_intersticial" class="form-label">Intersticiales</label>
                         <select name="motivo_intersticial" id="id_motivo_intersticial" class="form-select">
                             <option value="">Sin motivo intersticial</option>
+
                             {% for cat in motivos_intersticiales %}
-                            <option value="{{ cat.id }}" {% if internacion and internacion.motivo_intersticial_id == cat.id %}selected{% endif %}>
+                            <option value="{{ cat.id }}">
                                 {{ cat.descripcion }}
                             </option>
                             {% endfor %}
+
                         </select>
                     </div>
                     <div class="col-lg-6">
@@ -119,9 +128,11 @@ RIN-C | Internación
                         <select name="motivo_pleural" id="id_motivo_pleural" class="form-select">
                             <option value="">Sin patología pleural</option>
                             {% for cat in motivos_pleurales %}
+
                             <option value="{{ cat.id }}" {% if internacion and internacion.motivo_pleural_id == cat.id %}selected{% endif %}>
                                 {{ cat.descripcion }}
                             </option>
+
                             {% endfor %}
                         </select>
                     </div>
@@ -130,9 +141,11 @@ RIN-C | Internación
                         <select name="motivo_vascular" id="id_motivo_vascular" class="form-select">
                             <option value="">Sin patología vascular</option>
                             {% for cat in motivos_vasculares %}
+
                             <option value="{{ cat.id }}" {% if internacion and internacion.motivo_vascular_id == cat.id %}selected{% endif %}>
                                 {{ cat.descripcion }}
                             </option>
+
                             {% endfor %}
                         </select>
                     </div>
@@ -141,9 +154,11 @@ RIN-C | Internación
                         <select name="motivo_oncologico" id="id_motivo_oncologico" class="form-select">
                             <option value="">Sin patología oncológica</option>
                             {% for cat in motivos_oncologicos %}
+
                             <option value="{{ cat.id }}" {% if internacion and internacion.motivo_oncologico_id == cat.id %}selected{% endif %}>
                                 {{ cat.descripcion }}
                             </option>
+
                             {% endfor %}
                         </select>
                     </div>
@@ -152,9 +167,11 @@ RIN-C | Internación
                         <select name="motivo_otro" id="id_motivo_otro" class="form-select">
                             <option value="">Sin otros motivos</option>
                             {% for cat in motivos_otros %}
+
                             <option value="{{ cat.id }}" {% if internacion and internacion.motivo_otro_id == cat.id %}selected{% endif %}>
                                 {{ cat.descripcion }}
                             </option>
+
                             {% endfor %}
                         </select>
                     </div>
@@ -166,127 +183,148 @@ RIN-C | Internación
         <!-- INSUFICIENCIA RESPIRATORIA                                  -->
         <!-- ========================================================== -->
         <div class="card rinc-card">
-            <div class="card-header rinc-card-header"><h5>Insuficiencia respiratoria</h5></div>
+            <div class="card-header rinc-card-header">
+                <h5>Insuficiencia respiratoria</h5>
+            </div>
             <div class="card-body rinc-card-body">
-                <label for="{{ form.insuficiencia_respiratoria.id_for_label }}" class="form-label">Tipo de insuficiencia respiratoria</label>
+                <label for="{{ form.insuficiencia_respiratoria.id_for_label }}" class="form-label">Tipo de insuficiencia
+                    respiratoria</label>
                 {{ form.insuficiencia_respiratoria }}
                 {{ form.insuficiencia_respiratoria.errors }}
             </div>
         </div>
 
-        <!-- ========================================================== -->
-        <!-- EXPOSICIÓN INHALATORIA + ANTECEDENTES                       -->
-        <!-- ========================================================== -->
-        <div class="row">
-            <!-- EXPOSICIÓN INHALATORIA -->
-            <div class="col-lg-6 mb-4">
-                <div class="card rinc-card h-100">
-                    <div class="card-header rinc-card-header"><h5>Exposición inhalatoria</h5></div>
-                    <div class="card-body rinc-card-body">
-                        
-                        <h6>Tabaquismo</h6>
-                        <div class="mb-3">
-                            {% for value, label in form.fields.tabaquismo.choices %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tabaquismo" id="id_tabaquismo_{{ forloop.counter }}" value="{{ value }}" {% if internacion and internacion.tabaquismo == value %}checked{% endif %}>
-                                <label class="form-check-label" for="id_tabaquismo_{{ forloop.counter }}">
-                                    {{ label }}
+       <!-- ========================================================== -->
+        <!-- EXPOSICIÓN INHALATORIA                                     -->
+    <!-- ========================================================== -->
+
+<!-- EXPOSICIÓN INHALATORIA -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Exposición inhalatoria</h5>
+    </div>
+    <div class="card-body">
+        
+        <!-- TABAQUISMO -->
+        <h6 class="text-primary fw-bold mb-3">TABAQUISMO</h6>
+        
+        <div class="row g-3 mb-4 align-items-center">
+            <div class="col-lg-6">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                    {% for radio in form.tabaquismo %}
+                        {% if radio.choice_label != '---------' and radio.choice_label != '' %}
+                            <div class="form-check form-check-inline me-2 mb-0">
+                                {{ radio.tag }}
+                                <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">
+                                    {{ radio.choice_label }}
                                 </label>
                             </div>
-                            {% endfor %}
-                            {{ form.tabaquismo.errors }}
-                        </div>
-
-                        <hr>
-                        <h6>Exposición pasiva al humo de tabaco</h6>
-                        <div class="mb-3">
-                            {% for cat in motivos_exposicion_pasiva %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="exposicion_pasiva" id="id_exposicion_pasiva_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in exposicion_pasiva_ids %}checked{% endif %}>
-                                <label class="form-check-label" for="id_exposicion_pasiva_{{ cat.id }}">
-                                    {{ cat.descripcion }}
-                                </label>
-                            </div>
-                            {% endfor %}
-                            {{ form.exposicion_pasiva.errors }}
-                        </div>
-
-                        <hr>
-                        <h6>Otros hábitos inhalatorios</h6>
-                        <div class="mb-3">
-                            {% for cat in motivos_otros_habitos %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="otros_habitos" id="id_otros_habitos_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in otros_habitos_ids %}checked{% endif %}>
-                                <label class="form-check-label" for="id_otros_habitos_{{ cat.id }}">
-                                    {{ cat.descripcion }}
-                                </label>
-                            </div>
-                            {% endfor %}
-                            {{ form.otros_habitos.errors }}
-                        </div>
-
-                        <hr>
-                        <h6>Exposiciones laborales / ambientales</h6>
-                        <div class="row">
-                            {% for cat in motivos_exposiciones_laborales %}
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="exposiciones_laborales" id="id_exposiciones_laborales_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in exposiciones_laborales_ids %}checked{% endif %}>
-                                    <label class="form-check-label" for="id_exposiciones_laborales_{{ cat.id }}">
-                                        {{ cat.descripcion }}
-                                    </label>
-                                </div>
-                            </div>
-                            {% endfor %}
-                            {{ form.exposiciones_laborales.errors }}
-                        </div>
-
-                    </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
+            
+            <div class="col-lg-2 col-md-3 col-4">
+                <label for="{{ form.cigarrillos_por_dia.id_for_label }}" class="form-label fw-bold">CIG/DÍA</label>
+                {{ form.cigarrillos_por_dia }}
+            </div>
+            
+            <div class="col-lg-2 col-md-3 col-4">
+                <label for="{{ form.anos_fumando.id_for_label }}" class="form-label fw-bold">AÑOS</label>
+                {{ form.anos_fumando }}
+            </div>
+            
+            <div class="col-lg-2 col-md-3 col-4">
+                <label for="{{ form.indice_paquetes_anio.id_for_label }}" class="form-label fw-bold">PACK-YEAR</label>
+                {{ form.indice_paquetes_anio }}
+            </div>
+        </div>
 
-            <!-- ANTECEDENTES RESPIRATORIOS -->
-            <div class="col-lg-6 mb-4">
-                <div class="card rinc-card h-100">
-                    <div class="card-header rinc-card-header"><h5>Antecedentes respiratorios</h5></div>
-                    <div class="card-body rinc-card-body">
-                        <div class="row">
-                            {% for cat in motivos_antecedentes %}
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="antecedentes_respiratorios" id="id_antecedentes_respiratorios_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in antecedentes_ids %}checked{% endif %}>
-                                    <label class="form-check-label" for="id_antecedentes_respiratorios_{{ cat.id }}">
-                                        {{ cat.descripcion }}
-                                    </label>
-                                </div>
-                            </div>
-                            {% endfor %}
-                            {{ form.antecedentes_respiratorios.errors }}
-                        </div>
+        <hr class="my-4">
+
+        <!-- OTRAS EXPOSICIONES INHALATORIAS -->
+        <h6 class="text-primary fw-bold mb-3">OTRAS EXPOSICIONES INHALATORIAS</h6>
+        <div class="row g-3 mb-4">
+            {% for cat in motivos_otros_habitos %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="otros_habitos" value="{{ cat.id }}" id="habito_{{ cat.id }}"
+                            {% if cat.id in otros_habitos_ids %}checked{% endif %}>
+                        <label class="form-check-label" for="habito_{{ cat.id }}">
+                            {{ cat.descripcion }}
+                        </label>
                     </div>
                 </div>
+            {% empty %}
+                <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
+            {% endfor %}
+        </div>
+
+        <hr class="my-4">
+
+        <!-- EXPOSICIONES LABORALES Y AMBIENTALES -->
+        <h6 class="text-primary fw-bold mb-3">EXPOSICIONES LABORALES Y AMBIENTALES</h6>
+        <div class="row g-3">
+            {% for cat in motivos_exposiciones_laborales %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="exposiciones_laborales" value="{{ cat.id }}" id="laboral_{{ cat.id }}"
+                            {% if cat.id in exposiciones_laborales_ids %}checked{% endif %}>
+                        <label class="form-check-label" for="laboral_{{ cat.id }}">
+                            {{ cat.descripcion }}
+                        </label>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+        <!-- ========================================================== -->
+        <!-- ANTECEDENTES RESPIRATORIOS                                 -->
+        <!-- ========================================================== -->
+        <div class="card rinc-card mb-4">
+            <div class="card-header rinc-card-header">
+                <h5>Antecedentes respiratorios</h5>
+            </div>
+
+            <div class="card-body rinc-card-body">
+
+                <div class="row">
+
+                    <div class="col-md-4">
+                        {{ form.antecedentes_respiratorios }}
+                    </div>
+
+                </div>
+
             </div>
         </div>
 
         <!-- ========================================================== -->
-        <!-- SOPORTE RESPIRATORIO                                        -->
+        <!-- SOPORTE RESPIRATORIO                                       -->
         <!-- ========================================================== -->
         <div class="card rinc-card mb-4">
-            <div class="card-header rinc-card-header"><h5>Soporte respiratorio</h5></div>
+            <div class="card-header rinc-card-header">
+                <h5>Soporte respiratorio</h5>
+            </div>
+
             <div class="card-body rinc-card-body">
+
                 <div class="row">
-                    {% for cat in motivos_soporte %}
-                    <div class="col-md-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="soporte_respiratorio" id="id_soporte_respiratorio_{{ cat.id }}" value="{{ cat.id }}" {% if cat.id in soporte_ids %}checked{% endif %}>
-                            <label class="form-check-label" for="id_soporte_respiratorio_{{ cat.id }}">
-                                {{ cat.descripcion }}
-                            </label>
+
+                    <div class="col-12">
+
+                        <div class="mb-3">
+                            {{ form.soporte_respiratorio }}
                         </div>
+
                     </div>
-                    {% endfor %}
-                    {{ form.soporte_respiratorio.errors }}
+
                 </div>
+
             </div>
         </div>
 
@@ -308,56 +346,68 @@ RIN-C | Internación
     <div class="row">
         <div class="col-lg-3 mb-4">
             <div class="card rinc-card rinc-module-card">
-                <div class="card-header rinc-card-header"><h5>Comorbilidades</h5></div>
+                <div class="card-header rinc-card-header">
+                    <h5>Comorbilidades</h5>
+                </div>
                 <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
                     <h6 class="mb-4">Guardá la internación primero</h6>
                     <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
                     <h6 class="mb-4">Cargar comorbilidades e inmunizaciones</h6>
-                    <a href="{% url 'pacientes:comorbilidades' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir módulo</a>
+                    <a href="{% url 'pacientes:comorbilidades' internacion.pk %}"
+                        class="btn btn-rinc-primary mt-4">Abrir módulo</a>
                     {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-lg-3 mb-4">
             <div class="card rinc-card rinc-module-card">
-                <div class="card-header rinc-card-header"><h5>Microbiología</h5></div>
+                <div class="card-header rinc-card-header">
+                    <h5>Microbiología</h5>
+                </div>
                 <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
                     <h6 class="mb-4">Guardá la internación primero</h6>
                     <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
                     <h6 class="mb-4">Muestras, aislamientos y antibiogramas</h6>
-                    <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir módulo</a>
+                    <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir
+                        módulo</a>
                     {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-lg-3 mb-4">
             <div class="card rinc-card rinc-module-card">
-                <div class="card-header rinc-card-header"><h5>Estudios y Procedimientos</h5></div>
+                <div class="card-header rinc-card-header">
+                    <h5>Estudios y Procedimientos</h5>
+                </div>
                 <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
                     <h6 class="mb-4">Guardá la internación primero</h6>
                     <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
                     <h6 class="mb-4">Cargar estudios y procedimientos</h6>
-                    <a href="{% url 'pacientes:estudios_procedimientos' %}" class="btn btn-rinc-primary mt-4">Abrir módulo</a>
+                    <a href="{% url 'pacientes:estudios_procedimientos' %}" class="btn btn-rinc-primary mt-4">Abrir
+                        módulo</a>
                     {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-lg-3 mb-4">
             <div class="card rinc-card rinc-module-card">
-                <div class="card-header rinc-card-header"><h5>Tratamiento</h5></div>
+                <div class="card-header rinc-card-header">
+                    <h5>Tratamiento</h5>
+                </div>
                 <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
                     <h6 class="mb-4">Guardá la internación primero</h6>
                     <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
                     <h6 class="mb-4">Antimicrobianos, dosis y vías</h6>
-                    <a href="{% url 'pacientes:tratamiento' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir módulo</a>
+                    <a href="{% url 'pacientes:tratamiento' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir
+                        módulo</a>
                     {% endif %}
                 </div>
             </div>

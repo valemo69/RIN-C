@@ -142,9 +142,26 @@ def internaciones_paciente(request, paciente_pk):
         },
     )
 
+
 @login_required
 def internacion_nueva(request, paciente_pk):
     paciente = get_object_or_404(Paciente, pk=paciente_pk)
+
+    # Catálogos para selects (se cargan SIEMPRE, tanto en GET como en POST)
+    motivos_infecciosos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_INFECCIOSO", activo=True).order_by("orden", "descripcion")
+    motivos_obstructivos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_OBSTRUCTIVO", activo=True).order_by("orden", "descripcion")
+    motivos_intersticiales = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_INTERSTICIAL", activo=True).order_by("orden", "descripcion")
+    motivos_pleurales = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_PLEURAL", activo=True).order_by("orden", "descripcion")
+    motivos_vasculares = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_VASCULAR", activo=True).order_by("orden", "descripcion")
+    motivos_oncologicos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_ONCOLOGICO", activo=True).order_by("orden", "descripcion")
+    motivos_otros = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_OTROS", activo=True).order_by("orden", "descripcion")
+
+    # Catálogos para checkboxes (se cargan SIEMPRE)
+    motivos_exposicion_pasiva = Catalogo.objects.filter(tipo__codigo__iexact="EXPOSICION_PASIVA", activo=True).order_by("orden", "descripcion")
+    motivos_otros_habitos = Catalogo.objects.filter(tipo__codigo__iexact="HABITO_INHALATORIO", activo=True).order_by("orden", "descripcion")
+    motivos_exposiciones_laborales = Catalogo.objects.filter(tipo__codigo__iexact="EXPOSICION_LABORAL", activo=True).order_by("orden", "descripcion")
+    motivos_antecedentes = Catalogo.objects.filter(tipo__codigo__iexact="ANTECEDENTE_RESPIRATORIO", activo=True).order_by("orden", "descripcion")
+    motivos_soporte = Catalogo.objects.filter(tipo__codigo__iexact="SOPORTE_RESPIRATORIO", activo=True).order_by("orden", "descripcion")
 
     if request.method == "POST":
         form = InternacionForm(request.POST)
@@ -158,28 +175,12 @@ def internacion_nueva(request, paciente_pk):
     else:
         form = InternacionForm()
 
-    # Catálogos para selects
-    motivos_infecciosos = Catalogo.objects.filter(tipo__codigo="MOTIVO_INFECCIOSO", activo=True).order_by("orden")
-    motivos_obstructivos = Catalogo.objects.filter(tipo__codigo="MOTIVO_OBSTRUCTIVO", activo=True).order_by("orden")
-    motivos_intersticiales = Catalogo.objects.filter(tipo__codigo="MOTIVO_INTERSTICIAL", activo=True).order_by("orden")
-    motivos_pleurales = Catalogo.objects.filter(tipo__codigo="MOTIVO_PLEURAL", activo=True).order_by("orden")
-    motivos_vasculares = Catalogo.objects.filter(tipo__codigo="MOTIVO_VASCULAR", activo=True).order_by("orden")
-    motivos_oncologicos = Catalogo.objects.filter(tipo__codigo="MOTIVO_ONCOLOGICO", activo=True).order_by("orden")
-    motivos_otros = Catalogo.objects.filter(tipo__codigo="MOTIVO_OTRO", activo=True).order_by("orden")
-
-    # Catálogos para checkboxes
-    motivos_exposicion_pasiva = Catalogo.objects.filter(tipo__codigo="EXPOSICION_PASIVA", activo=True).order_by("orden")
-    motivos_otros_habitos = Catalogo.objects.filter(tipo__codigo="HABITO_INHALATORIO", activo=True).order_by("orden")
-    motivos_exposiciones_laborales = Catalogo.objects.filter(tipo__codigo="EXPOSICION_LABORAL", activo=True).order_by("orden")
-    motivos_antecedentes = Catalogo.objects.filter(tipo__codigo="ANTECEDENTE_RESPIRATORIO", activo=True).order_by("orden")
-    motivos_soporte = Catalogo.objects.filter(tipo__codigo="SOPORTE_RESPIRATORIO", activo=True).order_by("orden")
-
-    # IDs seleccionados (vacíos para nueva internación)
-    exposicion_pasiva_ids = []
-    otros_habitos_ids = []
-    exposiciones_laborales_ids = []
-    antecedentes_ids = []
-    soporte_ids = []
+    # IDs seleccionados en POST (para recuperar selecciones en caso de error de validación) o vacíos
+    exposicion_pasiva_ids = [int(i) for i in request.POST.getlist("exposicion_pasiva")] if request.method == "POST" else []
+    otros_habitos_ids = [int(i) for i in request.POST.getlist("otros_habitos")] if request.method == "POST" else []
+    exposiciones_laborales_ids = [int(i) for i in request.POST.getlist("exposiciones_laborales")] if request.method == "POST" else []
+    antecedentes_ids = [int(i) for i in request.POST.getlist("antecedentes_respiratorios")] if request.method == "POST" else []
+    soporte_ids = [int(i) for i in request.POST.getlist("soporte_respiratorio")] if request.method == "POST" else []
 
     return render(
         request,
@@ -214,6 +215,22 @@ def internacion_nueva(request, paciente_pk):
 def internacion_detalle(request, pk):
     internacion = get_object_or_404(Internacion, pk=pk)
 
+    # Catálogos para selects
+    motivos_infecciosos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_INFECCIOSO", activo=True).order_by("orden", "descripcion")
+    motivos_obstructivos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_OBSTRUCTIVO", activo=True).order_by("orden", "descripcion")
+    motivos_intersticiales = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_INTERSTICIAL", activo=True).order_by("orden", "descripcion")
+    motivos_pleurales = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_PLEURAL", activo=True).order_by("orden", "descripcion")
+    motivos_vasculares = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_VASCULAR", activo=True).order_by("orden", "descripcion")
+    motivos_oncologicos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_ONCOLOGICO", activo=True).order_by("orden", "descripcion")
+    motivos_otros = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_OTROS", activo=True).order_by("orden", "descripcion")
+
+    # Catálogos para checkboxes
+    motivos_exposicion_pasiva = Catalogo.objects.filter(tipo__codigo__iexact="EXPOSICION_PASIVA", activo=True).order_by("orden", "descripcion")
+    motivos_otros_habitos = Catalogo.objects.filter(tipo__codigo__iexact="HABITO_INHALATORIO", activo=True).order_by("orden", "descripcion")
+    motivos_exposiciones_laborales = Catalogo.objects.filter(tipo__codigo__iexact="EXPOSICION_LABORAL", activo=True).order_by("orden", "descripcion")
+    motivos_antecedentes = Catalogo.objects.filter(tipo__codigo__iexact="ANTECEDENTE_RESPIRATORIO", activo=True).order_by("orden", "descripcion")
+    motivos_soporte = Catalogo.objects.filter(tipo__codigo__iexact="SOPORTE_RESPIRATORIO", activo=True).order_by("orden", "descripcion")
+
     if request.method == "POST":
         form = InternacionForm(request.POST, instance=internacion)
         if form.is_valid():
@@ -224,28 +241,19 @@ def internacion_detalle(request, pk):
     else:
         form = InternacionForm(instance=internacion)
 
-    # Catálogos para selects
-    motivos_infecciosos = Catalogo.objects.filter(tipo__codigo="MOTIVO_INFECCIOSO", activo=True).order_by("orden")
-    motivos_obstructivos = Catalogo.objects.filter(tipo__codigo="MOTIVO_OBSTRUCTIVO", activo=True).order_by("orden")
-    motivos_intersticiales = Catalogo.objects.filter(tipo__codigo="MOTIVO_INTERSTICIAL", activo=True).order_by("orden")
-    motivos_pleurales = Catalogo.objects.filter(tipo__codigo="MOTIVO_PLEURAL", activo=True).order_by("orden")
-    motivos_vasculares = Catalogo.objects.filter(tipo__codigo="MOTIVO_VASCULAR", activo=True).order_by("orden")
-    motivos_oncologicos = Catalogo.objects.filter(tipo__codigo="MOTIVO_ONCOLOGICO", activo=True).order_by("orden")
-    motivos_otros = Catalogo.objects.filter(tipo__codigo="MOTIVO_OTRO", activo=True).order_by("orden")
-
-    # Catálogos para checkboxes
-    motivos_exposicion_pasiva = Catalogo.objects.filter(tipo__codigo="EXPOSICION_PASIVA", activo=True).order_by("orden")
-    motivos_otros_habitos = Catalogo.objects.filter(tipo__codigo="HABITO_INHALATORIO", activo=True).order_by("orden")
-    motivos_exposiciones_laborales = Catalogo.objects.filter(tipo__codigo="EXPOSICION_LABORAL", activo=True).order_by("orden")
-    motivos_antecedentes = Catalogo.objects.filter(tipo__codigo="ANTECEDENTE_RESPIRATORIO", activo=True).order_by("orden")
-    motivos_soporte = Catalogo.objects.filter(tipo__codigo="SOPORTE_RESPIRATORIO", activo=True).order_by("orden")
-
-    # IDs seleccionados para checkboxes (desde la internación existente)
-    exposicion_pasiva_ids = list(internacion.exposicion_pasiva.values_list("id", flat=True))
-    otros_habitos_ids = list(internacion.otros_habitos.values_list("id", flat=True))
-    exposiciones_laborales_ids = list(internacion.exposiciones_laborales.values_list("id", flat=True))
-    antecedentes_ids = list(internacion.antecedentes_respiratorios.values_list("id", flat=True))
-    soporte_ids = list(internacion.soporte_respiratorio.values_list("id", flat=True))
+    # IDs seleccionados para checkboxes (desde POST si falló o desde BD si es GET)
+    if request.method == "POST":
+        exposicion_pasiva_ids = [int(i) for i in request.POST.getlist("exposicion_pasiva")]
+        otros_habitos_ids = [int(i) for i in request.POST.getlist("otros_habitos")]
+        exposiciones_laborales_ids = [int(i) for i in request.POST.getlist("exposiciones_laborales")]
+        antecedentes_ids = [int(i) for i in request.POST.getlist("antecedentes_respiratorios")]
+        soporte_ids = [int(i) for i in request.POST.getlist("soporte_respiratorio")]
+    else:
+        exposicion_pasiva_ids = list(internacion.exposicion_pasiva.values_list("id", flat=True))
+        otros_habitos_ids = list(internacion.otros_habitos.values_list("id", flat=True))
+        exposiciones_laborales_ids = list(internacion.exposiciones_laborales.values_list("id", flat=True))
+        antecedentes_ids = list(internacion.antecedentes_respiratorios.values_list("id", flat=True))
+        soporte_ids = list(internacion.soporte_respiratorio.values_list("id", flat=True))
 
     return render(
         request,
