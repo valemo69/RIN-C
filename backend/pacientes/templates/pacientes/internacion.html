@@ -285,48 +285,53 @@ RIN-C | Internación
         <!-- ========================================================== -->
         <!-- ANTECEDENTES RESPIRATORIOS                                 -->
         <!-- ========================================================== -->
-        <div class="card rinc-card mb-4">
-            <div class="card-header rinc-card-header">
-                <h5>Antecedentes respiratorios</h5>
-            </div>
-
-            <div class="card-body rinc-card-body">
-
-                <div class="row">
-
-                    <div class="col-md-4">
-                        {{ form.antecedentes_respiratorios }}
+        <!-- ANTECEDENTES RESPIRATORIOS -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Antecedentes respiratorios</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for checkbox in form.antecedentes_respiratorios %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                            {{ checkbox.choice_label }}
+                        </label>
                     </div>
-
                 </div>
-
-            </div>
+            {% empty %}
+                <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
+            {% endfor %}
         </div>
-
+    </div>
+</div>
         <!-- ========================================================== -->
         <!-- SOPORTE RESPIRATORIO                                       -->
         <!-- ========================================================== -->
-        <div class="card rinc-card mb-4">
-            <div class="card-header rinc-card-header">
-                <h5>Soporte respiratorio</h5>
-            </div>
-
-            <div class="card-body rinc-card-body">
-
-                <div class="row">
-
-                    <div class="col-12">
-
-                        <div class="mb-3">
-                            {{ form.soporte_respiratorio }}
-                        </div>
-
+        <!-- SOPORTE RESPIRATORIO -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Soporte respiratorio</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for checkbox in form.soporte_respiratorio %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                            {{ checkbox.choice_label }}
+                        </label>
                     </div>
-
                 </div>
-
-            </div>
+            {% empty %}
+                <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
+            {% endfor %}
         </div>
+    </div>
+</div>
 
         <!-- ========================================================== -->
         <!-- BOTÓN GUARDAR                                              -->
