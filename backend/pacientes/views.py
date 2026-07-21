@@ -235,7 +235,7 @@ def internacion_detalle(request, pk):
         form = InternacionForm(request.POST, instance=internacion)
         if form.is_valid():
             form.save()
-            form.save_m2m()
+            
             messages.success(request, "Internación actualizada correctamente.")
             return redirect("pacientes:internacion_detalle", pk=internacion.pk)
     else:

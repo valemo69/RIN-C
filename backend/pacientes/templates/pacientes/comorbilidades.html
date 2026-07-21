@@ -14,257 +14,217 @@ RIN-C | Comorbilidades - {{ paciente.apellido }}, {{ paciente.nombre }}
 <div class="container-fluid py-4">
 
     <!-- BREADCRUMB -->
-
     <nav aria-label="breadcrumb" class="mb-4">
-
         <ol class="breadcrumb">
-
             <li class="breadcrumb-item">
                 <a href="{% url 'pacientes:inicio' %}">Inicio</a>
             </li>
-
             <li class="breadcrumb-item">
                 <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}">
                     Pacientes e Internaciones
                 </a>
             </li>
-
             <li class="breadcrumb-item">
                 <a href="{% url 'pacientes:internacion_detalle' internacion.pk %}">
                     Internación
                 </a>
             </li>
-
             <li class="breadcrumb-item active">
-
                 Comorbilidades
-
             </li>
-
         </ol>
-
     </nav>
 
-
     <!-- PACIENTE -->
-
-    <div class="card rinc-card rinc-patient-header">
-
+    <div class="card rinc-card rinc-patient-header mb-4">
         <div class="card-body rinc-card-body">
-
             <div class="row align-items-center">
-
                 <div class="col-lg-8">
-
                     <h2 class="fw-bold mb-2">
-
                         {{ paciente.apellido }}, {{ paciente.nombre }}
-
                     </h2>
-
                     <div class="row">
-
                         <div class="col-md-4">
-
-                            <strong>DNI</strong><br>
-
-                            {{ paciente.numero_documento }}
-
+                            <strong>DNI</strong><br>{{ paciente.numero_documento }}
                         </div>
-
                         <div class="col-md-4">
-
-                            <strong>Sexo</strong><br>
-
-                            {{ paciente.sexo }}
-
+                            <strong>Sexo</strong><br>{{ paciente.sexo }}
                         </div>
-
                         <div class="col-md-4">
-
-                            <strong>Edad</strong><br>
-
-                            {{ paciente.edad }}
-
+                            <strong>Edad</strong><br>{{ paciente.edad }}
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 
     <!-- BARRA DE PROGRESO -->
-
     <div class="card rinc-card mb-4">
         <div class="card-body rinc-card-body text-center">
-
-            <span class="me-4 text-success">
-
-                <i class="bi bi-check-circle-fill"></i>
-
-                Ficha principal
-
-            </span>
-
-            <span class="me-4 fw-bold text-primary">
-
-                <i class="bi bi-circle-fill"></i>
-
-                Comorbilidades
-
-            </span>
-
-            <span class="me-4 text-secondary">
-
-                <i class="bi bi-circle"></i>
-
-                Microbiología
-
-            </span>
-
-            <span class="text-secondary">
-
-                <i class="bi bi-circle"></i>
-
-                Tratamiento
-
-            </span>
-
+            <span class="me-4 text-success"><i class="bi bi-check-circle-fill"></i> Ficha principal</span>
+            <span class="me-4 fw-bold text-primary"><i class="bi bi-circle-fill"></i> Comorbilidades</span>
+            <span class="me-4 text-secondary"><i class="bi bi-circle"></i> Microbiología</span>
+            <span class="text-secondary"><i class="bi bi-circle"></i> Tratamiento</span>
         </div>
-
     </div>
 
-
-
     <form method="post">
-
         {% csrf_token %}
 
         <div class="row">
 
-        {% for grupo, items in comorbilidades_por_grupo.items %}
-
-            <div class="col-lg-6 mb-4">
-
-                <div class="card rinc-card h-100">
-
-                    <div class="card-header rinc-card-header">
-                        <h5 class="mb-0">{{ grupo }}</h5>
-                    </div>
-
-                    <div class="card-body rinc-card-body">
-
-                        {% for item in items %}
-
-                        <div class="form-check">
-
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                name="comorbilidades"
-                                value="{{ item.pk }}"
-                                id="comorbilidad_{{ item.pk }}"
-                                {% if item.pk in ids_comorbilidades_seleccionadas %}checked{% endif %}>
-
-                            <label class="form-check-label" for="comorbilidad_{{ item.pk }}">
-                                {{ item.descripcion }}
-                            </label>
-
+            <!-- REUMATOLÓGICAS (Sin las vasculitis) -->
+            {% for grupo, items in comorbilidades_por_grupo.items %}
+                {% if grupo == "Reumatológicas" %}
+                <div class="col-12 mb-4">
+                    <div class="card rinc-card h-100">
+                        <div class="card-header rinc-card-header">
+                            <h5 class="mb-0">Reumatológicas</h5>
                         </div>
-
-                        {% endfor %}
-
+                        <div class="card-body rinc-card-body">
+                            <div class="row">
+                                {% for item in items %}
+                                    {% if item.codigo not in "VASC_GPA,VASC_PAM,VASC_GEPA,VASC_BEHCET,VASC_GOODPASTURE" %}
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                name="comorbilidades"
+                                                value="{{ item.pk }}"
+                                                id="comorbilidad_{{ item.pk }}"
+                                                {% if item.pk in ids_comorbilidades_seleccionadas %}checked{% endif %}>
+                                            <label class="form-check-label" for="comorbilidad_{{ item.pk }}">
+                                                {{ item.descripcion }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
-
                 </div>
+                {% endif %}
+            {% endfor %}
 
+            <!-- RESTO DE LOS GRUPOS (Cardiovasculares, Neurológicas, Endócrino, Inmunológicas, etc.) -->
+            {% for grupo, items in comorbilidades_por_grupo.items %}
+                {% if grupo != "Reumatológicas" %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card rinc-card h-100">
+                        <div class="card-header rinc-card-header">
+                            <h5 class="mb-0">{{ grupo }}</h5>
+                        </div>
+                        <div class="card-body rinc-card-body">
+                            {% for item in items %}
+                            <div class="form-check mb-2">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="comorbilidades"
+                                    value="{{ item.pk }}"
+                                    id="comorbilidad_{{ item.pk }}"
+                                    {% if item.pk in ids_comorbilidades_seleccionadas %}checked{% endif %}>
+                                <label class="form-check-label" for="comorbilidad_{{ item.pk }}">
+                                    {{ item.descripcion }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            <!-- VASCULITIS CON COMPROMISO PULMONAR -->
+            <div class="col-lg-6 mb-4">
+                <div class="card rinc-card h-100">
+                    <div class="card-header rinc-card-header">
+                        <h5 class="mb-0">Vasculitis con compromiso pulmonar</h5>
+                    </div>
+                    <div class="card-body rinc-card-body">
+                        {% for grupo, items in comorbilidades_por_grupo.items %}
+                            {% if grupo == "Reumatológicas" %}
+                                {% for item in items %}
+                                    {% if item.codigo in "VASC_GPA,VASC_PAM,VASC_GEPA,VASC_BEHCET,VASC_GOODPASTURE" %}
+                                    <div class="form-check mb-2">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="comorbilidades"
+                                            value="{{ item.pk }}"
+                                            id="comorbilidad_{{ item.pk }}"
+                                            {% if item.pk in ids_comorbilidades_seleccionadas %}checked{% endif %}>
+                                        <label class="form-check-label" for="comorbilidad_{{ item.pk }}">
+                                            {{ item.descripcion }}
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
-        {% endfor %}
-
-        </div>
-
-        <div class="row">
-
             <!-- INMUNIZACIONES -->
-
             <div class="col-lg-6 mb-4">
-
                 <div class="card rinc-card h-100">
-
                     <div class="card-header rinc-card-header">
                         <h5 class="mb-0">Inmunizaciones</h5>
                     </div>
-
                     <div class="card-body rinc-card-body">
-
                         {% for item in inmunizaciones %}
-
-                        <div class="form-check">
-
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                name="inmunizaciones"
-                                value="{{ item.pk }}"
-                                id="inmunizacion_{{ item.pk }}"
-                                {% if item.pk in ids_inmunizaciones_seleccionadas %}checked{% endif %}>
-
-                            <label class="form-check-label" for="inmunizacion_{{ item.pk }}">
-                                {{ item.descripcion }}
-                            </label>
-
+                        <div class="mb-3 border-bottom pb-2">
+                            <div class="form-check mb-1">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="inmunizaciones"
+                                    value="{{ item.pk }}"
+                                    id="inmunizacion_{{ item.pk }}"
+                                    {% if item.pk in ids_inmunizaciones_seleccionadas %}checked{% endif %}>
+                                <label class="form-check-label fw-semibold" for="inmunizacion_{{ item.pk }}">
+                                    {{ item.descripcion }}
+                                </label>
+                            </div>
+                            <div class="ps-4">
+                                {% if "Antigripal" in item.descripcion or "COVID" in item.descripcion %}
+                                    <small class="text-muted">Aplicada en el último año</small>
+                                {% else %}
+                                    <div class="row align-items-center g-2 mt-1">
+                                        <div class="col-auto">
+                                            <small class="text-muted">Última dosis (año/fecha):</small>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" class="form-control form-control-sm" name="inmunizacion_fecha_{{ item.pk }}" placeholder="Ej: 2024 o DD/MM/AAAA">
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-
                         {% endfor %}
-
                     </div>
-
                 </div>
-
             </div>
 
         </div>
 
         <!-- BOTONERA -->
-
         <div class="rinc-actions">
-
             <a href="{% url 'pacientes:internacion_detalle' internacion.pk %}" class="btn btn-rinc-secondary">
-
-                <i class="bi bi-arrow-left me-1"></i>
-
-                Ficha principal
-
+                <i class="bi bi-arrow-left me-1"></i> Ficha principal
             </a>
-
             <div class="rinc-actions-right">
-
                 <button type="submit" class="btn btn-rinc-primary me-2">
-
-                    <i class="bi bi-check-circle me-1"></i>
-
-                    Guardar comorbilidades
-
+                    <i class="bi bi-check-circle me-1"></i> Guardar comorbilidades
                 </button>
-
-                <a href="{% url 'pacientes:microbiologia' internacion.pk %}"
-                   class="btn btn-rinc-secondary">
-
-                    Microbiología
-
-                    <i class="bi bi-arrow-right ms-1"></i>
-
+                <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-rinc-secondary">
+                    Microbiología <i class="bi bi-arrow-right ms-1"></i>
                 </a>
-
             </div>
-
         </div>
 
     </form>
