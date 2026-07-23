@@ -9,6 +9,7 @@ from .models import (
     Catalogo,
     InternacionTratamientoAntimicrobiano,
     MuestraMicrobiologica,
+    EstudioMicrobiologico,
     AislamientoMicrobiologico,
     SensibilidadMicrobiologica,
 )
@@ -243,16 +244,15 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
             "anos_fumando": forms.NumberInput(),
             "indice_paquetes_anio": forms.NumberInput(attrs={"readonly": True}),
         }
-    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # 1. Quitar la opción nula '---------' inyectada por el mixin/Django
         if "tabaquismo" in self.fields:
             self.fields["tabaquismo"].empty_label = None
-            
-            # 2. Asegurar que las opciones de radio usen la clase 'form-check-input' 
+
+            # 2. Asegurar que las opciones de radio usen la clase 'form-check-input'
             # y no la clase 'form-control' que inyecta el BootstrapFormMixin
             self.fields["tabaquismo"].widget.attrs["class"] = "form-check-input"
 
@@ -336,9 +336,7 @@ class MuestraMicrobiologicaForm(BootstrapFormMixin, forms.ModelForm):
         fields = (
             "fecha_toma",
             "tipo_muestra",
-            "resultado",
-            "mtb_detectado",
-            "resistencia_rifampicina",
+            "destino",
         )
         widgets = {
             "fecha_toma": forms.DateInput(attrs={"type": "date"}),
@@ -346,8 +344,25 @@ class MuestraMicrobiologicaForm(BootstrapFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["mtb_detectado"].required = False
-        self.fields["resistencia_rifampicina"].required = False
+        
+        
+class EstudioMicrobiologicoForm(BootstrapFormMixin, forms.ModelForm):
+
+    class Meta:
+        model = EstudioMicrobiologico
+        fields = (
+            "tipo_estudio",
+            "estado",
+            "observaciones",
+        )
+
+        widgets = {
+            "observaciones": forms.Textarea(
+                attrs={
+                    "rows": 2,
+                }
+            ),
+        }       
 
 
 # ==========================================================

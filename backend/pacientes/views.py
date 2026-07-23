@@ -9,6 +9,7 @@ from .forms import (
     InternacionForm,
     ComorbilidadesForm,
     MuestraMicrobiologicaForm,
+    EstudioMicrobiologicoForm,
     AislamientoMicrobiologicoForm,
     SensibilidadMicrobiologicaForm,
     InternacionTratamientoAntimicrobianoForm,
@@ -374,9 +375,14 @@ def comorbilidades_view(request, pk):
 @login_required
 def microbiologia_view(request, pk):
     internacion = get_object_or_404(Internacion, pk=pk)
-    muestras = internacion.muestras_microbiologicas.all().prefetch_related(
-        "aislamientos__sensibilidades"
+    muestras = (
+    internacion.muestras_microbiologicas
+    .all()
+    .prefetch_related(
+        "estudios__aislamientos__sensibilidades",
     )
+)
+    
 
     if request.method == "POST":
         form = MuestraMicrobiologicaForm(request.POST)
@@ -390,17 +396,18 @@ def microbiologia_view(request, pk):
         form = MuestraMicrobiologicaForm()
 
     return render(
-        request,
-        "pacientes/microbiologia.html",
-        {
-            "internacion": internacion,
-            "paciente": internacion.paciente,
-            "muestras": muestras,
-            "form": form,
-            "aislamiento_form": AislamientoMicrobiologicoForm(),
-            "sensibilidad_form": SensibilidadMicrobiologicaForm(),
-        },
-    )
+    request,
+    "pacientes/microbiologia.html",
+    {
+        "internacion": internacion,
+        "paciente": internacion.paciente,
+        "muestras": muestras,
+        "form": form,
+        "estudio_form": EstudioMicrobiologicoForm(),
+        "aislamiento_form": AislamientoMicrobiologicoForm(),
+        "sensibilidad_form": SensibilidadMicrobiologicaForm(),
+    },
+)
 
 @login_required
 def aislamiento_agregar(request, muestra_pk):

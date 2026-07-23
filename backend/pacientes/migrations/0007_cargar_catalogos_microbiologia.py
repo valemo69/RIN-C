@@ -1,19 +1,5 @@
 from django.db import migrations
 
-# ==========================================================
-# POR QUÉ ESTA MIGRACIÓN
-# ==========================================================
-#
-# TIPO_MUESTRA, GERMEN y ANTIMICROBIANO ya existían como
-# TipoCatalogo desde la migración 0003, pero estaban vacíos: sin
-# ítems cargados, el <select> de esos campos en el formulario de
-# Microbiología aparece sin ninguna opción para elegir.
-#
-# Esta es una lista INICIAL, pensada para cubrir los casos más
-# frecuentes en clínica neumonológica (incluye GeneXpert MTB/RIF,
-# a pedido). No pretende ser exhaustiva: se puede seguir ampliando
-# después desde el panel de administración de Django, sin tocar
-# código ni migraciones.
 
 
 TIPOS_MUESTRA = [
@@ -24,7 +10,28 @@ TIPOS_MUESTRA = [
     ("UROCULTIVO", "Urocultivo", 5),
     ("LIQUIDO_PLEURAL", "Líquido pleural", 6),
     ("PUNTA_CATETER", "Punta de catéter", 7),
-    ("GENEXPERT", "GeneXpert MTB/RIF", 8),
+    ("LCR", "Líquido cefalorraquídeo", 8),
+    ("SUERO", "Suero", 9),
+]
+
+DESTINOS_MUESTRA = [
+    ("BAC", "Bacteriología", 1),
+    ("MTB", "Micobacterias", 2),
+    ("MIC", "Micología", 3),
+    ("VIR", "Virología", 4),
+    ("AP", "Anatomía Patológica", 5),
+]
+
+TIPOS_ESTUDIO_MICROBIOLOGICO = [
+    ("BACILOSCOPIA", "Baciloscopía", 1),
+    ("CULTIVO", "Cultivo", 2),
+    ("GENEXPERT", "GeneXpert MTB/RIF", 3),
+    ("PANEL_VIRAL", "Panel viral", 4),
+    ("GALACTOMANANO", "Galactomanano", 5),
+    ("BETA_D_GLUCANO", "Beta-D-glucano", 6),
+    ("PNEUMOCYSTIS", "Pneumocystis jirovecii", 7),
+    ("INMUNODIFUSION", "Inmunodifusión", 8),
+    ("ANATOMIA_PATOLOGICA", "Anatomía patológica", 9),
 ]
 
 GERMENES = [
@@ -69,6 +76,8 @@ def cargar(apps, schema_editor):
             )
 
     cargar_items("TIPO_MUESTRA", TIPOS_MUESTRA)
+    cargar_items("DESTINO_MUESTRA", DESTINOS_MUESTRA)
+    cargar_items("TIPO_ESTUDIO_MICROBIOLOGICO", TIPOS_ESTUDIO_MICROBIOLOGICO)
     cargar_items("GERMEN", GERMENES)
     cargar_items("ANTIMICROBIANO", ANTIMICROBIANOS)
 
@@ -78,7 +87,13 @@ def deshacer(apps, schema_editor):
     Catalogo = apps.get_model("pacientes", "Catalogo")
 
     Catalogo.objects.filter(
-        tipo__codigo__in=["TIPO_MUESTRA", "GERMEN", "ANTIMICROBIANO"]
+    tipo__codigo__in=[
+        "TIPO_MUESTRA",
+        "DESTINO_MUESTRA",
+        "TIPO_ESTUDIO_MICROBIOLOGICO",
+        "GERMEN",
+        "ANTIMICROBIANO",
+    ]
     ).delete()
 
 

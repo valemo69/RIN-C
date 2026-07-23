@@ -556,7 +556,7 @@ class InternacionCatalogo(ModeloBase):
 
 # ==========================================================
 # MUESTRAS MICROBIOLÓGICAS
-# (se mantiene igual, no se toca)
+# 
 # ==========================================================
 
 
@@ -568,22 +568,6 @@ class MuestraMicrobiologica(ModeloBase):
         CONTAMINADO = "C", "Contaminado"
         PENDIENTE = "PE", "Pendiente"
 
-    class ResultadoGeneXpert(models.TextChoices):
-        """
-        Escala separada de Resultado (arriba) a propósito: un
-        GeneXpert es una PCR (resultado genotípico: ¿está el gen
-        de resistencia, sí o no?), no un antibiograma por disco
-        (resultado fenotípico: sensible/intermedio/resistente). Son
-        preguntas clínicas distintas, así que conviene no mezclarlas
-        en la misma escala aunque a veces se parezcan.
-        "Indeterminado" existe porque en la práctica un cartucho de
-        GeneXpert puede fallar (muestra insuficiente, error del
-        equipo) y ese resultado NO es lo mismo que "no detectado".
-        """
-        DETECTADO = "D", "Detectado"
-        NO_DETECTADO = "ND", "No detectado"
-        INDETERMINADO = "I", "Indeterminado"
-
     internacion = models.ForeignKey(
         Internacion,
         on_delete=models.CASCADE,
@@ -591,14 +575,32 @@ class MuestraMicrobiologica(ModeloBase):
         verbose_name="Internación",
     )
 
-    fecha_toma = models.DateField(verbose_name="Fecha de toma")
+    fecha_toma = models.DateField(
+        verbose_name="Fecha de toma",
+    )
 
     tipo_muestra = models.ForeignKey(
         Catalogo,
         on_delete=models.PROTECT,
         related_name="muestras_tipo",
-        limit_choices_to={"tipo__codigo": "TIPO_MUESTRA", "activo": True},
+        limit_choices_to={
+            "tipo__codigo": "TIPO_MUESTRA",
+            "activo": True,
+        },
         verbose_name="Tipo de muestra",
+    )
+
+    destino = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name="muestras_destino",
+        limit_choices_to={
+            "tipo__codigo": "DESTINO_MUESTRA",
+            "activo": True,
+        },
+        verbose_name="Destino",
+        null=True,
+        blank=True,
     )
 
     resultado = models.CharField(
@@ -606,29 +608,6 @@ class MuestraMicrobiologica(ModeloBase):
         choices=Resultado.choices,
         default=Resultado.PENDIENTE,
         verbose_name="Resultado",
-    )
-
-    # Los dos campos siguientes solo tienen sentido cuando
-    # tipo_muestra es "GeneXpert MTB/RIF" (por eso null=True,
-    # blank=True: en cualquier otro tipo de muestra quedan vacíos).
-    # No usamos el modelo Catalogo para esto porque son solo 3
-    # opciones fijas, específicas de este campo, sin necesidad de
-    # administrarlas desde el panel de catálogos.
-
-    mtb_detectado = models.CharField(
-        max_length=2,
-        choices=ResultadoGeneXpert.choices,
-        null=True,
-        blank=True,
-        verbose_name="Mycobacterium tuberculosis detectada (GeneXpert)",
-    )
-
-    resistencia_rifampicina = models.CharField(
-        max_length=2,
-        choices=ResultadoGeneXpert.choices,
-        null=True,
-        blank=True,
-        verbose_name="Resistencia a rifampicina (GeneXpert)",
     )
 
     class Meta:
@@ -642,20 +621,429 @@ class MuestraMicrobiologica(ModeloBase):
     def __str__(self):
         return f"{self.fecha_toma:%d/%m/%Y} - {self.tipo_muestra.descripcion}"
 
+# ==========================================================
+# ESTUDIOS MICROBIOLÓGICOS
+# ==========================================================
+
+class EstudioMicrobiologico(ModeloBase):
+
+    class Estado(models.TextChoices):
+        PENDIENTE = "PE", "Pendiente"
+        INFORMADO = "IN", "Informado"
+
+    muestra = models.ForeignKey(
+        MuestraMicrobiologica,
+        on_delete=models.CASCADE,
+        related_name="estudios",
+        verbose_name="Muestra",
+    )
+
+    tipo_estudio = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name="estudios_microbiologicos",
+        limit_choices_to={
+            "tipo__codigo": "TIPO_ESTUDIO_MICROBIOLOGICO",
+            "activo": True,
+        },
+        verbose_name="Tipo de estudio",
+    )
+
+    estado = models.CharField(
+        max_length=2,
+        choices=Estado.choices,
+        default=Estado.PENDIENTE,
+        verbose_name="Estado",
+    )
+
+    observaciones = models.TextField(
+        blank=True,
+        verbose_name="Observaciones",
+    )
+
+    class Meta:
+        verbose_name = "Estudio microbiológico"
+        verbose_name_plural = "Estudios microbiológicos"
+
+        ordering = [
+            "muestra",
+            "tipo_estudio",
+        ]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["muestra", "tipo_estudio"],
+                name="uk_muestra_tipo_estudio",
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.tipo_estudio.descripcion} - "
+            f"{self.muestra}"
+        )
+        
+        
+class BaciloscopiaDetalle(ModeloBase):
+
+    class Resultado(models.TextChoices):
+        POSITIVA = "POS", "Positiva"
+        NEGATIVA = "NEG", "Negativa"
+        NO_REALIZADA = "NR", "No realizada"
+
+    class Graduacion(models.TextChoices):
+        UNA_CRUZ = "+", "+"
+        DOS_CRUCES = "++", "++"
+        TRES_CRUCES = "+++", "+++"
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="baciloscopia",
+        verbose_name="Estudio",
+    )
+
+    resultado = models.CharField(
+        max_length=3,
+        choices=Resultado.choices,
+        verbose_name="Resultado",
+    )
+
+    graduacion = models.CharField(
+        max_length=3,
+        choices=Graduacion.choices,
+        blank=True,
+        verbose_name="Graduación",
+    )
+
+    class Meta:
+        verbose_name = "Detalle de baciloscopía"
+        verbose_name_plural = "Detalles de baciloscopía"
+
+    def __str__(self):
+        return f"Baciloscopía - {self.estudio}"  
+    
+    
+class GeneXpertDetalle(ModeloBase):
+
+    class Resultado(models.TextChoices):
+        DETECTADO = "D", "Detectado"
+        NO_DETECTADO = "ND", "No detectado"
+        INDETERMINADO = "I", "Indeterminado"
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="genexpert",
+        verbose_name="Estudio",
+    )
+
+    mtb_detectado = models.CharField(
+        max_length=2,
+        choices=Resultado.choices,
+        verbose_name="Mycobacterium tuberculosis",
+    )
+
+    resistencia_rifampicina = models.CharField(
+        max_length=2,
+        choices=Resultado.choices,
+        blank=True,
+        null=True,
+        verbose_name="Resistencia a rifampicina",
+    )
+
+    class Meta:
+        verbose_name = "Detalle GeneXpert"
+        verbose_name_plural = "Detalles GeneXpert"
+
+    def __str__(self):
+        return f"GeneXpert - {self.estudio}"  
+    
+    
+class CultivoDetalle(ModeloBase):
+    
+    class TipoCultivo(models.TextChoices):
+            BACTERIOLOGIA = "BAC", "Bacteriología"
+            MICOBACTERIAS = "MTB", "Micobacterias"
+            MICOLOGIA = "MIC", "Micología"
+            
+            
+    class Resultado(models.TextChoices):
+        EN_CURSO = "CUR", "En curso"
+        SIN_DESARROLLO = "SD", "Sin desarrollo"
+        POSITIVO = "POS", "Positivo"
+        POLIMICROBIANO = "POL", "Polimicrobiano"
+        CONTAMINADO = "CON", "Contaminado"
+        MUESTRA_NO_APTA = "MNA", "Muestra no apta"
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="cultivo",
+        verbose_name="Estudio",
+    )
+    
+    tipo_cultivo = models.CharField(
+        max_length=3,
+        choices=TipoCultivo.choices,
+        verbose_name="Tipo de cultivo",
+    )
+
+    resultado = models.CharField(
+        max_length=3,
+        choices=Resultado.choices,
+        verbose_name="Resultado",
+    )
+    
+    
+
+    fecha_informe = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Fecha del informe",
+    )
+
+    class Meta:
+        verbose_name = "Detalle de cultivo"
+        verbose_name_plural = "Detalles de cultivo"
+
+    def __str__(self):
+        return f"Cultivo - {self.estudio}"  
+    
+class PanelViralDetalle(ModeloBase):
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="panel_viral",
+        verbose_name="Estudio",
+    )
+
+    class Meta:
+        verbose_name = "Detalle panel viral"
+        verbose_name_plural = "Detalles panel viral"
+
+    def __str__(self):
+        return f"Panel viral - {self.estudio}"
+    
+class VirusDetectado(ModeloBase):
+
+    panel = models.ForeignKey(
+    PanelViralDetalle,
+    on_delete=models.CASCADE,
+    related_name="virus_detectados",
+    verbose_name="Panel viral",
+)
+
+    virus = models.ForeignKey(
+    Catalogo,
+    on_delete=models.PROTECT,
+    related_name="virus_panel",
+    limit_choices_to={
+        "tipo__codigo": "VIRUS",
+        "activo": True,
+    },
+    verbose_name="Virus",
+)
+
+    class Meta:
+        verbose_name = "Virus detectado"
+        verbose_name_plural = "Virus detectados"
+
+    def __str__(self):
+        return f"{self.virus}"  
+    
+class GalactomananoDetalle(ModeloBase):
+
+    class Resultado(models.TextChoices):
+        POSITIVO = "POS", "Positivo"
+        NEGATIVO = "NEG", "Negativo"
+        INDETERMINADO = "IND", "Indeterminado"
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="galactomanano",
+        verbose_name="Estudio",
+    )
+
+    resultado = models.CharField(
+        max_length=3,
+        choices=Resultado.choices,
+        verbose_name="Resultado",
+    )
+
+    indice = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        verbose_name="Índice",
+    )
+
+    class Meta:
+        verbose_name = "Detalle de galactomanano"
+        verbose_name_plural = "Detalles de galactomanano"
+
+    def __str__(self):
+        return f"Galactomanano - {self.estudio}"  
+    
+class BetaDGlucanoDetalle(ModeloBase):
+
+    class Resultado(models.TextChoices):
+        POSITIVO = "POS", "Positivo"
+        NEGATIVO = "NEG", "Negativo"
+        INDETERMINADO = "IND", "Indeterminado"
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="beta_d_glucano",
+        verbose_name="Estudio",
+    )
+
+    resultado = models.CharField(
+        max_length=3,
+        choices=Resultado.choices,
+        verbose_name="Resultado",
+    )
+
+    fecha_informe = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha del informe",
+    )
+
+    class Meta:
+        verbose_name = "Detalle de Beta-D-glucano"
+        verbose_name_plural = "Detalles de Beta-D-glucano"
+
+    def __str__(self):
+        return f"Beta-D-glucano - {self.estudio}"  
+    
+class PneumocystisDetalle(ModeloBase):
+
+    class Resultado(models.TextChoices):
+        POSITIVO = "POS", "Positivo"
+        NEGATIVO = "NEG", "Negativo"
+        INDETERMINADO = "IND", "Indeterminado"
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="pneumocystis",
+        verbose_name="Estudio",
+    )
+
+    resultado = models.CharField(
+        max_length=3,
+        choices=Resultado.choices,
+        verbose_name="Resultado",
+    )
+
+    fecha_informe = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha del informe",
+    )
+
+    class Meta:
+        verbose_name = "Detalle de Pneumocystis"
+        verbose_name_plural = "Detalles de Pneumocystis"
+
+    def __str__(self):
+        return f"Pneumocystis - {self.estudio}"
+
+class InmunodifusionDetalle(ModeloBase):
+
+    class Resultado(models.TextChoices):
+        POSITIVO = "POS", "Positivo"
+        NEGATIVO = "NEG", "Negativo"
+        INDETERMINADO = "IND", "Indeterminado"
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="inmunodifusion",
+        verbose_name="Estudio",
+    )
+
+    resultado = models.CharField(
+        max_length=3,
+        choices=Resultado.choices,
+        verbose_name="Resultado",
+    )
+
+    fecha_informe = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha del informe",
+    )
+
+    class Meta:
+        verbose_name = "Detalle de inmunodifusión"
+        verbose_name_plural = "Detalles de inmunodifusión"
+
+    def __str__(self):
+        return f"Inmunodifusión - {self.estudio}"     
+
+class AnatomiaPatologicaDetalle(ModeloBase):
+
+    class Resultado(models.TextChoices):
+        POSITIVO = "POS", "Positivo"
+        NEGATIVO = "NEG", "Negativo"
+
+    estudio = models.OneToOneField(
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="anatomia_patologica",
+        verbose_name="Estudio",
+    )
+
+    resultado = models.CharField(
+        max_length=3,
+        choices=Resultado.choices,
+        verbose_name="Resultado",
+    )
+
+    germen = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        related_name="anatomia_patologica_germen",
+        limit_choices_to={
+            "tipo__codigo": "GERMEN",
+            "activo": True,
+        },
+        null=True,
+        blank=True,
+        verbose_name="Germen identificado",
+    )
+
+    fecha_informe = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha del informe",
+    )
+
+    class Meta:
+        verbose_name = "Detalle de anatomía patológica"
+        verbose_name_plural = "Detalles de anatomía patológica"
+
+    def __str__(self):
+        return f"Anatomía patológica - {self.estudio}"
 
 # ==========================================================
 # AISLAMIENTOS MICROBIOLÓGICOS
-# (se mantiene igual, no se toca)
 # ==========================================================
 
 
 class AislamientoMicrobiologico(ModeloBase):
 
-    muestra = models.ForeignKey(
-        MuestraMicrobiologica,
-        on_delete=models.CASCADE,
-        related_name="aislamientos",
-        verbose_name="Muestra",
+    estudio = models.ForeignKey(
+    EstudioMicrobiologico,
+    on_delete=models.CASCADE,
+    related_name="aislamientos",
+    verbose_name="Estudio microbiológico",
     )
 
     germen = models.ForeignKey(
@@ -673,12 +1061,15 @@ class AislamientoMicrobiologico(ModeloBase):
         verbose_name_plural = "Aislamientos microbiológicos"
 
         ordering = [
-            "muestra",
+            "estudio",
             "germen",
         ]
         
     def __str__(self):
-        return f"{self.germen.descripcion}"
+        return (
+            f"{self.estudio.tipo_estudio.descripcion} - "
+            f"{self.germen.descripcion}"
+        )
 
 
 # ==========================================================

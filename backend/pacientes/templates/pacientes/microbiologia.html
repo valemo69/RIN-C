@@ -167,7 +167,7 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 
                 {% csrf_token %}
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">Fecha de toma</label>
                     {{ form.fecha_toma }}
                     {{ form.fecha_toma.errors }}
@@ -179,10 +179,10 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
                     {{ form.tipo_muestra.errors }}
                 </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Resultado</label>
-                    {{ form.resultado }}
-                    {{ form.resultado.errors }}
+                <div class="col-md-4">
+                    <label class="form-label">Destino</label>
+                    {{ form.destino }}
+                    {{ form.destino.errors }}
                 </div>
 
                 <div class="col-md-2">
@@ -190,22 +190,6 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
                         <i class="bi bi-plus-circle me-1"></i>
                         Agregar
                     </button>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">
-                        M. tuberculosis detectada (solo GeneXpert)
-                    </label>
-                    {{ form.mtb_detectado }}
-                    {{ form.mtb_detectado.errors }}
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Resistencia a rifampicina (solo GeneXpert)
-                    </label>
-                    {{ form.resistencia_rifampicina }}
-                    {{ form.resistencia_rifampicina.errors }}
                 </div>
 
             </form>
@@ -221,31 +205,40 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 
     <div class="card rinc-card mb-4">
 
-        <div class="card-header rinc-card-header d-flex justify-content-between">
+        <div class="card-header rinc-card-header">
 
-            <strong>{{ muestra.tipo_muestra.descripcion|upper }}</strong>
+            <div class="d-flex justify-content-between align-items-center">
 
-            <span>{{ muestra.fecha_toma|date:"d/m/Y" }}</span>
+                <div>
+                    <h5 class="mb-1">Estudios microbiológicos</h5>
+                    <small>
+                        <strong>Muestra:</strong>
+                        {{ muestra.tipo_muestra.descripcion }}
+                    </small>
+                </div>
+
+                <div class="text-end">
+                    <small>{{ muestra.fecha_toma|date:"d/m/Y" }}</small>
+                </div>
+
+            </div>
 
         </div>
 
         <div class="card-body rinc-card-body">
 
-            <p><strong>Resultado:</strong> {{ muestra.get_resultado_display }}</p>
-
-            {% if muestra.mtb_detectado %}
-            <p>
-                <strong>M. tuberculosis (GeneXpert):</strong>
-                {{ muestra.get_mtb_detectado_display }}
+            <p class="mb-4">
+                <strong>Destino:</strong>
+                {{ muestra.destino.descripcion }}
             </p>
-            {% endif %}
 
-            {% if muestra.resistencia_rifampicina %}
-            <p>
-                <strong>Resistencia a rifampicina:</strong>
-                {{ muestra.get_resistencia_rifampicina_display }}
+            <h6 class="mb-3">Estudios microbiológicos</h6>
+
+            <p class="text-muted">
+                Aún no se cargaron estudios microbiológicos para esta muestra.
             </p>
-            {% endif %}
+
+            <hr>
 
             <h6>Gérmenes aislados</h6>
 
@@ -253,24 +246,27 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 
                 {% for aislamiento in muestra.aislamientos.all %}
 
-                <li>
+                <li class="mb-3">
 
-                    {{ aislamiento.germen.descripcion }}
+                    <strong>{{ aislamiento.germen.descripcion }}</strong>
 
                     {% if not aislamiento.significativo %}
-                    <span class="badge bg-secondary ms-2">No significativo</span>
+                    <span class="badge bg-secondary ms-2">
+                        No significativo
+                    </span>
                     {% endif %}
 
                     {% for sensibilidad in aislamiento.sensibilidades.all %}
                     <span class="badge bg-dark ms-1">
-                        {{ sensibilidad.antibiotico.descripcion }}: {{ sensibilidad.get_resultado_display }}
+                        {{ sensibilidad.antibiotico.descripcion }}:
+                        {{ sensibilidad.get_resultado_display }}
                     </span>
                     {% endfor %}
 
-                    <!-- antibiograma: agregar una sensibilidad a ESTE aislamiento -->
-                    <form method="post"
-                          action="{% url 'pacientes:sensibilidad_agregar' aislamiento.pk %}"
-                          class="row g-2 align-items-end mt-2 ms-1">
+                    <!-- Antibiograma -->
+
+                    <form method="post" action="{% url 'pacientes:sensibilidad_agregar' aislamiento.pk %}"
+                        class="row g-2 align-items-end mt-2 ms-1">
 
                         {% csrf_token %}
 
@@ -294,16 +290,18 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 
                 {% empty %}
 
-                <li class="text-muted">Sin gérmenes aislados todavía.</li>
+                <li class="text-muted">
+                    Sin gérmenes aislados.
+                </li>
 
                 {% endfor %}
 
             </ul>
 
-            <!-- agregar un germen nuevo a ESTA muestra -->
-            <form method="post"
-                  action="{% url 'pacientes:aislamiento_agregar' muestra.pk %}"
-                  class="row g-2 align-items-end">
+            <!-- Agregar germen -->
+
+            <form method="post" action="{% url 'pacientes:aislamiento_agregar' muestra.pk %}"
+                class="row g-2 align-items-end">
 
                 {% csrf_token %}
 
@@ -313,17 +311,26 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
                 </div>
 
                 <div class="col-4">
+
                     <div class="form-check mt-4">
                         {{ aislamiento_form.significativo }}
-                        <label class="form-check-label">Significativo</label>
+                        <label class="form-check-label">
+                            Significativo
+                        </label>
                     </div>
+
                 </div>
 
                 <div class="col-3">
+
                     <button type="submit" class="btn btn-sm btn-outline-success w-100">
+
                         <i class="bi bi-plus-lg"></i>
+
                         Germen
+
                     </button>
+
                 </div>
 
             </form>
@@ -335,8 +342,13 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
     {% empty %}
 
     <div class="rinc-empty mb-4">
+
         <h5>Todavía no hay estudios microbiológicos cargados</h5>
-        <p>Usá el formulario de arriba para agregar el primero.</p>
+
+        <p>
+            Usá el formulario de arriba para agregar la primera muestra.
+        </p>
+
     </div>
 
     {% endfor %}
@@ -344,11 +356,11 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
     <!-- BOTONERA -->
 
     {% comment %} No hay un botón único de "Guardar" acá abajo porque cada
-       formulario de esta pantalla (muestra nueva, agregar germen,
-       agregar antibiograma) ya se guarda solo al tocar su propio
-       botón. "Estudios complementarios" queda deshabilitado porque
-       ese módulo todavía no está conectado (es el próximo paso
-       después de este). {% endcomment %}
+    formulario de esta pantalla (muestra nueva, agregar germen,
+    agregar antibiograma) ya se guarda solo al tocar su propio
+    botón. "Estudios complementarios" queda deshabilitado porque
+    ese módulo todavía no está conectado (es el próximo paso
+    después de este). {% endcomment %}
 
     <div class="rinc-actions">
 

@@ -8,6 +8,7 @@ from .models import (
     InternacionCatalogo,
     InternacionTratamientoAntimicrobiano,
     MuestraMicrobiologica,
+    EstudioMicrobiologico,
     AislamientoMicrobiologico,
     SensibilidadMicrobiologica,
 )
@@ -27,10 +28,12 @@ class InternacionTratamientoAntimicrobianoInline(admin.TabularInline):
 class MuestraMicrobiologicaInline(admin.TabularInline):
     model = MuestraMicrobiologica
     extra = 0
-
-class AislamientoMicrobiologicoInline(admin.TabularInline):
-    model = AislamientoMicrobiologico
+    
+class EstudioMicrobiologicoInline(admin.TabularInline):
+    model = EstudioMicrobiologico
     extra = 0
+
+
 
 class SensibilidadMicrobiologicaInline(admin.TabularInline):
     model = SensibilidadMicrobiologica
@@ -289,17 +292,47 @@ class MuestraMicrobiologicaAdmin(admin.ModelAdmin):
     )
 
     inlines = [
-        AislamientoMicrobiologicoInline,
+        EstudioMicrobiologicoInline,
     ]
+    
+@admin.register(EstudioMicrobiologico)
+class EstudioMicrobiologicoAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "muestra",
+        "tipo_estudio",
+        "estado",
+    )
+
+    search_fields = (
+        "muestra__internacion__paciente__apellido",
+        "muestra__internacion__paciente__nombre",
+    )
+
+    list_filter = (
+        "tipo_estudio",
+        "estado",
+    )
+
+    autocomplete_fields = (
+        "muestra",
+        "tipo_estudio",
+    )
+
+    list_select_related = (
+        "muestra",
+        "tipo_estudio",
+    )
+    
 
 
 @admin.register(AislamientoMicrobiologico)
 class AislamientoMicrobiologicoAdmin(admin.ModelAdmin):
 
     list_display = (
-        "muestra",
-        "germen",
-        "significativo",
+    "estudio",
+    "germen",
+    "significativo",
     )
 
     search_fields = (
@@ -311,12 +344,12 @@ class AislamientoMicrobiologicoAdmin(admin.ModelAdmin):
     )
 
     autocomplete_fields = (
-        "muestra",
+        "estudio",
         "germen",
     )
 
     list_select_related = (
-        "muestra",
+        "estudio",
         "germen",
     )
 
