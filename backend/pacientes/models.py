@@ -431,6 +431,21 @@ class Internacion(ModeloBase):
         blank=True,
         verbose_name="Índice paquetes-año",
     )
+    
+    
+
+    vacuna_neumococo_fecha = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Fecha/Año vacuna Neumococo",
+    )
+    vacuna_vsr_fecha = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Fecha/Año vacuna VSR",
+    )
 
     class Meta:
         verbose_name = "Internación"
@@ -515,6 +530,8 @@ class InternacionCatalogo(ModeloBase):
         related_name="internaciones",
         verbose_name="Catálogo",
     )
+    
+    observacion = models.CharField(max_length=50, blank=True, null=True, verbose_name="Fecha / Observación")
 
     class Meta:
         verbose_name = "Elemento de la internación"

@@ -349,7 +349,7 @@ def internacion_detalle(request, pk):
 # COMORBILIDADES
 # ==========================================================
 
-def _sincronizar_catalogos(internacion, tipo_codigo, catalogos_seleccionados):
+def _sincronizar_catalogos(internacion, tipo_codigo, catalogos_seleccionados, request=None):
     actuales = InternacionCatalogo.objects.filter(
         internacion=internacion,
         catalogo__tipo__codigo=tipo_codigo,
@@ -363,12 +363,31 @@ def _sincronizar_catalogos(internacion, tipo_codigo, catalogos_seleccionados):
     if ids_a_borrar:
         actuales.filter(catalogo_id__in=ids_a_borrar).delete()
 
-    InternacionCatalogo.objects.bulk_create(
-        [
-            InternacionCatalogo(internacion=internacion, catalogo_id=catalogo_id)
-            for catalogo_id in ids_a_crear
-        ]
-    )
+    if ids_a_crear:
+        InternacionCatalogo.objects.bulk_create(
+            [
+                InternacionCatalogo(internacion=internacion, catalogo_id=catalogo_id)
+                for catalogo_id in ids_a_crear
+            ]
+        )
+
+    # Si estamos sincronizando inmunizaciones, guardamos también sus fechas asociadas
+    if tipo_codigo == "INMUNIZACION" and request:
+        for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True):
+            if "Antigripal" not in item.descripcion and "COVID" not in item.descripcion:
+                campo_nombre = f"inmunizacion_fecha_{item.pk}"
+                fecha_ingresada = request.POST.get(campo_nombre)
+                
+                if fecha_ingresada is not None:
+                    relacion = InternacionCatalogo.objects.filter(
+                        internacion=internacion, catalogo=item
+                    ).first()
+                    if relacion:
+                        # Asegúrate de tener un campo de texto/observación en InternacionCatalogo, 
+                        # o puedes guardarlo si ya existe dicho campo.
+                        relacion.observacion = fecha_ingresada
+                        relacion.save()
+
 
 @login_required
 def comorbilidades_view(request, pk):
@@ -378,10 +397,6 @@ def comorbilidades_view(request, pk):
         internaciones__internacion=internacion,
         tipo__codigo="COMORBILIDAD",
     )
-    inmunizaciones_seleccionadas = Catalogo.objects.filter(
-        internaciones__internacion=internacion,
-        tipo__codigo="INMUNIZACION",
-    )
 
     if request.method == "POST":
         form = ComorbilidadesForm(request.POST)
@@ -389,16 +404,31 @@ def comorbilidades_view(request, pk):
             _sincronizar_catalogos(
                 internacion, "COMORBILIDAD", form.cleaned_data["comorbilidades"]
             )
-            _sincronizar_catalogos(
-                internacion, "INMUNIZACION", form.cleaned_data["inmunizaciones"]
-            )
+            
+            # Sincronizamos las inmunizaciones seleccionadas
+            inmunizaciones_ids = request.POST.getlist("inmunizaciones")
+            catalogos_inmu = Catalogo.objects.filter(pk__in=inmunizaciones_ids)
+            _sincronizar_catalogos(internacion, "INMUNIZACION", catalogos_inmu)
+
+            # Guardamos la fecha/año de cada inmunización con input de texto
+            for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True):
+                if "Antigripal" not in item.descripcion and "COVID" not in item.descripcion:
+                    campo_nombre = f"inmunizacion_fecha_{item.pk}"
+                    fecha_ingresada = request.POST.get(campo_nombre)
+                    if fecha_ingresada is not None:
+                        relacion = InternacionCatalogo.objects.filter(
+                            internacion=internacion, catalogo=item
+                        ).first()
+                        if relacion:
+                            relacion.observacion = fecha_ingresada
+                            relacion.save()
+
             messages.success(request, "Comorbilidades guardadas correctamente.")
             return redirect("pacientes:comorbilidades", pk=internacion.pk)
     else:
         form = ComorbilidadesForm(
             initial={
                 "comorbilidades": comorbilidades_seleccionadas,
-                "inmunizaciones": inmunizaciones_seleccionadas,
             }
         )
 
@@ -409,12 +439,20 @@ def comorbilidades_view(request, pk):
         comorbilidades_por_grupo.setdefault(item.grupo, []).append(item)
 
     ids_seleccionados = set(comorbilidades_seleccionadas.values_list("pk", flat=True))
-    inmunizaciones = Catalogo.objects.filter(
-        tipo__codigo="INMUNIZACION", activo=True
-    ).order_by("orden")
+    
     ids_inmunizaciones_seleccionadas = set(
-        inmunizaciones_seleccionadas.values_list("pk", flat=True)
+        Catalogo.objects.filter(internaciones__internacion=internacion, tipo__codigo="INMUNIZACION").values_list("pk", flat=True)
     )
+    
+    # Preparamos una lista que incluye el ítem, si está seleccionado y su fecha guardada
+    inmunizaciones_con_fecha = []
+    for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True).order_by("orden"):
+        relacion = InternacionCatalogo.objects.filter(internacion=internacion, catalogo=item).first()
+        inmunizaciones_con_fecha.append({
+            "item": item,
+            "seleccionado": item.pk in ids_inmunizaciones_seleccionadas,
+            "fecha": relacion.observacion if relacion and relacion.observacion else "",
+        })
 
     return render(
         request,
@@ -425,11 +463,9 @@ def comorbilidades_view(request, pk):
             "paciente": internacion.paciente,
             "comorbilidades_por_grupo": comorbilidades_por_grupo,
             "ids_comorbilidades_seleccionadas": ids_seleccionados,
-            "inmunizaciones": inmunizaciones,
-            "ids_inmunizaciones_seleccionadas": ids_inmunizaciones_seleccionadas,
+            "inmunizaciones_con_fecha": inmunizaciones_con_fecha,
         },
     )
-
 # ==========================================================
 # MICROBIOLOGÍA
 # ==========================================================

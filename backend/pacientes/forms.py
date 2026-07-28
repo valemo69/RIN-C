@@ -281,6 +281,28 @@ class ComorbilidadesForm(BootstrapFormMixin, forms.Form):
         widget=forms.CheckboxSelectMultiple,
     )
 
+    vacuna_neumococo_fecha = forms.CharField(
+        max_length=50,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Ej: 2024 o DD/MM/AAAA",
+            }
+        ),
+    )
+
+    vacuna_vsr_fecha = forms.CharField(
+        max_length=50,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Ej: 2024 o DD/MM/AAAA",
+            }
+        ),
+    )
+
 
 # ==========================================================
 # ELEMENTOS DE LA INTERNACIÓN
