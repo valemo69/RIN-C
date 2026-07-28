@@ -161,8 +161,8 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
         empty_label="Sin patología oncológica",
         widget=forms.Select(attrs={"class": "form-select"}),
     )
-    motivo_otro = forms.ModelChoiceField(
-        queryset=Catalogo.objects.filter(tipo__codigo="MOTIVO_OTRO", activo=True),
+    motivo_otros = forms.ModelChoiceField(
+        queryset=Catalogo.objects.filter(tipo__codigo__in=["MOTIVO_OTRO", "MOTIVO_OTROS"], activo=True),
         required=False,
         empty_label="Sin otros motivos",
         widget=forms.Select(attrs={"class": "form-select"}),
@@ -187,16 +187,16 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
     )
 
     # Exposición pasiva (ManyToMany -> checkboxes)
-    exposicion_pasiva = forms.ModelMultipleChoiceField(
-        queryset=Catalogo.objects.filter(tipo__codigo="EXPOSICION_PASIVA", activo=True),
+    tabaquismo_pasivo = forms.ModelMultipleChoiceField(
+        queryset=Catalogo.objects.filter(tipo__codigo="TABAQUISMO_PASIVO", activo=True),
         required=False,
         widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
     )
 
     # Otros hábitos (ManyToMany -> checkboxes)
-    otros_habitos = forms.ModelMultipleChoiceField(
+    otros_habitos_inhalatorios = forms.ModelMultipleChoiceField(
         queryset=Catalogo.objects.filter(
-            tipo__codigo="HABITO_INHALATORIO", activo=True
+            tipo__codigo="OTROS_HABITOS_INHALATORIOS", activo=True
         ),
         required=False,
         widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
@@ -205,7 +205,16 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
     # Exposiciones laborales (ManyToMany -> checkboxes)
     exposiciones_laborales = forms.ModelMultipleChoiceField(
         queryset=Catalogo.objects.filter(
-            tipo__codigo="EXPOSICION_LABORAL", activo=True
+            tipo__codigo__in=["EXPOSICION_LABORAL", "EXPOSICION_OCUPACIONAL"], activo=True
+        ),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
+    )
+
+    # Exposiciones ambientales (ManyToMany -> checkboxes)
+    exposiciones_ambientales = forms.ModelMultipleChoiceField(
+        queryset=Catalogo.objects.filter(
+            tipo__codigo="EXPOSICION_AMBIENTAL", activo=True
         ),
         required=False,
         widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
@@ -225,16 +234,17 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
             "motivo_pleural",
             "motivo_vascular",
             "motivo_oncologico",
-            "motivo_otro",
+            "motivo_otros",
             "antecedentes_respiratorios",
             "soporte_respiratorio",
             "tabaquismo",
             "cigarrillos_por_dia",
             "anos_fumando",
             "indice_paquetes_anio",
-            "exposicion_pasiva",
-            "otros_habitos",
+            "tabaquismo_pasivo",
+            "otros_habitos_inhalatorios",
             "exposiciones_laborales",
+            "exposiciones_ambientales",
         )
         widgets = {
             "fecha_ingreso": forms.DateInput(attrs={"type": "date"}),
@@ -248,12 +258,8 @@ class InternacionForm(BootstrapFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # 1. Quitar la opción nula '---------' inyectada por el mixin/Django
         if "tabaquismo" in self.fields:
             self.fields["tabaquismo"].empty_label = None
-
-            # 2. Asegurar que las opciones de radio usen la clase 'form-check-input'
-            # y no la clase 'form-control' que inyecta el BootstrapFormMixin
             self.fields["tabaquismo"].widget.attrs["class"] = "form-check-input"
 
 

@@ -178,7 +178,8 @@
 }
 
 .rinc-module-card .btn{
-    min-width:180px;
+    min-width: 180px;
+    color: #ffffff !important; /* Fuerza a que el texto del botón se vea siempre */
 }
 
 /* ==========================================================

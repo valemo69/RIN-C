@@ -5,7 +5,6 @@
 RIN-C | Internación
 {% endblock %}
 
-
 {% block content %}
 
 <div class="container-fluid py-4">
@@ -194,144 +193,142 @@ RIN-C | Internación
             </div>
         </div>
 
-       <!-- ========================================================== -->
+        <!-- ========================================================== -->
         <!-- EXPOSICIÓN INHALATORIA                                     -->
-    <!-- ========================================================== -->
+        <!-- ========================================================== -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Exposición inhalatoria</h5>
+            </div>
+            <div class="card-body">
+                
+                <!-- TABAQUISMO -->
+                <h6 class="text-primary fw-bold mb-3">TABAQUISMO</h6>
+                
+                <div class="row g-3 mb-4 align-items-center">
+                    <div class="col-lg-6">
+                        <div class="d-flex flex-wrap gap-3 align-items-center">
+                            {% for radio in form.tabaquismo %}
+                                {% if radio.choice_label != '---------' and radio.choice_label != '' %}
+                                    <div class="form-check form-check-inline me-2 mb-0">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-2 col-md-3 col-4">
+                        <label for="{{ form.cigarrillos_por_dia.id_for_label }}" class="form-label fw-bold">CIG/DÍA</label>
+                        {{ form.cigarrillos_por_dia }}
+                    </div>
+                    
+                    <div class="col-lg-2 col-md-3 col-4">
+                        <label for="{{ form.anos_fumando.id_for_label }}" class="form-label fw-bold">AÑOS</label>
+                        {{ form.anos_fumando }}
+                    </div>
+                    
+                    <div class="col-lg-2 col-md-3 col-4">
+                        <label for="{{ form.indice_paquetes_anio.id_for_label }}" class="form-label fw-bold">PACK-YEAR</label>
+                        {{ form.indice_paquetes_anio }}
+                    </div>
+                </div>
 
-<!-- EXPOSICIÓN INHALATORIA -->
-<div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="card-title mb-0">Exposición inhalatoria</h5>
-    </div>
-    <div class="card-body">
-        
-        <!-- TABAQUISMO -->
-        <h6 class="text-primary fw-bold mb-3">TABAQUISMO</h6>
-        
-        <div class="row g-3 mb-4 align-items-center">
-            <div class="col-lg-6">
-                <div class="d-flex flex-wrap gap-3 align-items-center">
-                    {% for radio in form.tabaquismo %}
-                        {% if radio.choice_label != '---------' and radio.choice_label != '' %}
-                            <div class="form-check form-check-inline me-2 mb-0">
-                                {{ radio.tag }}
-                                <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">
-                                    {{ radio.choice_label }}
+                <hr class="my-4">
+
+                <!-- OTRAS EXPOSICIONES INHALATORIAS -->
+                <h6 class="text-primary fw-bold mb-3">OTRAS EXPOSICIONES INHALATORIAS</h6>
+                <div class="row g-3 mb-4">
+                    {% for cat in motivos_otros_habitos_inhalatorios %}
+                        <div class="col-md-4 col-sm-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="otros_habitos" value="{{ cat.id }}" id="habito_{{ cat.id }}"
+                                    {% if cat.id in otros_habitos_inhalatorios_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="habito_{{ cat.id }}">
+                                    {{ cat.descripcion }}
                                 </label>
                             </div>
-                        {% endif %}
+                        </div>
+                    {% empty %}
+                        <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
                     {% endfor %}
                 </div>
-            </div>
-            
-            <div class="col-lg-2 col-md-3 col-4">
-                <label for="{{ form.cigarrillos_por_dia.id_for_label }}" class="form-label fw-bold">CIG/DÍA</label>
-                {{ form.cigarrillos_por_dia }}
-            </div>
-            
-            <div class="col-lg-2 col-md-3 col-4">
-                <label for="{{ form.anos_fumando.id_for_label }}" class="form-label fw-bold">AÑOS</label>
-                {{ form.anos_fumando }}
-            </div>
-            
-            <div class="col-lg-2 col-md-3 col-4">
-                <label for="{{ form.indice_paquetes_anio.id_for_label }}" class="form-label fw-bold">PACK-YEAR</label>
-                {{ form.indice_paquetes_anio }}
-            </div>
-        </div>
 
-        <hr class="my-4">
+                <hr class="my-4">
 
-        <!-- OTRAS EXPOSICIONES INHALATORIAS -->
-        <h6 class="text-primary fw-bold mb-3">OTRAS EXPOSICIONES INHALATORIAS</h6>
-        <div class="row g-3 mb-4">
-            {% for cat in motivos_otros_habitos %}
-                <div class="col-md-4 col-sm-6">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="otros_habitos" value="{{ cat.id }}" id="habito_{{ cat.id }}"
-                            {% if cat.id in otros_habitos_ids %}checked{% endif %}>
-                        <label class="form-check-label" for="habito_{{ cat.id }}">
-                            {{ cat.descripcion }}
-                        </label>
-                    </div>
+                <!-- EXPOSICIONES LABORALES Y AMBIENTALES -->
+                <h6 class="text-primary fw-bold mb-3">EXPOSICIONES LABORALES Y AMBIENTALES</h6>
+                <div class="row g-3">
+                    {% for cat in motivos_exposiciones_laborales %}
+                        <div class="col-md-4 col-sm-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="exposiciones_laborales" value="{{ cat.id }}" id="laboral_{{ cat.id }}"
+                                    {% if cat.id in exposiciones_laborales_ids %}checked{% endif %}>
+                                <label class="form-check-label" for="laboral_{{ cat.id }}">
+                                    {{ cat.descripcion }}
+                                </label>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
+                    {% endfor %}
                 </div>
-            {% empty %}
-                <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
-            {% endfor %}
+
+            </div>
         </div>
 
-        <hr class="my-4">
-
-        <!-- EXPOSICIONES LABORALES Y AMBIENTALES -->
-        <h6 class="text-primary fw-bold mb-3">EXPOSICIONES LABORALES Y AMBIENTALES</h6>
-        <div class="row g-3">
-            {% for cat in motivos_exposiciones_laborales %}
-                <div class="col-md-4 col-sm-6">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="exposiciones_laborales" value="{{ cat.id }}" id="laboral_{{ cat.id }}"
-                            {% if cat.id in exposiciones_laborales_ids %}checked{% endif %}>
-                        <label class="form-check-label" for="laboral_{{ cat.id }}">
-                            {{ cat.descripcion }}
-                        </label>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
-            {% endfor %}
-        </div>
-
-    </div>
-</div>
         <!-- ========================================================== -->
         <!-- ANTECEDENTES RESPIRATORIOS                                 -->
         <!-- ========================================================== -->
-        <!-- ANTECEDENTES RESPIRATORIOS -->
-<div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="card-title mb-0">Antecedentes respiratorios</h5>
-    </div>
-    <div class="card-body">
-        <div class="row g-3">
-            {% for checkbox in form.antecedentes_respiratorios %}
-                <div class="col-md-4 col-sm-6">
-                    <div class="form-check">
-                        {{ checkbox.tag }}
-                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">
-                            {{ checkbox.choice_label }}
-                        </label>
-                    </div>
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Antecedentes respiratorios</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for checkbox in form.antecedentes_respiratorios %}
+                        <div class="col-md-4 col-sm-6">
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
+                    {% endfor %}
                 </div>
-            {% empty %}
-                <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
-            {% endfor %}
+            </div>
         </div>
-    </div>
-</div>
+
         <!-- ========================================================== -->
         <!-- SOPORTE RESPIRATORIO                                       -->
         <!-- ========================================================== -->
-        <!-- SOPORTE RESPIRATORIO -->
-<div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="card-title mb-0">Soporte respiratorio</h5>
-    </div>
-    <div class="card-body">
-        <div class="row g-3">
-            {% for checkbox in form.soporte_respiratorio %}
-                <div class="col-md-4 col-sm-6">
-                    <div class="form-check">
-                        {{ checkbox.tag }}
-                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">
-                            {{ checkbox.choice_label }}
-                        </label>
-                    </div>
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Soporte respiratorio</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for checkbox in form.soporte_respiratorio %}
+                        <div class="col-md-4 col-sm-6">
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
+                    {% endfor %}
                 </div>
-            {% empty %}
-                <div class="col-12"><p class="text-muted small mb-0">No hay opciones disponibles.</p></div>
-            {% endfor %}
+            </div>
         </div>
-    </div>
-</div>
 
         <!-- ========================================================== -->
         <!-- BOTÓN GUARDAR                                              -->
@@ -357,11 +354,11 @@ RIN-C | Internación
                 <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
                     <h6 class="mb-4">Guardá la internación primero</h6>
-                    <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
+                    <button class="btn btn-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
                     <h6 class="mb-4">Cargar comorbilidades e inmunizaciones</h6>
                     <a href="{% url 'pacientes:comorbilidades' internacion.pk %}"
-                        class="btn btn-rinc-primary mt-4">Abrir módulo</a>
+                        class="btn btn-primary mt-4">Abrir módulo</a>
                     {% endif %}
                 </div>
             </div>
@@ -374,10 +371,10 @@ RIN-C | Internación
                 <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
                     <h6 class="mb-4">Guardá la internación primero</h6>
-                    <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
+                    <button class="btn btn-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
                     <h6 class="mb-4">Muestras, aislamientos y antibiogramas</h6>
-                    <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir
+                    <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-primary mt-4">Abrir
                         módulo</a>
                     {% endif %}
                 </div>
@@ -391,10 +388,10 @@ RIN-C | Internación
                 <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
                     <h6 class="mb-4">Guardá la internación primero</h6>
-                    <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
+                    <button class="btn btn-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
                     <h6 class="mb-4">Cargar estudios y procedimientos</h6>
-                    <a href="{% url 'pacientes:estudios_procedimientos' %}" class="btn btn-rinc-primary mt-4">Abrir
+                    <a href="{% url 'pacientes:estudios_procedimientos' %}" class="btn btn-primary mt-4">Abrir
                         módulo</a>
                     {% endif %}
                 </div>
@@ -408,10 +405,10 @@ RIN-C | Internación
                 <div class="card-body rinc-card-body text-center">
                     {% if es_nueva %}
                     <h6 class="mb-4">Guardá la internación primero</h6>
-                    <button class="btn btn-rinc-primary mt-4" disabled>Abrir módulo</button>
+                    <button class="btn btn-primary mt-4" disabled>Abrir módulo</button>
                     {% else %}
                     <h6 class="mb-4">Antimicrobianos, dosis y vías</h6>
-                    <a href="{% url 'pacientes:tratamiento' internacion.pk %}" class="btn btn-rinc-primary mt-4">Abrir
+                    <a href="{% url 'pacientes:tratamiento' internacion.pk %}" class="btn btn-primary mt-4">Abrir
                         módulo</a>
                     {% endif %}
                 </div>
@@ -421,7 +418,7 @@ RIN-C | Internación
 
     <!-- VOLVER AL LISTADO -->
     <div class="d-flex justify-content-start mt-3">
-        <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}" class="btn btn-rinc-secondary">
+        <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Volver al listado
         </a>
     </div>

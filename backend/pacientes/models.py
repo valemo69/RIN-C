@@ -86,7 +86,6 @@ class TipoCatalogo(ModeloBase):
 
 
 class Catalogo(ModeloBase):
-
     tipo = models.ForeignKey(
         TipoCatalogo,
         on_delete=models.PROTECT,
@@ -103,6 +102,8 @@ class Catalogo(ModeloBase):
     subgrupo = models.CharField(max_length=100, blank=True, verbose_name="Subgrupo")
 
     orden = models.PositiveIntegerField(default=0, verbose_name="Orden")
+
+    activo = models.BooleanField(default=True, verbose_name="Activo")
 
     class Meta:
         verbose_name = "Catálogo"
@@ -218,16 +219,6 @@ class Paciente(ModeloBase):
 
     @property
     def edad(self):
-        """
-        Calcula la edad en años a partir de fecha_nacimiento.
-
-        Por qué una @property y no un campo en la base de datos:
-        la edad cambia todos los días, así que si la guardáramos
-        como un campo normal, quedaría desactualizada al día
-        siguiente de calcularla. Al ser una property, Django la
-        recalcula cada vez que se accede a paciente.edad, tomando
-        siempre la fecha actual como referencia.
-        """
         if not self.fecha_nacimiento:
             return None
 
@@ -237,7 +228,6 @@ class Paciente(ModeloBase):
 
         edad = hoy.year - self.fecha_nacimiento.year
 
-        # Si todavía no pasó el cumpleaños este año, restamos 1.
         cumplio_este_anio = (hoy.month, hoy.day) >= (
             self.fecha_nacimiento.month,
             self.fecha_nacimiento.day,
@@ -348,14 +338,11 @@ class Internacion(ModeloBase):
         Catalogo,
         on_delete=models.PROTECT,
         related_name='+',
-        limit_choices_to={"tipo__codigo": "MOTIVO_OTRO", "activo": True},
+        limit_choices_to={"tipo__codigo__in": ["MOTIVO_OTRO", "MOTIVO_OTROS"], "activo": True},
         null=True,
         blank=True,
         verbose_name="Otro motivo",
     )
-
-  
-    
 
     # =====================================================
     # EXPOSICIÓN INHALATORIA
@@ -371,18 +358,18 @@ class Internacion(ModeloBase):
         verbose_name="Tabaquismo",
     )
 
-    exposicion_pasiva = models.ManyToManyField(
+    tabaquismo_pasivo = models.ManyToManyField(
         Catalogo,
         related_name='+',
-        limit_choices_to={"tipo__codigo": "EXPOSICION_PASIVA", "activo": True},
+        limit_choices_to={"tipo__codigo": "TABAQUISMO_PASIVO", "activo": True},
         blank=True,
-        verbose_name="Exposición pasiva al humo de tabaco",
+        verbose_name="Tabaquismo pasivo",
     )
 
-    otros_habitos = models.ManyToManyField(
+    otros_habitos_inhalatorios = models.ManyToManyField(
         Catalogo,
         related_name='+',
-        limit_choices_to={"tipo__codigo": "HABITO_INHALATORIO", "activo": True},
+        limit_choices_to={"tipo__codigo": "OTROS_HABITOS_INHALATORIOS", "activo": True},
         blank=True,
         verbose_name="Otros hábitos inhalatorios",
     )
@@ -390,11 +377,18 @@ class Internacion(ModeloBase):
     exposiciones_laborales = models.ManyToManyField(
         Catalogo,
         related_name='+',
-        limit_choices_to={"tipo__codigo": "EXPOSICION_LABORAL", "activo": True},
+        limit_choices_to={"tipo__codigo__in": ["EXPOSICION_LABORAL", "EXPOSICION_OCUPACIONAL"], "activo": True},
         blank=True,
-        verbose_name="Exposiciones laborales y ambientales",
+        verbose_name="Exposiciones laborales",
     )
 
+    exposiciones_ambientales = models.ManyToManyField(
+        Catalogo,
+        related_name='+',
+        limit_choices_to={"tipo__codigo": "EXPOSICION_AMBIENTAL", "activo": True},
+        blank=True,
+        verbose_name="Exposiciones ambientales",
+    )
 
     # =====================================================
     # ANTECEDENTES RESPIRATORIOS
@@ -441,12 +435,6 @@ class Internacion(ModeloBase):
     class Meta:
         verbose_name = "Internación"
         verbose_name_plural = "Internaciones"
-        ordering = ["-fecha_ingreso", "paciente"]
-
-    def __str__(self):
-        return f"{self.paciente} - {self.fecha_ingreso:%d/%m/%Y}"
-
-
    
 # ==========================================================
 # TRATAMIENTO ANTIMICROBIANO
@@ -509,7 +497,6 @@ class InternacionTratamientoAntimicrobiano(EventoInternacion):
 
 # ==========================================================
 # RELACIÓN ENTRE INTERNACIÓN Y CATÁLOGOS
-# (se mantiene igual, no se toca)
 # ==========================================================
 
 
@@ -556,7 +543,6 @@ class InternacionCatalogo(ModeloBase):
 
 # ==========================================================
 # MUESTRAS MICROBIOLÓGICAS
-# 
 # ==========================================================
 
 
@@ -794,8 +780,6 @@ class CultivoDetalle(ModeloBase):
         choices=Resultado.choices,
         verbose_name="Resultado",
     )
-    
-    
 
     fecha_informe = models.DateField(
         blank=True,
@@ -1074,7 +1058,6 @@ class AislamientoMicrobiologico(ModeloBase):
 
 # ==========================================================
 # SENSIBILIDAD MICROBIOLÓGICA
-# (se mantiene igual, no se toca)
 # ==========================================================
 
 
