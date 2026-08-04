@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+Eliminar aislamiento - {{ paciente.apellido }}, {{ paciente.nombre }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card rinc-card border-danger">
+                <div class="card-header rinc-card-header bg-danger text-white">
+                    <h4>Confirmar eliminación</h4>
+                </div>
+                <div class="card-body rinc-card-body">
+                    <p>¿Estás seguro de que deseas eliminar el siguiente aislamiento?</p>
+                    <ul>
+                        <li><strong>Germen:</strong> {{ aislamiento.germen.descripcion }}</li>
+                        <li><strong>Muestra:</strong> {{ muestra.tipo_muestra.descripcion }} - {{ muestra.destino.descripcion }}</li>
+                    </ul>
+                    <p class="text-danger"><strong>Esta acción eliminará también las sensibilidades asociadas.</strong></p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Eliminar definitivamente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

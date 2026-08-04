@@ -57,9 +57,15 @@ def cargar(apps, schema_editor):
     # TIPO_IR: "Hipoxémica"/"Hipercápnica"/"Mixta" ya los había
     # cargado la migración 0004 (con otros códigos). Acá solo
     # agregamos la opción "No" que faltaba, para no duplicar.
-    cargar_items("TIPO_IR", [
-        ("NO", "No", 0),
-    ])
+    cargar_items("SOPORTE_RESPIRATORIO", [
+    ("NINGUNO", "Ningún soporte", 1),
+    ("OXIGENO", "Oxigenoterapia convencional", 2),
+    ("CPAP", "CPAP", 3),
+    ("BIPAP", "BiPAP", 4),
+    ("CNAF", "Cánula nasal de alto flujo (CNAF)", 5),
+    ("ARM", "Asistencia respiratoria mecánica", 6),
+    ("TRAQUEOSTOMIA", "Traqueostomía", 7),
+])
 
 
 def deshacer(apps, schema_editor):

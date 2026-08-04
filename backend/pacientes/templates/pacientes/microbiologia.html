@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}
 RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
@@ -10,21 +11,25 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 {% endblock %}
 
 {% block content %}
+<h1 style="color:red;">¡ESTE ES EL TEMPLATE CORRECTO!</h1>
+<!-- DEBUG: muestras count = {{ muestras|length }} -->
 
 <div class="container-fluid py-4">
 
-    <!-- BREADCRUMB -->
+    <!-- ========================================= -->
+    <!-- BREADCRUMB                                -->
+    <!-- ========================================= -->
 
     <nav aria-label="breadcrumb" class="mb-4">
-
         <ol class="breadcrumb">
-
             <li class="breadcrumb-item">
-                <a href="{% url 'pacientes:inicio' %}">Inicio</a>
+                <a href="{% url 'pacientes:inicio' %}">
+                    Inicio
+                </a>
             </li>
 
             <li class="breadcrumb-item">
-                <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}">
+                <a href="{% url 'pacientes:internaciones_paciente' paciente.pk %}">
                     Pacientes e Internaciones
                 </a>
             </li>
@@ -36,20 +41,17 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
             </li>
 
             <li class="breadcrumb-item active">
-
                 Microbiología
-
             </li>
-
         </ol>
-
     </nav>
 
 
+    <!-- ========================================= -->
+    <!-- PACIENTE                                  -->
+    <!-- ========================================= -->
 
-    <!-- PACIENTE -->
-
-    <div class="card rinc-card rinc-patient-header">
+    <div class="card rinc-card rinc-patient-header mb-4">
 
         <div class="card-body rinc-card-body">
 
@@ -57,7 +59,7 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 
                 <div class="col-lg-8">
 
-                    <h2 class="fw-bold">
+                    <h2 class="fw-bold mb-3">
 
                         {{ paciente.apellido }}, {{ paciente.nombre }}
 
@@ -100,8 +102,9 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
     </div>
 
 
-
-    <!-- PROGRESO -->
+    <!-- ========================================= -->
+    <!-- PROGRESO                                  -->
+    <!-- ========================================= -->
 
     <div class="card rinc-card mb-4">
 
@@ -152,44 +155,84 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
     </div>
 
 
-
-    <!-- NUEVA MUESTRA -->
+    <!-- ========================================= -->
+    <!-- NUEVA MUESTRA                             -->
+    <!-- ========================================= -->
 
     <div class="card rinc-card mb-4">
 
         <div class="card-header rinc-card-header">
-            <h5 class="mb-0">Nuevo estudio microbiológico</h5>
+
+            <h5 class="mb-0">
+
+                Nueva muestra microbiológica
+
+            </h5>
+
         </div>
 
         <div class="card-body rinc-card-body">
 
-            <form method="post" class="row g-3 align-items-end">
+            <form method="post">
 
                 {% csrf_token %}
 
-                <div class="col-md-2">
-                    <label class="form-label">Fecha de toma</label>
-                    {{ form.fecha_toma }}
-                    {{ form.fecha_toma.errors }}
-                </div>
+                <div class="row g-3">
 
-                <div class="col-md-4">
-                    <label class="form-label">Tipo de muestra</label>
-                    {{ form.tipo_muestra }}
-                    {{ form.tipo_muestra.errors }}
-                </div>
+                    <div class="col-md-3">
 
-                <div class="col-md-4">
-                    <label class="form-label">Destino</label>
-                    {{ form.destino }}
-                    {{ form.destino.errors }}
-                </div>
+                        <label class="form-label">
 
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-rinc-primary w-100">
-                        <i class="bi bi-plus-circle me-1"></i>
-                        Agregar
-                    </button>
+                            Fecha de toma
+
+                        </label>
+
+                        {{ form.fecha_toma }}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+
+                            Tipo de muestra
+
+                        </label>
+
+                        {{ form.tipo_muestra }}
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+
+                            Destino
+
+                        </label>
+
+                        {{ form.destino }}
+
+                    </div>
+
+                    <div class="col-md-2 d-grid">
+
+                        <label class="form-label invisible">
+
+                            .
+
+                        </label>
+
+                        <button type="submit" class="btn btn-rinc-primary">
+
+                            <i class="bi bi-plus-circle me-1"></i>
+
+                            Agregar
+
+                        </button>
+
+                    </div>
+
                 </div>
 
             </form>
@@ -197,9 +240,11 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
         </div>
 
     </div>
+    <!-- ========================================= -->
+    <!-- MUESTRAS MICROBIOLÓGICAS                  -->
+    <!-- ========================================= -->
 
-
-    <!-- MUESTRAS EXISTENTES -->
+    {% if muestras %}
 
     {% for muestra in muestras %}
 
@@ -207,18 +252,33 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 
         <div class="card-header rinc-card-header">
 
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-start">
 
                 <div>
-                    <h5 class="mb-1">Estudios microbiológicos</h5>
-                    <small>
-                        <strong>Muestra:</strong>
-                        {{ muestra.tipo_muestra.descripcion }}
+
+                    <h4 class="mb-1">
+
+                        {{ muestra.tipo_muestra.descripcion }} - {{ muestra.destino.descripcion }}
+
+                    </h4>
+
+                    <small class="text-white-50">
+
+                        {{ muestra.fecha_toma|date:"d/m/Y" }}
+
                     </small>
+
                 </div>
 
-                <div class="text-end">
-                    <small>{{ muestra.fecha_toma|date:"d/m/Y" }}</small>
+                <div class="d-flex gap-1">
+                    <a href="{% url 'pacientes:muestra_editar' muestra.pk %}" class="btn btn-outline-light btn-sm"
+                        title="Editar muestra">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'pacientes:muestra_eliminar' muestra.pk %}" class="btn btn-outline-danger btn-sm"
+                        title="Eliminar muestra">
+                        <i class="bi bi-trash"></i>
+                    </a>
                 </div>
 
             </div>
@@ -227,142 +287,201 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 
         <div class="card-body rinc-card-body">
 
-            <p class="mb-4">
-                <strong>Destino:</strong>
-                {{ muestra.destino.descripcion }}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <h4 class="text-primary fw-bold mb-0">
+
+                    RESULTADOS MICROBIOLÓGICOS
+
+                </h4>
+
+            </div>
+
+            <p class="text-white mb-4">
+
+                Agregue uno o más resultados correspondientes a esta muestra.
+
             </p>
 
-            <h6 class="mb-3">Estudios microbiológicos</h6>
+            <!-- ===================================== -->
+            <!-- NUEVO RESULTADO MICROBIOLÓGICO         -->
+            <!-- ===================================== -->
 
-            <p class="text-muted">
-                Aún no se cargaron estudios microbiológicos para esta muestra.
-            </p>
+            <div class="card border-0 mb-4" style="background-color: rgba(255,255,255,.03);">
+                <div class="card-body">
+                    <h6 class="text-success mb-3">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Agregar resultado microbiológico
+                    </h6>
 
-            <hr>
-
-            <h6>Gérmenes aislados</h6>
-
-            <ul>
-
-                {% for aislamiento in muestra.aislamientos.all %}
-
-                <li class="mb-3">
-
-                    <strong>{{ aislamiento.germen.descripcion }}</strong>
-
-                    {% if not aislamiento.significativo %}
-                    <span class="badge bg-secondary ms-2">
-                        No significativo
-                    </span>
-                    {% endif %}
-
-                    {% for sensibilidad in aislamiento.sensibilidades.all %}
-                    <span class="badge bg-dark ms-1">
-                        {{ sensibilidad.antibiotico.descripcion }}:
-                        {{ sensibilidad.get_resultado_display }}
-                    </span>
-                    {% endfor %}
-
-                    <!-- Antibiograma -->
-
-                    <form method="post" action="{% url 'pacientes:sensibilidad_agregar' aislamiento.pk %}"
-                        class="row g-2 align-items-end mt-2 ms-1">
-
+                    <form method="post" action="{% url 'pacientes:aislamiento_agregar' muestra.pk %}"
+                        class="row g-3 align-items-end">
                         {% csrf_token %}
 
-                        <div class="col-4">
-                            {{ sensibilidad_form.antibiotico }}
+                        <div class="col-md-9">
+                            <label class="form-label">Microorganismo</label>
+                            <!-- DEBUG: Destino {{ muestra.destino.codigo }} - Gérmenes filtrados: {{ germenes_por_muestra|get_item:muestra.pk|length }} -->
+                            <select name="germen" class="form-select">
+                                <option value="">Seleccione un microorganismo...</option>
+                                {% with germenes_filtrados=germenes_por_muestra|get_item:muestra.pk %}
+                                {% for g in germenes_filtrados %}
+                                <option value="{{ g.pk }}">{{ g.descripcion }}</option>
+                                {% endfor %}
+                                {% endwith %}
+                            </select>
                         </div>
 
-                        <div class="col-4">
-                            {{ sensibilidad_form.resultado }}
-                        </div>
-
-                        <div class="col-3">
-                            <button type="submit" class="btn btn-sm btn-rinc-primary">
-                                Antibiograma
+                        <div class="col-md-3 d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Guardar
                             </button>
                         </div>
-
                     </form>
-
-                </li>
-
-                {% empty %}
-
-                <li class="text-muted">
-                    Sin gérmenes aislados.
-                </li>
-
-                {% endfor %}
-
-            </ul>
-
-            <!-- Agregar germen -->
-
-            <form method="post" action="{% url 'pacientes:aislamiento_agregar' muestra.pk %}"
-                class="row g-2 align-items-end">
-
-                {% csrf_token %}
-
-                <div class="col-5">
-                    <label class="form-label">Germen</label>
-                    {{ aislamiento_form.germen }}
                 </div>
+            </div>
 
-                <div class="col-4">
 
-                    <div class="form-check mt-4">
-                        {{ aislamiento_form.significativo }}
-                        <label class="form-check-label">
-                            Significativo
-                        </label>
+            <!-- ===================================== -->
+            <!-- RESULTADOS DE LA MUESTRA              -->
+            <!-- ===================================== -->
+
+            {% for estudio in muestra.estudios.all %}
+
+            {% for aislamiento in estudio.aislamientos.all %}
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <!-- Cabecera del aislamiento -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">
+                                {{ aislamiento.germen.descripcion }}
+                            </h6>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'pacientes:aislamiento_editar' aislamiento.pk %}"
+                                class="btn btn-sm btn-outline-secondary" title="Editar aislamiento">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'pacientes:aislamiento_eliminar' aislamiento.pk %}"
+                                class="btn btn-sm btn-outline-danger" title="Eliminar aislamiento">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#antibiograma-{{ aislamiento.pk }}" aria-expanded="false">
+                                <i class="bi bi-chevron-down"></i> Ver antibiograma
+                            </button>
+                        </div>
                     </div>
 
+                    <!-- Contenido colapsable (antibiograma) -->
+                    <div class="collapse mt-3" id="antibiograma-{{ aislamiento.pk }}">
+                        <hr>
+                        <h6 class="small text-primary mb-3">Antibiograma</h6>
+
+                        {% if aislamiento.sensibilidades.all %}
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th width="70%">Antimicrobiano</th>
+                                    <th width="15%">Resultado</th>
+                                    <th width="15%">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sensibilidad in aislamiento.sensibilidades.all %}
+                                <tr>
+                                    <td>{{ sensibilidad.antibiotico.descripcion }}</td>
+                                    <td><strong>{{ sensibilidad.get_resultado_display }}</strong></td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Editar</button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="alert alert-light border">Todavía no hay sensibilidades cargadas.</div>
+                        {% endif %}
+
+                        <!-- Formulario para agregar sensibilidad -->
+                        <form method="post" action="{% url 'pacientes:sensibilidad_agregar' aislamiento.pk %}"
+                            class="row g-2 mt-3">
+                            {% csrf_token %}
+                            <div class="col-md-5">
+                                <label class="form-label">Antimicrobiano</label>
+                                {% with form_sensibilidad=sensibilidad_forms_por_aislamiento|get_item:aislamiento.pk %}
+                                {{ form_sensibilidad.antibiotico }}
+                                {% endwith %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Resultado</label>
+                                {% with form_sensibilidad=sensibilidad_forms_por_aislamiento|get_item:aislamiento.pk %}
+                                {{ form_sensibilidad.resultado }}
+                                {% endwith %}
+                            </div>
+                            <div class="col-md-2 d-grid">
+                                <label class="form-label invisible">.</label>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Fin collapse -->
+
                 </div>
+                <!-- Fin card-body -->
+            </div>
+            <!-- Fin card -->
 
-                <div class="col-3">
+            <div class="alert alert-secondary">
 
-                    <button type="submit" class="btn btn-sm btn-outline-success w-100">
+                No hay resultados microbiológicos cargados para esta muestra.
 
-                        <i class="bi bi-plus-lg"></i>
+            </div>
 
-                        Germen
+            {% endfor %}
 
-                    </button>
-
-                </div>
-
-            </form>
-
+            {% endfor %}
         </div>
-
-    </div>
-
-    {% empty %}
-
-    <div class="rinc-empty mb-4">
-
-        <h5>Todavía no hay estudios microbiológicos cargados</h5>
-
-        <p>
-            Usá el formulario de arriba para agregar la primera muestra.
-        </p>
 
     </div>
 
     {% endfor %}
 
-    <!-- BOTONERA -->
+    {% else %}
 
-    {% comment %} No hay un botón único de "Guardar" acá abajo porque cada
-    formulario de esta pantalla (muestra nueva, agregar germen,
-    agregar antibiograma) ya se guarda solo al tocar su propio
-    botón. "Estudios complementarios" queda deshabilitado porque
-    ese módulo todavía no está conectado (es el próximo paso
-    después de este). {% endcomment %}
+    <div class="card rinc-card">
 
-    <div class="rinc-actions">
+        <div class="card-body text-center py-5">
+
+            <i class="bi bi-inboxes fs-1 text-secondary"></i>
+
+            <h5 class="mt-3">
+
+                Todavía no hay muestras microbiológicas
+
+            </h5>
+
+            <p class="text-muted mb-0">
+
+                Utilice el formulario superior para registrar la primera muestra.
+
+            </p>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ========================================= -->
+    <!-- BOTONERA                                  -->
+    <!-- ========================================= -->
+
+    <div class="rinc-actions mt-4">
 
         <a href="{% url 'pacientes:comorbilidades' internacion.pk %}" class="btn btn-rinc-secondary">
 
@@ -374,18 +493,17 @@ RIN-C | Microbiología - {{ paciente.apellido }}, {{ paciente.nombre }}
 
         <div class="rinc-actions-right">
 
-            <button type="button" class="btn btn-rinc-primary" disabled>
+            <a href="{% url 'pacientes:estudios_procedimientos' %}" class="btn btn-rinc-primary">
 
                 Estudios complementarios
 
                 <i class="bi bi-arrow-right ms-1"></i>
 
-            </button>
+            </a>
 
         </div>
 
     </div>
-
 </div>
 
 {% endblock %}

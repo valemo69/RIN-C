@@ -21,19 +21,18 @@ RIN-C | Internación
         </ol>
     </nav>
 
-    <!-- CABECERA PACIENTE -->
-    <div class="card rinc-card rinc-patient-header">
-        <div class="card-body rinc-card-body">
-            <h4 class="fw-semibold mb-3">{{ paciente.apellido }}, {{ paciente.nombre }}</h4>
-            <div class="row">
-                <div class="col-md-3"><strong>DNI</strong> {{ paciente.numero_documento }}</div>
-                <div class="col-md-3"><strong>Sexo</strong> {{ paciente.sexo }}</div>
-                <div class="col-md-3"><strong>Fecha de nacimiento</strong> {{ paciente.fecha_nacimiento|date:"d/m/Y" }}
-                </div>
-                <div class="col-md-3"><strong>Edad</strong> {{ paciente.edad }}</div>
-            </div>
+   <!-- CABECERA PACIENTE -->
+<div class="card rinc-card rinc-patient-header">
+    <div class="card-body rinc-card-body">
+        <h4 class="fw-semibold mb-3">{{ paciente.apellido }}, {{ paciente.nombre }}</h4>
+        <div class="row">
+            <div class="col-md-3"><strong>DNI</strong> {{ paciente.numero_documento }}</div>
+            <div class="col-md-3"><strong>Sexo</strong> {{ paciente.sexo|cut:"Sexo - " }}</div>
+            <div class="col-md-3"><strong>Fecha de nacimiento</strong> {{ paciente.fecha_nacimiento|date:"d/m/Y" }}</div>
+            <div class="col-md-3"><strong>Edad</strong> {{ paciente.edad }}</div>
         </div>
     </div>
+</div>
 
     <form method="post">
         {% csrf_token %}
@@ -331,97 +330,26 @@ RIN-C | Internación
         </div>
 
         <!-- ========================================================== -->
-        <!-- BOTÓN GUARDAR                                              -->
+        <!-- BOTONERA DE ACCIONES                                       -->
         <!-- ========================================================== -->
-        <div class="d-flex justify-content-end mb-4">
-            <button type="submit" class="btn btn-success btn-lg">
-                <i class="bi bi-check-circle me-1"></i>
-                {% if es_nueva %}Guardar{% else %}Guardar cambios{% endif %}
-            </button>
+        <div class="rinc-actions">
+            <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}" class="btn btn-rinc-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver al listado
+            </a>
+            <div class="rinc-actions-right">
+                <button type="submit" class="btn btn-rinc-primary me-2">
+                    <i class="bi bi-check-circle me-1"></i>
+                    {% if es_nueva %}Guardar{% else %}Guardar cambios{% endif %}
+                </button>
+                {% if not es_nueva %}
+                <a href="{% url 'pacientes:comorbilidades' internacion.pk %}" class="btn btn-rinc-secondary">
+                    Comorbilidades <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+                {% endif %}
+            </div>
         </div>
 
     </form>
-
-    <!-- ========================================================== -->
-    <!-- MÓDULOS                                                    -->
-    <!-- ========================================================== -->
-    <div class="row">
-        <div class="col-lg-3 mb-4">
-            <div class="card rinc-card rinc-module-card">
-                <div class="card-header rinc-card-header">
-                    <h5>Comorbilidades</h5>
-                </div>
-                <div class="card-body rinc-card-body text-center">
-                    {% if es_nueva %}
-                    <h6 class="mb-4">Guardá la internación primero</h6>
-                    <button class="btn btn-primary mt-4" disabled>Abrir módulo</button>
-                    {% else %}
-                    <h6 class="mb-4">Cargar comorbilidades e inmunizaciones</h6>
-                    <a href="{% url 'pacientes:comorbilidades' internacion.pk %}"
-                        class="btn btn-primary mt-4">Abrir módulo</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 mb-4">
-            <div class="card rinc-card rinc-module-card">
-                <div class="card-header rinc-card-header">
-                    <h5>Microbiología</h5>
-                </div>
-                <div class="card-body rinc-card-body text-center">
-                    {% if es_nueva %}
-                    <h6 class="mb-4">Guardá la internación primero</h6>
-                    <button class="btn btn-primary mt-4" disabled>Abrir módulo</button>
-                    {% else %}
-                    <h6 class="mb-4">Muestras, aislamientos y antibiogramas</h6>
-                    <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-primary mt-4">Abrir
-                        módulo</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 mb-4">
-            <div class="card rinc-card rinc-module-card">
-                <div class="card-header rinc-card-header">
-                    <h5>Estudios y Procedimientos</h5>
-                </div>
-                <div class="card-body rinc-card-body text-center">
-                    {% if es_nueva %}
-                    <h6 class="mb-4">Guardá la internación primero</h6>
-                    <button class="btn btn-primary mt-4" disabled>Abrir módulo</button>
-                    {% else %}
-                    <h6 class="mb-4">Cargar estudios y procedimientos</h6>
-                    <a href="{% url 'pacientes:estudios_procedimientos' %}" class="btn btn-primary mt-4">Abrir
-                        módulo</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 mb-4">
-            <div class="card rinc-card rinc-module-card">
-                <div class="card-header rinc-card-header">
-                    <h5>Tratamiento</h5>
-                </div>
-                <div class="card-body rinc-card-body text-center">
-                    {% if es_nueva %}
-                    <h6 class="mb-4">Guardá la internación primero</h6>
-                    <button class="btn btn-primary mt-4" disabled>Abrir módulo</button>
-                    {% else %}
-                    <h6 class="mb-4">Antimicrobianos, dosis y vías</h6>
-                    <a href="{% url 'pacientes:tratamiento' internacion.pk %}" class="btn btn-primary mt-4">Abrir
-                        módulo</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- VOLVER AL LISTADO -->
-    <div class="d-flex justify-content-start mt-3">
-        <a href="{% url 'pacientes:internaciones_paciente' paciente.id %}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Volver al listado
-        </a>
-    </div>
 
 </div>
 

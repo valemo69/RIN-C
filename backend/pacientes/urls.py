@@ -53,6 +53,23 @@ urlpatterns = [
         name="sensibilidad_agregar",
     ),
     path(
+        "microbiologia/muestras/<int:pk>/editar/", 
+         views.muestra_editar, 
+         name="muestra_editar"),
+    path(
+        "microbiologia/muestras/<int:pk>/eliminar/", 
+        views.muestra_eliminar, 
+        name="muestra_eliminar"),
+    
+    path("microbiologia/aislamientos/<int:pk>/editar/", 
+         views.aislamiento_editar, 
+         name="aislamiento_editar"),
+    
+    path("microbiologia/aislamientos/<int:pk>/eliminar/", 
+         views.aislamiento_eliminar, 
+         name="aislamiento_eliminar"),
+    
+    path(
         "estudios_procedimientos/",
         views.estudios_procedimientos_view,
         name="estudios_procedimientos",

@@ -27,13 +27,11 @@ COMORBILIDADES = [
     ("Cardiovasculares", "ARRITMIAS", "Arritmias", 4),
     ("Cardiovasculares", "VALVULOPATIAS", "Valvulopatías", 5),
     ("Cardiovasculares", "CARDIO_OTRAS", "Otras", 6),
-
     ("Endócrino - Metabólicas", "DIABETES", "Diabetes", 1),
     ("Endócrino - Metabólicas", "OBESIDAD", "Obesidad", 2),
     ("Endócrino - Metabólicas", "HIPOTIROIDISMO", "Hipotiroidismo", 3),
     ("Endócrino - Metabólicas", "HIPERTIROIDISMO", "Hipertiroidismo", 4),
     ("Endócrino - Metabólicas", "DISLIPIDEMIA", "Dislipidemia", 5),
-
     ("Reumatológicas", "ARTRITIS_REUMATOIDEA", "Artritis reumatoidea", 1),
     ("Reumatológicas", "ESCLEROSIS_SISTEMICA", "Esclerosis sistémica", 2),
     ("Reumatológicas", "LES", "Lupus eritematoso sistémico", 3),
@@ -42,21 +40,37 @@ COMORBILIDADES = [
     ("Reumatológicas", "SME_ANTISINTETASA", "Síndrome antisintetasa", 6),
     ("Reumatológicas", "EMTC", "Enfermedad mixta del tejido conectivo", 7),
     ("Reumatológicas", "SJOGREN", "Síndrome de Sjögren", 8),
-    ("Reumatológicas", "VASCULITIS", "Vasculitis", 9),
-    ("Reumatológicas", "REUMA_OTRAS", "Otras", 10),
-
+    # Vasculitis
+    ("Reumatológicas", "GPA", "Granulomatosis con poliangeítis (GPA)", 9),
+    ("Reumatológicas", "MPA", "Poliangeítis microscópica (MPA)", 10),
+    (
+        "Reumatológicas",
+        "EGPA",
+        "Granulomatosis eosinofílica con poliangeítis (EGPA)",
+        11,
+    ),
+    ("Reumatológicas", "PAN", "Poliarteritis nudosa", 12),
+    (
+        "Reumatológicas",
+        "GOODPASTURE",
+        "Enfermedad por anticuerpos anti-MBG (Goodpasture)",
+        13,
+    ),
+    ("Reumatológicas", "BEHCET", "Enfermedad de Behçet", 14),
+    ("Reumatológicas", "CRIOGLOBULINEMIA", "Vasculitis crioglobulinémica", 15),
+    ("Reumatológicas", "IGA", "Vasculitis por IgA", 16),
+    ("Reumatológicas", "ANCA_OTRA", "Otra vasculitis ANCA", 17),
+    ("Reumatológicas", "NO_ANCA_OTRA", "Otra vasculitis no ANCA", 18),
+    ("Reumatológicas", "REUMA_OTRAS", "Otras", 19),
     ("Neurológicas", "ACV", "ACV", 1),
     ("Neurológicas", "TRASTORNO_COGNITIVO", "Trastorno cognitivo", 2),
     ("Neurológicas", "COMPROMISO_MUSCULAR", "Compromiso muscular", 3),
     ("Neurológicas", "SARCOPENIA_GRAVE", "Sarcopenia grave", 4),
-
     ("Inmunológicas", "HIV", "HIV", 1),
     ("Inmunológicas", "TRASPLANTE", "Trasplante", 2),
     ("Inmunológicas", "TTO_INMUNOSUPRESOR", "Tratamiento inmunosupresor", 3),
-
     ("Oncológicas", "TUMOR_SOLIDO_EXTRAPULMONAR", "Tumor sólido extrapulmonar", 1),
     ("Oncológicas", "ENF_ONCOHEMATOLOGICA", "Enfermedad oncohematológica", 2),
-
     ("Otras comorbilidades", "HEPATOPATIA_CRONICA", "Hepatopatía crónica", 1),
     ("Otras comorbilidades", "IRC", "Insuficiencia renal crónica", 2),
 ]
@@ -115,9 +129,7 @@ def deshacer(apps, schema_editor):
     TipoCatalogo = apps.get_model("pacientes", "TipoCatalogo")
     Catalogo = apps.get_model("pacientes", "Catalogo")
 
-    Catalogo.objects.filter(
-        tipo__codigo__in=["COMORBILIDAD", "INMUNIZACION"]
-    ).delete()
+    Catalogo.objects.filter(tipo__codigo__in=["COMORBILIDAD", "INMUNIZACION"]).delete()
 
     TipoCatalogo.objects.filter(codigo="INMUNIZACION").delete()
 

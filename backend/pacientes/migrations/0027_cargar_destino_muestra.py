@@ -6,7 +6,8 @@ DESTINOS_MUESTRA = [
     ("MTB", "Micobacterias", 2),
     ("MIC", "Micología", 3),
     ("VIR", "Virología", 4),
-    ("AP", "Anatomía Patológica", 5),
+    ("PAT", "Anatomía patológica", 6),
+    ("PAR", "Parasitología", 5),
 ]
 
 

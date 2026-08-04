@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 from core.forms import BootstrapFormMixin
 
@@ -13,6 +14,7 @@ from .models import (
     AislamientoMicrobiologico,
     SensibilidadMicrobiologica,
 )
+
 
 # ==========================================================
 # BÚSQUEDA DE PACIENTES
@@ -358,20 +360,63 @@ class InternacionTratamientoAntimicrobianoForm(BootstrapFormMixin, forms.ModelFo
 
 
 class MuestraMicrobiologicaForm(BootstrapFormMixin, forms.ModelForm):
-
     class Meta:
         model = MuestraMicrobiologica
-        fields = (
-            "fecha_toma",
-            "tipo_muestra",
-            "destino",
-        )
+        fields = ["fecha_toma", "tipo_muestra", "destino"]
+
         widgets = {
-            "fecha_toma": forms.DateInput(attrs={"type": "date"}),
+            "fecha_toma": forms.DateInput(
+                attrs={
+                    "type": "date",
+                    "class": "form-control",
+                }
+            ),
+            "tipo_muestra": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+            "destino": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+        }
+
+        error_messages = {
+            "fecha_toma": {
+                "required": "Este campo es obligatorio.",
+            },
+            "tipo_muestra": {
+                "required": "Este campo es obligatorio.",
+            },
+            "destino": {
+                "required": "Este campo es obligatorio.",
+            },
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["fecha_toma"].required = True
+        self.fields["tipo_muestra"].required = True
+        self.fields["destino"].required = True
+
+        for field in self.fields.values():
+            css = field.widget.attrs.get("class", "")
+            if "form-control" not in css and "form-select" not in css:
+                field.widget.attrs["class"] = f"{css} form-control".strip()
+                
+                
+class MuestraMicrobiologicaEditForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = MuestraMicrobiologica
+        fields = ["fecha_toma", "tipo_muestra", "destino"]
+        widgets = {
+            "fecha_toma": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "tipo_muestra": forms.Select(attrs={"class": "form-select"}),
+            "destino": forms.Select(attrs={"class": "form-select"}),
+        }
         
         
 class EstudioMicrobiologicoForm(BootstrapFormMixin, forms.ModelForm):
@@ -398,12 +443,34 @@ class EstudioMicrobiologicoForm(BootstrapFormMixin, forms.ModelForm):
 # ==========================================================
 
 
-class AislamientoMicrobiologicoForm(BootstrapFormMixin, forms.ModelForm):
+
+
+class AislamientoMicrobiologicoForm(forms.ModelForm):
+    germen = forms.ModelChoiceField(
+        queryset=Catalogo.objects.none(),  # se setea en __init__
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        empty_label="Seleccione un germen..."
+    )
+
     class Meta:
         model = AislamientoMicrobiologico
-        fields = ("germen", "significativo")
+        fields = ['germen']
 
+    def __init__(self, *args, **kwargs):
+        germen_queryset = kwargs.pop('germen_queryset', None)
+        super().__init__(*args, **kwargs)
+        if germen_queryset is not None:
+            self.fields['germen'].queryset = germen_queryset
 
+class AislamientoMicrobiologicoEditForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = AislamientoMicrobiologico
+        fields = ["germen"]
+        widgets = {
+            "germen": forms.Select(attrs={"class": "form-select"}),
+        }
+        
 # ==========================================================
 # SENSIBILIDAD
 # ==========================================================

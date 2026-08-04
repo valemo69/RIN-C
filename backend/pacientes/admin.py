@@ -330,9 +330,9 @@ class EstudioMicrobiologicoAdmin(admin.ModelAdmin):
 class AislamientoMicrobiologicoAdmin(admin.ModelAdmin):
 
     list_display = (
-    "estudio",
-    "germen",
-    "significativo",
+        "estudio",
+        "germen",
+        # "significativo",  # ELIMINADO
     )
 
     search_fields = (
@@ -340,7 +340,7 @@ class AislamientoMicrobiologicoAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
-        "significativo",
+        # "significativo",  # ELIMINADO
     )
 
     autocomplete_fields = (

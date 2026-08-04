@@ -2,6 +2,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.forms import modelformset_factory
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+
 
 from .forms import (
     BusquedaPacienteForm,
@@ -11,12 +15,15 @@ from .forms import (
     MuestraMicrobiologicaForm,
     EstudioMicrobiologicoForm,
     AislamientoMicrobiologicoForm,
+    AislamientoMicrobiologicoEditForm,
+    MuestraMicrobiologicaEditForm,
     SensibilidadMicrobiologicaForm,
     InternacionTratamientoAntimicrobianoForm,
 )
 from .models import (
     AislamientoMicrobiologico,
     Catalogo,
+    EstudioMicrobiologico,
     Internacion,
     InternacionCatalogo,
     InternacionTratamientoAntimicrobiano,
@@ -371,7 +378,6 @@ def _sincronizar_catalogos(internacion, tipo_codigo, catalogos_seleccionados, re
             ]
         )
 
-    # Si estamos sincronizando inmunizaciones, guardamos también sus fechas asociadas
     if tipo_codigo == "INMUNIZACION" and request:
         for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True):
             if "Antigripal" not in item.descripcion and "COVID" not in item.descripcion:
@@ -383,8 +389,6 @@ def _sincronizar_catalogos(internacion, tipo_codigo, catalogos_seleccionados, re
                         internacion=internacion, catalogo=item
                     ).first()
                     if relacion:
-                        # Asegúrate de tener un campo de texto/observación en InternacionCatalogo, 
-                        # o puedes guardarlo si ya existe dicho campo.
                         relacion.observacion = fecha_ingresada
                         relacion.save()
 
@@ -398,19 +402,42 @@ def comorbilidades_view(request, pk):
         tipo__codigo="COMORBILIDAD",
     )
 
+    comorbilidades_por_grupo = Catalogo.objects.comorbilidades_agrupadas()
+    reumatologicas = Catalogo.objects.reumatologicas_excluyendo_vasculitis()
+    vasculitis_anca = Catalogo.objects.vasculitis_anca()
+    vasculitis_no_anca = Catalogo.objects.vasculitis_no_anca()
+
+    print("=== COMORBILIDADES - DEBUG ===")
+    print("Reumatológicas (excluyendo vasculitis):", reumatologicas.count())
+    print("Vasculitis ANCA:", vasculitis_anca.count())
+    print("Vasculitis no ANCA:", vasculitis_no_anca.count())
+    print("Grupos agrupados:", comorbilidades_por_grupo.keys())
+
+    ids_seleccionados = set(comorbilidades_seleccionadas.values_list("pk", flat=True))
+    
+    ids_inmunizaciones_seleccionadas = set(
+        Catalogo.objects.filter(internaciones__internacion=internacion, tipo__codigo="INMUNIZACION").values_list("pk", flat=True)
+    )
+    
+    inmunizaciones_con_fecha = []
+    for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True).order_by("orden"):
+        relacion = InternacionCatalogo.objects.filter(internacion=internacion, catalogo=item).first()
+        inmunizaciones_con_fecha.append({
+            "item": item,
+            "seleccionado": item.pk in ids_inmunizaciones_seleccionadas,
+            "fecha": relacion.observacion if relacion and relacion.observacion else "",
+        })
+
     if request.method == "POST":
         form = ComorbilidadesForm(request.POST)
         if form.is_valid():
             _sincronizar_catalogos(
                 internacion, "COMORBILIDAD", form.cleaned_data["comorbilidades"]
             )
-            
-            # Sincronizamos las inmunizaciones seleccionadas
             inmunizaciones_ids = request.POST.getlist("inmunizaciones")
             catalogos_inmu = Catalogo.objects.filter(pk__in=inmunizaciones_ids)
             _sincronizar_catalogos(internacion, "INMUNIZACION", catalogos_inmu)
 
-            # Guardamos la fecha/año de cada inmunización con input de texto
             for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True):
                 if "Antigripal" not in item.descripcion and "COVID" not in item.descripcion:
                     campo_nombre = f"inmunizacion_fecha_{item.pk}"
@@ -432,28 +459,6 @@ def comorbilidades_view(request, pk):
             }
         )
 
-    comorbilidades_por_grupo = {}
-    for item in Catalogo.objects.filter(
-        tipo__codigo="COMORBILIDAD", activo=True
-    ).order_by("grupo", "orden"):
-        comorbilidades_por_grupo.setdefault(item.grupo, []).append(item)
-
-    ids_seleccionados = set(comorbilidades_seleccionadas.values_list("pk", flat=True))
-    
-    ids_inmunizaciones_seleccionadas = set(
-        Catalogo.objects.filter(internaciones__internacion=internacion, tipo__codigo="INMUNIZACION").values_list("pk", flat=True)
-    )
-    
-    # Preparamos una lista que incluye el ítem, si está seleccionado y su fecha guardada
-    inmunizaciones_con_fecha = []
-    for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True).order_by("orden"):
-        relacion = InternacionCatalogo.objects.filter(internacion=internacion, catalogo=item).first()
-        inmunizaciones_con_fecha.append({
-            "item": item,
-            "seleccionado": item.pk in ids_inmunizaciones_seleccionadas,
-            "fecha": relacion.observacion if relacion and relacion.observacion else "",
-        })
-
     return render(
         request,
         "pacientes/comorbilidades.html",
@@ -462,24 +467,155 @@ def comorbilidades_view(request, pk):
             "internacion": internacion,
             "paciente": internacion.paciente,
             "comorbilidades_por_grupo": comorbilidades_por_grupo,
+            "reumatologicas": reumatologicas,
+            "vasculitis_anca": vasculitis_anca,
+            "vasculitis_no_anca": vasculitis_no_anca,
             "ids_comorbilidades_seleccionadas": ids_seleccionados,
             "inmunizaciones_con_fecha": inmunizaciones_con_fecha,
         },
     )
+
+    
 # ==========================================================
 # MICROBIOLOGÍA
 # ==========================================================
 
+
+@login_required
+def muestra_editar(request, pk):
+    muestra = get_object_or_404(MuestraMicrobiologica, pk=pk)
+    internacion = muestra.internacion
+
+    if request.method == "POST":
+        form = MuestraMicrobiologicaEditForm(request.POST, instance=muestra)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Muestra actualizada correctamente.")
+            return redirect("pacientes:microbiologia", pk=internacion.pk)
+    else:
+        form = MuestraMicrobiologicaEditForm(instance=muestra)
+
+    return render(
+        request,
+        "pacientes/muestra_editar.html",
+        {
+            "form": form,
+            "muestra": muestra,
+            "paciente": internacion.paciente,
+            "internacion": internacion,
+        },
+    )
+
+@login_required
+def muestra_eliminar(request, pk):
+    muestra = get_object_or_404(MuestraMicrobiologica, pk=pk)
+    internacion = muestra.internacion
+
+    if request.method == "POST":
+        muestra.delete()
+        messages.success(request, "Muestra eliminada correctamente.")
+        return redirect("pacientes:microbiologia", pk=internacion.pk)
+
+    return render(
+        request,
+        "pacientes/muestra_eliminar.html",
+        {
+            "muestra": muestra,
+            "paciente": internacion.paciente,
+            "internacion": internacion,
+        },
+    )
+
 @login_required
 def microbiologia_view(request, pk):
     internacion = get_object_or_404(Internacion, pk=pk)
+
+    # ==========================================================
+    # OBTENER MUESTRAS (ordenadas: más nuevas primero)
+    # ==========================================================
     muestras = (
-    internacion.muestras_microbiologicas
-    .all()
-    .prefetch_related(
-        "estudios__aislamientos__sensibilidades",
+        internacion.muestras_microbiologicas
+        .all()
+        .order_by('-fecha_toma', '-creado')
+        .prefetch_related(
+            "estudios__aislamientos__sensibilidades",
+            "estudios__tipo_estudio",
+        )
     )
-)
+
+    # ==========================================================
+    # FILTRAR GÉRMENES POR DESTINO (para cada muestra)
+    # ==========================================================
+    germenes_por_muestra = {}
+    for muestra in muestras:
+        destino_codigo = muestra.destino.codigo if muestra.destino else None
+
+        if destino_codigo == 'BAC':          # Bacteriología
+            germenes = Catalogo.objects.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
+        elif destino_codigo == 'MTB':        # Micobacterias
+            germenes = Catalogo.objects.germenes_bacterias().filter(descripcion__icontains='Mycobacterium')
+        elif destino_codigo == 'MIC':        # Micología
+            germenes = Catalogo.objects.germenes_hongos()
+        elif destino_codigo == 'VIR':        # Virología
+            germenes = Catalogo.objects.germenes_virus()
+        elif destino_codigo == 'PAR':        # Parasitología
+            germenes = Catalogo.objects.germenes_parasitos()
+        elif destino_codigo == 'PAT':        # Anatomía patológica
+            germenes = Catalogo.objects.germenes()
+        else:
+            germenes = Catalogo.objects.germenes()  # fallback
+
+        germenes_por_muestra[muestra.pk] = germenes
+
+    # ==========================================================
+    # CREAR FORMULARIOS DE SENSIBILIDAD FILTRADOS POR GERMEN
+    # ==========================================================
+    sensibilidad_forms_por_aislamiento = {}
+    for muestra in muestras:
+        for estudio in muestra.estudios.all():
+            for aislamiento in estudio.aislamientos.all():
+                germen = aislamiento.germen
+
+                # Determinar el queryset de antimicrobianos según el germen
+                if germen.tipo_microorganismo == 'bacteria':
+                    if germen.grupo == 'TBC':
+                        qs = Catalogo.objects.filter(
+                            tipo__codigo='ANTIMICROBIANO',
+                            grupo='ANTIMICOBACTERIANO_TBC',
+                            activo=True
+                        )
+                    elif germen.grupo == 'NO_TBC':
+                        qs = Catalogo.objects.filter(
+                            tipo__codigo='ANTIMICROBIANO',
+                            grupo='ANTIBIOTICO',
+                            activo=True
+                        )
+                    else:
+                        # Bacterias no micobacterias
+                        qs = Catalogo.objects.filter(
+                            tipo__codigo='ANTIMICROBIANO',
+                            grupo='ANTIBIOTICO',
+                            activo=True
+                        )
+                elif germen.tipo_microorganismo == 'hongo':
+                    qs = Catalogo.objects.filter(
+                        tipo__codigo='ANTIMICROBIANO',
+                        grupo='ANTIFUNGICO',
+                        activo=True
+                    )
+                else:
+                    # Virus, parásitos: no mostrar antibiograma
+                    qs = Catalogo.objects.none()
+
+                # Crear formulario y asignar queryset filtrado
+                form = SensibilidadMicrobiologicaForm()
+                form.fields['antibiotico'].queryset = qs
+                sensibilidad_forms_por_aislamiento[aislamiento.pk] = form
+
+    # ==========================================================
+    # FORMULARIO DE NUEVA MUESTRA
+    # ==========================================================
+    form = MuestraMicrobiologicaForm()
 
     if request.method == "POST":
         form = MuestraMicrobiologicaForm(request.POST)
@@ -487,63 +623,237 @@ def microbiologia_view(request, pk):
             muestra = form.save(commit=False)
             muestra.internacion = internacion
             muestra.save()
-            messages.success(request, "Muestra microbiológica agregada.")
-            return redirect("pacientes:microbiologia", pk=internacion.pk)
-    else:
-        form = MuestraMicrobiologicaForm()
 
+            # Crear estudio automáticamente según destino
+            destino_codigo = muestra.destino.codigo if muestra.destino else None
+            mapeo_destino_estudio = {
+                'BAC': 'CULTIVO',
+                'MTB': 'CULTIVO',
+                'MIC': 'CULTIVO',
+                'VIR': 'PANEL_VIRAL',
+                'PAR': 'CULTIVO',
+                'PAT': 'ANATOMIA_PATOLOGICA',
+            }
+            codigo_estudio = mapeo_destino_estudio.get(destino_codigo, 'CULTIVO')
+            try:
+                tipo_estudio = Catalogo.objects.get(
+                    tipo__codigo='TIPO_ESTUDIO_MICROBIOLOGICO',
+                    codigo=codigo_estudio,
+                    activo=True
+                )
+                EstudioMicrobiologico.objects.create(
+                    muestra=muestra,
+                    tipo_estudio=tipo_estudio,
+                    estado='PE'  # Pendiente
+                )
+                messages.success(request, f"Muestra agregada con estudio {codigo_estudio}.")
+            except Catalogo.DoesNotExist:
+                messages.warning(request, f"No se encontró el tipo de estudio '{codigo_estudio}'. La muestra se creó sin estudio.")
+
+            # Redirigir con ancla a la muestra creada
+            url = reverse("pacientes:microbiologia", kwargs={"pk": internacion.pk})
+            return HttpResponseRedirect(f"{url}#muestra-{muestra.pk}")
+
+    # ==========================================================
+    # FORMULARIOS AUXILIARES
+    # ==========================================================
+    estudio_form = EstudioMicrobiologicoForm()
+    aislamiento_form = AislamientoMicrobiologicoForm(germen_queryset=Catalogo.objects.none())
+
+    # ==========================================================
+    # RENDER
+    # ==========================================================
     return render(
-    request,
-    "pacientes/microbiologia.html",
-    {
-        "internacion": internacion,
-        "paciente": internacion.paciente,
-        "muestras": muestras,
-        "form": form,
-        "estudio_form": EstudioMicrobiologicoForm(),
-        "aislamiento_form": AislamientoMicrobiologicoForm(),
-        "sensibilidad_form": SensibilidadMicrobiologicaForm(),
-    },
-)
-
+        request,
+        "pacientes/microbiologia.html",
+        {
+            "internacion": internacion,
+            "paciente": internacion.paciente,
+            "muestras": muestras,
+            "form": form,
+            "aislamiento_form": aislamiento_form,
+            "germenes_por_muestra": germenes_por_muestra,
+            "estudio_form": estudio_form,
+            "sensibilidad_forms_por_aislamiento": sensibilidad_forms_por_aislamiento,
+        },
+    )
+    
 @login_required
 def aislamiento_agregar(request, muestra_pk):
     muestra = get_object_or_404(MuestraMicrobiologica, pk=muestra_pk)
+    estudio = muestra.estudios.first()
+
+    if estudio is None:
+        messages.error(request, "La muestra no posee un estudio microbiológico.")
+        return redirect("pacientes:microbiologia", pk=muestra.internacion.pk)
+
+    # ==========================================================
+    # FILTRAR GÉRMENES SEGÚN EL DESTINO DE LA MUESTRA
+    # ==========================================================
+    destino_codigo = muestra.destino.codigo if muestra.destino else None
+
+    if destino_codigo == 'BAC':          # Bacteriología
+        germenes = Catalogo.objects.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
+    elif destino_codigo == 'MTB':        # Micobacterias
+        germenes = Catalogo.objects.germenes_bacterias().filter(descripcion__icontains='Mycobacterium')
+    elif destino_codigo == 'MIC':        # Micología
+        germenes = Catalogo.objects.germenes_hongos()
+    elif destino_codigo == 'VIR':        # Virología
+        germenes = Catalogo.objects.germenes_virus()
+    elif destino_codigo == 'PAR':        # Parasitología
+        germenes = Catalogo.objects.germenes_parasitos()
+    elif destino_codigo == 'PAT':        # Anatomía patológica
+        germenes = Catalogo.objects.germenes()
+    else:
+        germenes = Catalogo.objects.germenes()  # fallback
+
+    # ==========================================================
+    # DEPURACIÓN: VER QUÉ QUERYSET ESTÁ LLEGANDO
+    # ==========================================================
+    print("=== GERMENES FILTRADOS ===")
+    print(f"Destino: {destino_codigo}, Cantidad: {germenes.count()}")
+    print("Primeros 5 IDs:", list(germenes.values_list('pk', flat=True)[:5]))
 
     if request.method == "POST":
-        form = AislamientoMicrobiologicoForm(request.POST)
+        print("=== POST DATA (aislamiento) ===")
+        print(request.POST)  # Muestra todo el POST
+
+        form = AislamientoMicrobiologicoForm(request.POST, germen_queryset=germenes)
+
+        print("=== QUERYSET DEL FORMULARIO ===")
+        print(form.fields['germen'].queryset.count())  # Debe ser el mismo que germenes.count()
+
         if form.is_valid():
             aislamiento = form.save(commit=False)
-            aislamiento.muestra = muestra
+            aislamiento.estudio = estudio
             aislamiento.save()
-            messages.success(request, "Aislamiento agregado.")
+            messages.success(request, "Aislamiento agregado correctamente.")
+            return redirect("pacientes:microbiologia", pk=muestra.internacion.pk)
         else:
+            print("=== ERRORES DEL FORMULARIO ===")
+            print(form.errors)
             for campo, errores in form.errors.items():
                 for error in errores:
                     messages.error(request, f"{campo}: {error}")
 
+    # Si es GET o falló el POST, redirigimos
     return redirect("pacientes:microbiologia", pk=muestra.internacion.pk)
+    
+@login_required
+def aislamiento_editar(request, pk):
+    aislamiento = get_object_or_404(AislamientoMicrobiologico, pk=pk)
+    estudio = aislamiento.estudio
+    muestra = estudio.muestra
+    internacion = muestra.internacion
 
+    # Obtener los gérmenes filtrados por destino de la muestra
+    destino_codigo = muestra.destino.codigo if muestra.destino else None
+    if destino_codigo == 'BAC':
+        germenes = Catalogo.objects.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
+    elif destino_codigo == 'MTB':
+        germenes = Catalogo.objects.germenes_bacterias().filter(descripcion__icontains='Mycobacterium')
+    elif destino_codigo == 'MIC':
+        germenes = Catalogo.objects.germenes_hongos()
+    elif destino_codigo == 'VIR':
+        germenes = Catalogo.objects.germenes_virus()
+    elif destino_codigo == 'PAR':
+        germenes = Catalogo.objects.germenes_parasitos()
+    elif destino_codigo == 'PAT':
+        germenes = Catalogo.objects.germenes()
+    else:
+        germenes = Catalogo.objects.germenes()
+
+    if request.method == "POST":
+        form = AislamientoMicrobiologicoEditForm(request.POST, instance=aislamiento)
+        form.fields['germen'].queryset = germenes
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Aislamiento actualizado correctamente.")
+            return redirect("pacientes:microbiologia", pk=internacion.pk)
+    else:
+        form = AislamientoMicrobiologicoEditForm(instance=aislamiento)
+        form.fields['germen'].queryset = germenes
+
+    return render(
+        request,
+        "pacientes/aislamiento_editar.html",
+        {
+            "form": form,
+            "aislamiento": aislamiento,
+            "muestra": muestra,
+            "paciente": internacion.paciente,
+            "internacion": internacion,
+        },
+    )
+
+@login_required
+def aislamiento_eliminar(request, pk):
+    aislamiento = get_object_or_404(AislamientoMicrobiologico, pk=pk)
+    muestra = aislamiento.estudio.muestra
+    internacion = muestra.internacion
+
+    if request.method == "POST":
+        aislamiento.delete()
+        messages.success(request, "Aislamiento eliminado correctamente.")
+        return redirect("pacientes:microbiologia", pk=internacion.pk)
+
+    return render(
+        request,
+        "pacientes/aislamiento_eliminar.html",
+        {
+            "aislamiento": aislamiento,
+            "muestra": muestra,
+            "paciente": internacion.paciente,
+            "internacion": internacion,
+        },
+    )
+    
 @login_required
 def sensibilidad_agregar(request, aislamiento_pk):
     aislamiento = get_object_or_404(AislamientoMicrobiologico, pk=aislamiento_pk)
+    germen = aislamiento.germen
+    muestra = aislamiento.estudio.muestra
+    internacion = muestra.internacion
 
-    if request.method == "POST":
+    # Determinar el queryset de antimicrobianos según el germen
+    if germen.tipo_microorganismo == 'bacteria':
+        # Verificar si es micobacteria TBC o no TBC
+        if germen.grupo == 'TBC':
+            antibioticos_qs = Catalogo.objects.filter(tipo__codigo='ANTIMICROBIANO', grupo='ANTIMICOBACTERIANO_TBC', activo=True)
+        elif germen.grupo == 'NO_TBC':
+            # Para no TBC usamos antibióticos generales (o podríamos crear un grupo específico)
+            antibioticos_qs = Catalogo.objects.filter(tipo__codigo='ANTIMICROBIANO', grupo='ANTIBIOTICO', activo=True)
+        else:
+            # Bacterias no micobacterias
+            antibioticos_qs = Catalogo.objects.filter(tipo__codigo='ANTIMICROBIANO', grupo='ANTIBIOTICO', activo=True)
+    elif germen.tipo_microorganismo == 'hongo':
+        antibioticos_qs = Catalogo.objects.filter(tipo__codigo='ANTIMICROBIANO', grupo='ANTIFUNGICO', activo=True)
+    else:
+        # Virus, parásitos u otros: no se debe mostrar antibiograma
+        antibioticos_qs = Catalogo.objects.none()
+
+    if request.method == 'POST':
         form = SensibilidadMicrobiologicaForm(request.POST)
+        # Asignar el queryset filtrado al campo 'antibiotico'
+        form.fields['antibiotico'].queryset = antibioticos_qs
         if form.is_valid():
             sensibilidad = form.save(commit=False)
             sensibilidad.aislamiento = aislamiento
             sensibilidad.save()
-            messages.success(request, "Sensibilidad agregada.")
+            messages.success(request, "Sensibilidad agregada correctamente.")
+            return redirect("pacientes:microbiologia", pk=internacion.pk)
         else:
-            for campo, errores in form.errors.items():
-                for error in errores:
-                    messages.error(request, f"{campo}: {error}")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = SensibilidadMicrobiologicaForm()
+        form.fields['antibiotico'].queryset = antibioticos_qs
 
-    return redirect(
-        "pacientes:microbiologia",
-        pk=aislamiento.muestra.internacion.pk,
-    )
+    return render(request, 'pacientes/microbiologia.html', {
+        'sensibilidad_form': form,
+        # ... other context ...
+    })
 
 # ==========================================================
 # ESTUDIOS Y PROCEDIMIENTOS
@@ -559,6 +869,7 @@ def estudios_procedimientos_view(request):
 # ==========================================================
 # TRATAMIENTO
 # ==========================================================
+
 
 @login_required
 def tratamiento_view(request, pk):

@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from .managers import CatalogoManager
 
 # ==========================================================
 # MODELO BASE
@@ -85,36 +87,45 @@ class TipoCatalogo(ModeloBase):
 # ==========================================================
 
 
+from django.db import models
+
 class Catalogo(ModeloBase):
+    objects = CatalogoManager()
+
     tipo = models.ForeignKey(
         TipoCatalogo,
         on_delete=models.PROTECT,
         related_name="items",
         verbose_name="Tipo",
     )
-
     codigo = models.CharField(max_length=30, verbose_name="Código")
-
     descripcion = models.CharField(max_length=200, verbose_name="Descripción")
-
     grupo = models.CharField(max_length=100, blank=True, verbose_name="Grupo")
-
     subgrupo = models.CharField(max_length=100, blank=True, verbose_name="Subgrupo")
-
     orden = models.PositiveIntegerField(default=0, verbose_name="Orden")
-
     activo = models.BooleanField(default=True, verbose_name="Activo")
+
+    # NUEVO CAMPO: clasificación para microorganismos (solo aplica si el tipo es "Germen")
+    TIPO_MICROORGANISMO_CHOICES = [
+        ('bacteria', 'Bacteria'),
+        ('hongo', 'Hongo'),
+        ('virus', 'Virus'),
+        ('parasito', 'Parásito'),
+        ('otro', 'Otro'),
+    ]
+    tipo_microorganismo = models.CharField(
+        max_length=20,
+        choices=TIPO_MICROORGANISMO_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name="Tipo de microorganismo",
+        help_text="Solo para ítems de tipo 'Germen'"
+    )
 
     class Meta:
         verbose_name = "Catálogo"
         verbose_name_plural = "Catálogos"
-
-        ordering = [
-            "tipo",
-            "orden",
-            "descripcion",
-        ]
-
+        ordering = ["tipo", "orden", "descripcion"]
         constraints = [
             models.UniqueConstraint(
                 fields=["tipo", "codigo"], name="uk_catalogo_tipo_codigo"
@@ -122,7 +133,7 @@ class Catalogo(ModeloBase):
         ]
 
     def __str__(self):
-        return f"{self.tipo.nombre} - {self.descripcion}"
+        return self.descripcion
 
 
 # ==========================================================
@@ -1041,10 +1052,10 @@ class AnatomiaPatologicaDetalle(ModeloBase):
 class AislamientoMicrobiologico(ModeloBase):
 
     estudio = models.ForeignKey(
-    EstudioMicrobiologico,
-    on_delete=models.CASCADE,
-    related_name="aislamientos",
-    verbose_name="Estudio microbiológico",
+        EstudioMicrobiologico,
+        on_delete=models.CASCADE,
+        related_name="aislamientos",
+        verbose_name="Estudio microbiológico",
     )
 
     germen = models.ForeignKey(
@@ -1054,8 +1065,6 @@ class AislamientoMicrobiologico(ModeloBase):
         limit_choices_to={"tipo__codigo": "GERMEN", "activo": True},
         verbose_name="Germen",
     )
-
-    significativo = models.BooleanField(default=True, verbose_name="Significativo")
 
     class Meta:
         verbose_name = "Aislamiento microbiológico"
@@ -1067,10 +1076,7 @@ class AislamientoMicrobiologico(ModeloBase):
         ]
         
     def __str__(self):
-        return (
-            f"{self.estudio.tipo_estudio.descripcion} - "
-            f"{self.germen.descripcion}"
-        )
+        return f"{self.germen.descripcion}"
 
 
 # ==========================================================

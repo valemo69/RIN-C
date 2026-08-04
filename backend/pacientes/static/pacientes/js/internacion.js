@@ -1,51 +1,80 @@
 document.addEventListener("DOMContentLoaded", function () {
-
     // ==========================================================
     // 1. SOPORTE RESPIRATORIO
     // ==========================================================
-    const sinSoporte = document.getElementById("sin_soporte");
 
-    const soportes = [
-        document.getElementById("oxigeno"),
-        document.getElementById("venturi"),
-        document.getElementById("cnaf"),
-        document.getElementById("vmni"),
-        document.getElementById("arm"),
-        document.getElementById("traqueostomia"),
-    ];
+    const checkboxesSoporte = document.querySelectorAll(
+        'input[name="soporte_respiratorio"]'
+    );
+
+    let sinSoporte = null;
+
+    // Buscar cuál es "Ningún soporte"
+    checkboxesSoporte.forEach(function (checkbox) {
+        const label = document.querySelector(
+            `label[for="${checkbox.id}"]`
+        );
+
+        if (!label) return;
+
+        const texto = label.textContent.trim().toLowerCase();
+
+        if (texto.includes("ningún soporte") || texto.includes("ningun soporte")) {
+            sinSoporte = checkbox;
+        }
+    });
 
     function actualizarSoportes() {
+
         if (!sinSoporte) return;
 
         if (sinSoporte.checked) {
-            soportes.forEach(function (soporte) {
-                if (soporte) {
-                    soporte.checked = false;
-                    soporte.disabled = true;
+
+            checkboxesSoporte.forEach(function (checkbox) {
+
+                if (checkbox !== sinSoporte) {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
                 }
+
             });
+
         } else {
-            soportes.forEach(function (soporte) {
-                if (soporte) soporte.disabled = false;
+
+            checkboxesSoporte.forEach(function (checkbox) {
+
+                if (checkbox !== sinSoporte) {
+                    checkbox.disabled = false;
+                }
+
             });
+
         }
+
     }
 
     if (sinSoporte) {
+
         sinSoporte.addEventListener("change", actualizarSoportes);
 
-        soportes.forEach(function (soporte) {
-            if (soporte) {
-                soporte.addEventListener("change", function () {
-                    if (this.checked) {
-                        sinSoporte.checked = false;
-                    }
-                    actualizarSoportes();
-                });
-            }
+        checkboxesSoporte.forEach(function (checkbox) {
+
+            if (checkbox === sinSoporte) return;
+
+            checkbox.addEventListener("change", function () {
+
+                if (this.checked) {
+                    sinSoporte.checked = false;
+                }
+
+                actualizarSoportes();
+
+            });
+
         });
 
         actualizarSoportes();
+
     }
 
     // ==========================================================
