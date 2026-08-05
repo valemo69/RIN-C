@@ -17,6 +17,7 @@ from .forms import (
     AislamientoMicrobiologicoForm,
     AislamientoMicrobiologicoEditForm,
     MuestraMicrobiologicaEditForm,
+    ResultadosTBCForm,
     SensibilidadMicrobiologicaForm,
     InternacionTratamientoAntimicrobianoForm,
 )
@@ -30,6 +31,9 @@ from .models import (
     MuestraMicrobiologica,
     Paciente,
     SensibilidadMicrobiologica,
+    BaciloscopiaDetalle,
+    CultivoDetalle,
+    GeneXpertDetalle,
 )
 
 # ==========================================================
@@ -568,9 +572,9 @@ def microbiologia_view(request, pk):
         germenes_por_muestra[muestra.pk] = germenes
 
     # ==========================================================
-    # CREAR FORMULARIOS DE SENSIBILIDAD FILTRADOS POR GERMEN
+    # FILTRAR ANTIMICROBIANOS POR TIPO DE GERMEN
     # ==========================================================
-    sensibilidad_forms_por_aislamiento = {}
+    antimicrobianos_por_aislamiento = {}
     for muestra in muestras:
         for estudio in muestra.estudios.all():
             for aislamiento in estudio.aislamientos.all():
@@ -591,7 +595,6 @@ def microbiologia_view(request, pk):
                             activo=True
                         )
                     else:
-                        # Bacterias no micobacterias
                         qs = Catalogo.objects.filter(
                             tipo__codigo='ANTIMICROBIANO',
                             grupo='ANTIBIOTICO',
@@ -604,13 +607,9 @@ def microbiologia_view(request, pk):
                         activo=True
                     )
                 else:
-                    # Virus, parásitos: no mostrar antibiograma
                     qs = Catalogo.objects.none()
 
-                # Crear formulario y asignar queryset filtrado
-                form = SensibilidadMicrobiologicaForm()
-                form.fields['antibiotico'].queryset = qs
-                sensibilidad_forms_por_aislamiento[aislamiento.pk] = form
+                antimicrobianos_por_aislamiento[aislamiento.pk] = qs
 
     # ==========================================================
     # FORMULARIO DE NUEVA MUESTRA
@@ -674,7 +673,7 @@ def microbiologia_view(request, pk):
             "aislamiento_form": aislamiento_form,
             "germenes_por_muestra": germenes_por_muestra,
             "estudio_form": estudio_form,
-            "sensibilidad_forms_por_aislamiento": sensibilidad_forms_por_aislamiento,
+            "antimicrobianos_por_aislamiento": antimicrobianos_por_aislamiento,
         },
     )
     
@@ -811,48 +810,103 @@ def aislamiento_eliminar(request, pk):
 @login_required
 def sensibilidad_agregar(request, aislamiento_pk):
     aislamiento = get_object_or_404(AislamientoMicrobiologico, pk=aislamiento_pk)
-    germen = aislamiento.germen
     muestra = aislamiento.estudio.muestra
     internacion = muestra.internacion
 
-    # Determinar el queryset de antimicrobianos según el germen
-    if germen.tipo_microorganismo == 'bacteria':
-        # Verificar si es micobacteria TBC o no TBC
-        if germen.grupo == 'TBC':
-            antibioticos_qs = Catalogo.objects.filter(tipo__codigo='ANTIMICROBIANO', grupo='ANTIMICOBACTERIANO_TBC', activo=True)
-        elif germen.grupo == 'NO_TBC':
-            # Para no TBC usamos antibióticos generales (o podríamos crear un grupo específico)
-            antibioticos_qs = Catalogo.objects.filter(tipo__codigo='ANTIMICROBIANO', grupo='ANTIBIOTICO', activo=True)
+    if request.method == 'POST':
+        antibiotico_id = request.POST.get('antibiotico')
+        resultado = request.POST.get('resultado')
+
+        if antibiotico_id and resultado:
+            antibiotico = get_object_or_404(Catalogo, pk=antibiotico_id)
+            SensibilidadMicrobiologica.objects.create(
+                aislamiento=aislamiento,
+                antibiotico=antibiotico,
+                resultado=resultado
+            )
+            messages.success(request, "Sensibilidad agregada correctamente.")
         else:
-            # Bacterias no micobacterias
-            antibioticos_qs = Catalogo.objects.filter(tipo__codigo='ANTIMICROBIANO', grupo='ANTIBIOTICO', activo=True)
-    elif germen.tipo_microorganismo == 'hongo':
-        antibioticos_qs = Catalogo.objects.filter(tipo__codigo='ANTIMICROBIANO', grupo='ANTIFUNGICO', activo=True)
-    else:
-        # Virus, parásitos u otros: no se debe mostrar antibiograma
-        antibioticos_qs = Catalogo.objects.none()
+            messages.error(request, "Debe seleccionar un antimicrobiano y un resultado.")
+        return redirect("pacientes:microbiologia", pk=internacion.pk)
+
+    return redirect("pacientes:microbiologia", pk=internacion.pk)
+
+@login_required
+def resultados_tbc(request, estudio_pk):
+    estudio = get_object_or_404(EstudioMicrobiologico, pk=estudio_pk)
+    muestra = estudio.muestra
+    internacion = muestra.internacion
+
+    # Verificar que el destino sea MTB (opcional)
+    if muestra.destino.codigo != 'MTB':
+        messages.warning(request, "Esta muestra no es para micobacterias.")
+        return redirect("pacientes:microbiologia", pk=internacion.pk)
 
     if request.method == 'POST':
-        form = SensibilidadMicrobiologicaForm(request.POST)
-        # Asignar el queryset filtrado al campo 'antibiotico'
-        form.fields['antibiotico'].queryset = antibioticos_qs
+        form = ResultadosTBCForm(request.POST)
         if form.is_valid():
-            sensibilidad = form.save(commit=False)
-            sensibilidad.aislamiento = aislamiento
-            sensibilidad.save()
-            messages.success(request, "Sensibilidad agregada correctamente.")
+            # --- Baciloscopía ---
+            if form.cleaned_data['baciloscopia_resultado']:
+                BaciloscopiaDetalle.objects.update_or_create(
+                    estudio=estudio,
+                    defaults={
+                        'resultado': form.cleaned_data['baciloscopia_resultado'],
+                        'graduacion': form.cleaned_data['baciloscopia_graduacion'],
+                    }
+                )
+            else:
+                BaciloscopiaDetalle.objects.filter(estudio=estudio).delete()
+
+            # --- Cultivo ---
+            if form.cleaned_data['cultivo_resultado']:
+                CultivoDetalle.objects.update_or_create(
+                    estudio=estudio,
+                    defaults={
+                        'tipo_cultivo': 'MTB',
+                        'resultado': form.cleaned_data['cultivo_resultado'],
+                    }
+                )
+            else:
+                CultivoDetalle.objects.filter(estudio=estudio).delete()
+
+            # --- GeneXpert ---
+            if form.cleaned_data['genexpert_mtb']:
+                GeneXpertDetalle.objects.update_or_create(
+                    estudio=estudio,
+                    defaults={
+                        'mtb_detectado': form.cleaned_data['genexpert_mtb'],
+                        'resistencia_rifampicina': form.cleaned_data['genexpert_rif'],
+                    }
+                )
+            else:
+                GeneXpertDetalle.objects.filter(estudio=estudio).delete()
+
+            messages.success(request, "Resultados TBC guardados correctamente.")
             return redirect("pacientes:microbiologia", pk=internacion.pk)
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
+            messages.error(request, "Error al guardar los resultados. Revise los campos.")
     else:
-        form = SensibilidadMicrobiologicaForm()
-        form.fields['antibiotico'].queryset = antibioticos_qs
+        # Cargar datos existentes
+        initial = {}
+        bacilo = BaciloscopiaDetalle.objects.filter(estudio=estudio).first()
+        if bacilo:
+            initial['baciloscopia_resultado'] = bacilo.resultado
+            initial['baciloscopia_graduacion'] = bacilo.graduacion
+        cultivo = CultivoDetalle.objects.filter(estudio=estudio).first()
+        if cultivo:
+            initial['cultivo_resultado'] = cultivo.resultado
+        genexpert = GeneXpertDetalle.objects.filter(estudio=estudio).first()
+        if genexpert:
+            initial['genexpert_mtb'] = genexpert.mtb_detectado
+            initial['genexpert_rif'] = genexpert.resistencia_rifampicina
+        form = ResultadosTBCForm(initial=initial)
 
-    return render(request, 'pacientes/microbiologia.html', {
-        'sensibilidad_form': form,
-        # ... other context ...
+    return render(request, "pacientes/resultados_tbc.html", {
+        "form": form,
+        "estudio": estudio,
+        "muestra": muestra,
+        "paciente": internacion.paciente,
+        "internacion": internacion,
     })
 
 # ==========================================================

@@ -13,6 +13,9 @@ from .models import (
     EstudioMicrobiologico,
     AislamientoMicrobiologico,
     SensibilidadMicrobiologica,
+    BaciloscopiaDetalle,
+    CultivoDetalle,
+    GeneXpertDetalle,
 )
 
 
@@ -406,8 +409,8 @@ class MuestraMicrobiologicaForm(BootstrapFormMixin, forms.ModelForm):
             css = field.widget.attrs.get("class", "")
             if "form-control" not in css and "form-select" not in css:
                 field.widget.attrs["class"] = f"{css} form-control".strip()
-                
-                
+
+
 class MuestraMicrobiologicaEditForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = MuestraMicrobiologica
@@ -417,8 +420,8 @@ class MuestraMicrobiologicaEditForm(BootstrapFormMixin, forms.ModelForm):
             "tipo_muestra": forms.Select(attrs={"class": "form-select"}),
             "destino": forms.Select(attrs={"class": "form-select"}),
         }
-        
-        
+
+
 class EstudioMicrobiologicoForm(BootstrapFormMixin, forms.ModelForm):
 
     class Meta:
@@ -435,7 +438,7 @@ class EstudioMicrobiologicoForm(BootstrapFormMixin, forms.ModelForm):
                     "rows": 2,
                 }
             ),
-        }       
+        }
 
 
 # ==========================================================
@@ -443,25 +446,43 @@ class EstudioMicrobiologicoForm(BootstrapFormMixin, forms.ModelForm):
 # ==========================================================
 
 
-
-
 class AislamientoMicrobiologicoForm(forms.ModelForm):
-    germen = forms.ModelChoiceField(
-        queryset=Catalogo.objects.none(),  # se setea en __init__
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        empty_label="Seleccione un germen..."
-    )
-
     class Meta:
         model = AislamientoMicrobiologico
         fields = ['germen']
+        widgets = {
+            'germen': forms.TextInput(attrs={
+                'list': 'germenes-datalist',
+                'placeholder': 'Escriba para buscar germen...',
+                'class': 'form-control'
+            })
+        }
 
     def __init__(self, *args, **kwargs):
-        germen_queryset = kwargs.pop('germen_queryset', None)
+        self.germen_queryset = kwargs.pop('germen_queryset', None)
         super().__init__(*args, **kwargs)
-        if germen_queryset is not None:
-            self.fields['germen'].queryset = germen_queryset
+
+        self.fields['germen'].required = False
+
+        if self.instance and self.instance.pk and self.instance.germen:
+            self.initial['germen'] = self.instance.germen.descripcion
+
+    def clean_germen(self):
+        nombre_escrito = self.cleaned_data.get('germen')
+        if not nombre_escrito:
+            return None
+
+        if isinstance(nombre_escrito, Catalogo):
+            return nombre_escrito
+
+        queryset = self.germen_queryset if self.germen_queryset is not None else Catalogo.objects.filter(tipo__codigo="GERMEN")
+
+        germen_obj = queryset.filter(descripcion__iexact=nombre_escrito.strip()).first()
+        if not germen_obj:
+            raise forms.ValidationError(f"El germen '{nombre_escrito}' no es válido o no se encuentra en el catálogo.")
+
+        return germen_obj
+
 
 class AislamientoMicrobiologicoEditForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
@@ -470,7 +491,8 @@ class AislamientoMicrobiologicoEditForm(BootstrapFormMixin, forms.ModelForm):
         widgets = {
             "germen": forms.Select(attrs={"class": "form-select"}),
         }
-        
+
+
 # ==========================================================
 # SENSIBILIDAD
 # ==========================================================
@@ -480,3 +502,36 @@ class SensibilidadMicrobiologicaForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = SensibilidadMicrobiologica
         fields = ("antibiotico", "resultado")
+
+
+# ==========================================================
+# RESULTADOS TBC
+# ==========================================================
+
+
+class ResultadosTBCForm(forms.Form):
+    baciloscopia_resultado = forms.ChoiceField(
+        choices=[('', '---')] + list(BaciloscopiaDetalle.Resultado.choices),
+        required=False,
+        label="Baciloscopía"
+    )
+    baciloscopia_graduacion = forms.ChoiceField(
+        choices=[('', '---')] + list(BaciloscopiaDetalle.Graduacion.choices),
+        required=False,
+        label="Graduación"
+    )
+    cultivo_resultado = forms.ChoiceField(
+        choices=[('', '---')] + list(CultivoDetalle.Resultado.choices),
+        required=False,
+        label="Cultivo"
+    )
+    genexpert_mtb = forms.ChoiceField(
+        choices=[('', '---')] + list(GeneXpertDetalle.Resultado.choices),
+        required=False,
+        label="GeneXpert - MTB"
+    )
+    genexpert_rif = forms.ChoiceField(
+        choices=[('', '---')] + list(GeneXpertDetalle.Resultado.choices),
+        required=False,
+        label="GeneXpert - Resistencia a rifampicina"
+    )

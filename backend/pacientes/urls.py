@@ -47,6 +47,10 @@ urlpatterns = [
         views.aislamiento_agregar,
         name="aislamiento_agregar",
     ),
+    path("microbiologia/estudios/<int:estudio_pk>/resultados-tbc/", 
+         views.resultados_tbc, 
+         name="resultados_tbc"),
+    
     path(
         "microbiologia/aislamientos/<int:aislamiento_pk>/sensibilidades/agregar/",
         views.sensibilidad_agregar,
