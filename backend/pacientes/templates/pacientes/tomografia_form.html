@@ -1,0 +1,106 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if tomografia %}Editar{% else %}Agregar{% endif %} Tomografía - {{ paciente.apellido }}, {{ paciente.nombre }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card rinc-card">
+                <div class="card-header rinc-card-header">
+                    <h4 class="mb-0">
+                        {% if tomografia %}Editar{% else %}Agregar{% endif %} Tomografía
+                    </h4>
+                </div>
+                <div class="card-body rinc-card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- FECHA (arriba) -->
+                        <div class="mb-3">
+                            <label class="form-label">Fecha del estudio</label>
+                            {{ form.fecha }}
+                        </div>
+
+                        <!-- TIPO (abajo) con recarga por GET al cambiar -->
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de tomografía</label>
+                            <select name="tipo" id="id_tipo_tomografia" class="form-select"
+                                    onchange="window.location.href = '?tipo=' + this.value;">
+                                <option value="">Seleccione un tipo...</option>
+                                {% for option in form.tipo.field.choices %}
+                                    <option value="{{ option.0 }}" {% if option.0 == form.tipo.value %}selected{% endif %}>
+                                        {{ option.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- HALLAZGOS (filtrados según el tipo seleccionado) -->
+                        <div class="mb-3">
+                            <label class="form-label">Hallazgos</label>
+                            <div id="hallazgos-container">
+                                {% if tipo_seleccionado == 'TORAX' %}
+                                    <div class="hallazgo-grupo">
+                                        <h6 class="text-primary">TC de tórax</h6>
+                                        {% for hallazgo in hallazgos_agrupados.TORAX %}
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="hallazgos" value="{{ hallazgo.pk }}" id="hallazgo_{{ hallazgo.pk }}"
+                                                       {% if hallazgo.pk in form.hallazgos.value %}checked{% endif %}>
+                                                <label class="form-check-label" for="hallazgo_{{ hallazgo.pk }}">
+                                                    {{ hallazgo.descripcion }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% elif tipo_seleccionado == 'ANGIO_TORAX' %}
+                                    <div class="hallazgo-grupo">
+                                        <h6 class="text-primary">Angio-TC</h6>
+                                        {% for hallazgo in hallazgos_agrupados.ANGIO %}
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="hallazgos" value="{{ hallazgo.pk }}" id="hallazgo_{{ hallazgo.pk }}"
+                                                       {% if hallazgo.pk in form.hallazgos.value %}checked{% endif %}>
+                                                <label class="form-check-label" for="hallazgo_{{ hallazgo.pk }}">
+                                                    {{ hallazgo.descripcion }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% elif tipo_seleccionado == 'MACIZO_FACIAL' %}
+                                    <div class="hallazgo-grupo">
+                                        <h6 class="text-primary">Macizo facial</h6>
+                                        {% for hallazgo in hallazgos_agrupados.MACIZO %}
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="hallazgos" value="{{ hallazgo.pk }}" id="hallazgo_{{ hallazgo.pk }}"
+                                                       {% if hallazgo.pk in form.hallazgos.value %}checked{% endif %}>
+                                                <label class="form-check-label" for="hallazgo_{{ hallazgo.pk }}">
+                                                    {{ hallazgo.descripcion }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-white-50 small">Seleccione un tipo de tomografía para ver los hallazgos.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- BOTONES -->
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{% url 'pacientes:estudios_procedimientos' internacion.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

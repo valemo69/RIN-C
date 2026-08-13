@@ -16,6 +16,7 @@ from .models import (
     BaciloscopiaDetalle,
     CultivoDetalle,
     GeneXpertDetalle,
+    Tomografia,
 )
 
 
@@ -535,3 +536,23 @@ class ResultadosTBCForm(forms.Form):
         required=False,
         label="GeneXpert - Resistencia a rifampicina"
     )
+    
+    
+# ==========================================================
+# EST. COMPLEMENTARIOS
+# ==========================================================
+
+class TomografiaForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = Tomografia
+        fields = ["tipo", "fecha", "hallazgos"]  # ← quitamos observaciones
+        widgets = {
+            "fecha": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "tipo": forms.Select(attrs={"class": "form-select", "id": "id_tipo_tomografia"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['hallazgos'].required = False
+        self.fields['hallazgos'].queryset = Catalogo.objects.none()
+    

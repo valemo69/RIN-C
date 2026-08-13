@@ -14,618 +14,217 @@ RIN-C | Estudios y Procedimientos
 <div class="container-fluid py-4">
 
     <!-- BREADCRUMB -->
-
     <nav aria-label="breadcrumb" class="mb-4">
-
         <ol class="breadcrumb">
-
-            <li class="breadcrumb-item">
-                <a href="#">Inicio</a>
-            </li>
-
-            <li class="breadcrumb-item">
-                <a href="#">Pacientes e Internaciones</a>
-            </li>
-
-            <li class="breadcrumb-item">
-                <a href="#">Internación</a>
-            </li>
-
-            <li class="breadcrumb-item active">
-                Estudios y Procedimientos
-            </li>
-
+            <li class="breadcrumb-item"><a href="{% url 'pacientes:inicio' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'pacientes:internaciones_paciente' paciente.pk %}">Pacientes e Internaciones</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'pacientes:internacion_detalle' internacion.pk %}">Internación</a></li>
+            <li class="breadcrumb-item active">Estudios y Procedimientos</li>
         </ol>
-
     </nav>
 
-
     <!-- PACIENTE -->
-
-    <div class="card rinc-card rinc-patient-header">
-
+    <div class="card rinc-card rinc-patient-header mb-3">
         <div class="card-body rinc-card-body">
-
-            <div class="row">
-
+            <div class="row align-items-center">
                 <div class="col-lg-8">
-
-                    <h2 class="fw-bold">
-
-                        {{ paciente.apellido }}, {{ paciente.nombre }}
-
-                    </h2>
-
+                    <h2 class="fw-bold mb-2">{{ paciente.apellido }}, {{ paciente.nombre }}</h2>
                     <div class="row">
-
-                        <div class="col-md-4">
-
-                            <strong>DNI</strong><br>
-
-                            {{ paciente.numero_documento }}
-
-                        </div>
-
-                        <div class="col-md-4">
-
-                            <strong>Sexo</strong><br>
-
-                            {{ paciente.sexo }}
-
-                        </div>
-
-                        <div class="col-md-4">
-
-                            <strong>Edad</strong><br>
-
-                            {{ paciente.edad }}
-
-                        </div>
-
+                        <div class="col-md-4"><strong>DNI</strong><br>{{ paciente.numero_documento }}</div>
+                        <div class="col-md-4"><strong>Sexo</strong><br>{{ paciente.sexo }}</div>
+                        <div class="col-md-4"><strong>Edad</strong><br>{{ paciente.edad }}</div>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
-
 
     <!-- PROGRESO -->
-
-    <div class="card rinc-card mb-4">
-
+    <div class="card rinc-card mb-3">
         <div class="card-body rinc-card-body text-center">
-
-            <span class="text-success me-4">
-
-                <i class="bi bi-check-circle-fill"></i>
-
-                Ficha principal
-
-            </span>
-
-            <span class="text-success me-4">
-
-                <i class="bi bi-check-circle-fill"></i>
-
-                Comorbilidades
-
-            </span>
-
-            <span class="text-success me-4">
-
-                <i class="bi bi-check-circle-fill"></i>
-
-                Microbiología
-
-            </span>
-
-            <span class="fw-bold text-primary me-4">
-
-                <i class="bi bi-circle-fill"></i>
-
-                Estudios y Procedimientos
-
-            </span>
-
-            <span class="text-secondary">
-
-                <i class="bi bi-circle"></i>
-
-                Tratamiento
-
-            </span>
-
+            <span class="text-success me-3"><i class="bi bi-check-circle-fill"></i> Ficha principal</span>
+            <span class="text-success me-3"><i class="bi bi-check-circle-fill"></i> Comorbilidades</span>
+            <span class="text-success me-3"><i class="bi bi-check-circle-fill"></i> Microbiología</span>
+            <span class="fw-bold text-primary me-3"><i class="bi bi-circle-fill"></i> Estudios y Procedimientos</span>
+            <span class="text-secondary"><i class="bi bi-circle"></i> Tratamiento</span>
         </div>
-
     </div>
 
-
-
-    <div class="row">
-
-        <!-- IMAGENES -->
-
-        <div class="col-lg-6 mb-4">
-
-            <div class="card rinc-card h-100">
-
-                <div class="card-header rinc-card-header">
-
-                    <h5 class="mb-0">
-
-                        Imágenes
-
-                    </h5>
-
-                </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            TC de tórax
-
-                        </label>
-
-                    </div>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            TC de macizo facial
-
-                        </label>
-
-                    </div>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Angio-TC pulmonar
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+    <!-- ========================================================== -->
+    <!-- MENÚ DE ESTUDIOS (centrado)                                -->
+    <!-- ========================================================== -->
+    <div class="card rinc-card mb-3">
+        <div class="card-header rinc-card-header text-center">
+            <h5 class="mb-0"><i class="bi bi-grid-3x3-gap-fill"></i> Seleccione un estudio</h5>
         </div>
-
-
-
-        <!-- FIBROBRONCOSCOPIA -->
-
-        <div class="col-lg-6 mb-4">
-
-            <div class="card rinc-card h-100">
-
-                <div class="card-header rinc-card-header">
-
-                    <h5 class="mb-0">
-
-                        Fibrobroncoscopía
-
-                    </h5>
-
-                </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Realizada
-
-                        </label>
-
-                    </div>
-
-                    <hr>
-
-                    <strong>Hallazgos</strong>
-
-                    <div class="form-check mt-2">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Normal</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Lesión endobronquial</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Secreciones purulentas</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Tapón mucoso</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Estenosis</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Compresión extrínseca</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Otros</label>
-                    </div>
-
-                </div>
-
+        <div class="card-body rinc-card-body">
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <a href="?seccion=tomografias" class="btn btn-outline-light {% if seccion == 'tomografias' %}active{% endif %}">
+                    <i class="bi bi-image"></i> Tomografías
+                </a>
+                <a href="?seccion=ecocardiogramas" class="btn btn-outline-light {% if seccion == 'ecocardiogramas' %}active{% endif %}">
+                    <i class="bi bi-heart-pulse"></i> Ecocardiogramas
+                </a>
+                <a href="?seccion=fibrobroncoscopias" class="btn btn-outline-light {% if seccion == 'fibrobroncoscopias' %}active{% endif %}">
+                    <i class="bi bi-lungs"></i> Fibrobroncoscopias
+                </a>
+                <a href="?seccion=arteriografias" class="btn btn-outline-light {% if seccion == 'arteriografias' %}active{% endif %}">
+                    <i class="bi bi-droplet"></i> Arteriografías
+                </a>
+                <a href="?seccion=espirometrias" class="btn btn-outline-light {% if seccion == 'espirometrias' %}active{% endif %}">
+                    <i class="bi bi-graph-up-arrow"></i> Espirometrías
+                </a>
+                <a href="?seccion=toracocentesis" class="btn btn-outline-light {% if seccion == 'toracocentesis' %}active{% endif %}">
+                    <i class="bi bi-droplet-half"></i> Toracocentesis
+                </a>
+                <a href="?seccion=anatomia_patologica" class="btn btn-outline-light {% if seccion == 'anatomia_patologica' %}active{% endif %}">
+                    <i class="bi bi-microscope"></i> Anatomía Patológica
+                </a>
             </div>
-
         </div>
-
-    </div>
-    <div class="row">
-
-        <!-- PROCEDIMIENTOS BRONCOSCÓPICOS -->
-
-        <div class="col-lg-6 mb-4">
-
-            <div class="card rinc-card h-100">
-
-                <div class="card-header rinc-card-header">
-
-                    <h5 class="mb-0">
-
-                        Procedimientos broncoscópicos
-
-                    </h5>
-
-                </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">BAL</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Lavado bronquial</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">BTB (Biopsia transbronquial)</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Criobiopsia</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Extracción de cuerpo extraño</label>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- PROCEDIMIENTOS PLEURALES -->
-
-        <div class="col-lg-6 mb-4">
-
-            <div class="card rinc-card h-100">
-
-                <div class="card-header rinc-card-header">
-
-                    <h5 class="mb-0">
-
-                        Procedimientos pleurales
-
-                    </h5>
-
-                </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">
-                            Toracocentesis diagnóstica
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">
-                            Toracocentesis evacuadora
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">
-                            Drenaje pleural
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">
-                            Pleurocath
-                        </label>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
     </div>
 
-
-
-    <div class="row">
-
-        <!-- ARTERIOGRAFÍA BRONQUIAL -->
-
-        <div class="col-lg-6 mb-4">
-
-            <div class="card rinc-card h-100">
-
-                <div class="card-header rinc-card-header">
-
-                    <h5 class="mb-0">
-
-                        Arteriografía bronquial
-
-                    </h5>
-
-                </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Diagnóstica
-
-                        </label>
-
-                    </div>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Embolización unilateral
-
-                        </label>
-
-                    </div>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Embolización bilateral
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+    <!-- ========================================================== -->
+    <!-- SECCIÓN TOMOGRAFÍAS                                         -->
+    <!-- ========================================================== -->
+    {% if seccion == 'tomografias' %}
+    <div class="card rinc-card mb-3">
+        <div class="card-header rinc-card-header d-flex flex-wrap justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-image"></i> Tomografías</h5>
+            <a href="{% url 'pacientes:tomografia_agregar' internacion.pk %}" class="btn btn-sm btn-outline-light mt-1 mt-sm-0">
+                <i class="bi bi-plus-circle"></i> Agregar
+            </a>
         </div>
-        <!-- ECOCARDIOGRAMA -->
-
-        <div class="col-lg-6 mb-4">
-
-            <div class="card rinc-card h-100">
-
-                <div class="card-header rinc-card-header">
-
-                    <h5 class="mb-0">
-
-                        Ecocardiograma
-
-                    </h5>
-
+        <div class="card-body rinc-card-body">
+            {% if tomografias %}
+                {% for t in tomografias %}
+                <div class="card bg-dark text-white border-secondary mb-2">
+                    <div class="card-body py-2 px-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong class="text-info">{{ t.fecha|date:"d/m/Y" }}</strong>
+                                <span class="badge bg-secondary ms-2">{{ t.tipo.descripcion }}</span>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'pacientes:tomografia_editar' t.pk %}" class="btn btn-sm btn-outline-light" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'pacientes:tomografia_eliminar' t.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="small text-white-50 mt-1">
+                            {% for h in t.hallazgos.all %}<span class="badge bg-secondary">{{ h.descripcion }}</span> {% endfor %}
+                        </div>
+                        {% if t.observaciones %}
+                        <div class="small text-white-50 mt-1"><em>{{ t.observaciones|truncatechars:60 }}</em></div>
+                        {% endif %}
+                    </div>
                 </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="form-check mb-3">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Realizado
-
-                        </label>
-
-                    </div>
-
-                    <strong>Hallazgos</strong>
-
-                    <div class="form-check mt-2">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">FEVI conservada</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Disfunción ventricular izquierda</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Dilatación de ventrículo derecho</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Disfunción de ventrículo derecho</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Hipertensión pulmonar probable</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Derrame pericárdico</label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">Vegetaciones</label>
-                    </div>
-
-                </div>
-
-            </div>
-
+                {% endfor %}
+            {% else %}
+                <p class="text-white-50 small">No hay tomografías cargadas.</p>
+            {% endif %}
         </div>
-
     </div>
+    {% endif %}
 
-
-
-    <div class="row">
-
-        <!-- PROCEDIMIENTOS DE VÍA AÉREA -->
-
-        <div class="col-lg-6 mb-4">
-
-            <div class="card rinc-card h-100">
-
-                <div class="card-header rinc-card-header">
-
-                    <h5 class="mb-0">
-
-                        Procedimientos de vía aérea
-
-                    </h5>
-
-                </div>
-
-                <div class="card-body rinc-card-body">
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Traqueostomía
-
-                        </label>
-
-                    </div>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Cambio de cánula
-
-                        </label>
-
-                    </div>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input" type="checkbox">
-
-                        <label class="form-check-label">
-
-                            Decanulación
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+    <!-- ========================================================== -->
+    <!-- SECCIÓN ECOCARDIOGRAMAS (placeholder)                       -->
+    <!-- ========================================================== -->
+    {% if seccion == 'ecocardiogramas' %}
+    <div class="card rinc-card mb-3">
+        <div class="card-header rinc-card-header">
+            <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Ecocardiogramas</h5>
         </div>
-
+        <div class="card-body rinc-card-body">
+            <p class="text-white-50 small">Próximamente</p>
+        </div>
     </div>
-    <!-- BOTONERA -->
+    {% endif %}
 
-    <div class="rinc-actions">
+    <!-- ========================================================== -->
+    <!-- SECCIÓN FIBROBRONCOSCOPIAS (placeholder)                    -->
+    <!-- ========================================================== -->
+    {% if seccion == 'fibrobroncoscopias' %}
+    <div class="card rinc-card mb-3">
+        <div class="card-header rinc-card-header">
+            <h5 class="mb-0"><i class="bi bi-lungs"></i> Fibrobroncoscopias</h5>
+        </div>
+        <div class="card-body rinc-card-body">
+            <p class="text-white-50 small">Próximamente</p>
+        </div>
+    </div>
+    {% endif %}
 
-        <a href="#" class="btn btn-rinc-secondary">
+    <!-- ========================================================== -->
+    <!-- SECCIÓN ARTERIOGRAFÍAS (placeholder)                        -->
+    <!-- ========================================================== -->
+    {% if seccion == 'arteriografias' %}
+    <div class="card rinc-card mb-3">
+        <div class="card-header rinc-card-header">
+            <h5 class="mb-0"><i class="bi bi-droplet"></i> Arteriografías</h5>
+        </div>
+        <div class="card-body rinc-card-body">
+            <p class="text-white-50 small">Próximamente</p>
+        </div>
+    </div>
+    {% endif %}
 
-            <i class="bi bi-arrow-left me-1"></i>
+    <!-- ========================================================== -->
+    <!-- SECCIÓN ESPIROMETRÍAS (placeholder)                         -->
+    <!-- ========================================================== -->
+    {% if seccion == 'espirometrias' %}
+    <div class="card rinc-card mb-3">
+        <div class="card-header rinc-card-header">
+            <h5 class="mb-0"><i class="bi bi-graph-up-arrow"></i> Espirometrías</h5>
+        </div>
+        <div class="card-body rinc-card-body">
+            <p class="text-white-50 small">Próximamente</p>
+        </div>
+    </div>
+    {% endif %}
 
-            Microbiología
+    <!-- ========================================================== -->
+    <!-- SECCIÓN TORACOCENTESIS (placeholder)                        -->
+    <!-- ========================================================== -->
+    {% if seccion == 'toracocentesis' %}
+    <div class="card rinc-card mb-3">
+        <div class="card-header rinc-card-header">
+            <h5 class="mb-0"><i class="bi bi-droplet-half"></i> Toracocentesis</h5>
+        </div>
+        <div class="card-body rinc-card-body">
+            <p class="text-white-50 small">Próximamente</p>
+        </div>
+    </div>
+    {% endif %}
 
+    <!-- ========================================================== -->
+    <!-- SECCIÓN ANATOMÍA PATOLÓGICA (placeholder)                   -->
+    <!-- ========================================================== -->
+    {% if seccion == 'anatomia_patologica' %}
+    <div class="card rinc-card mb-3">
+        <div class="card-header rinc-card-header">
+            <h5 class="mb-0"><i class="bi bi-microscope"></i> Anatomía Patológica</h5>
+        </div>
+        <div class="card-body rinc-card-body">
+            <p class="text-white-50 small">Próximamente</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ========================================================== -->
+    <!-- BOTONERA                                                    -->
+    <!-- ========================================================== -->
+    <div class="rinc-actions mt-3">
+        <a href="{% url 'pacientes:microbiologia' internacion.pk %}" class="btn btn-rinc-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Microbiología
         </a>
-
         <div class="rinc-actions-right">
-
-            <button type="button" class="btn btn-rinc-secondary me-2"> 
-
-                Guardar
-
-            </button>
-
-            <button type="button" class="btn btn-rinc-primary">
-
-                Tratamiento
-
-                <i class="bi bi-arrow-right ms-1"></i>
-
-            </button>
-
+            <button type="button" class="btn btn-rinc-secondary me-2">Guardar</button>
+            <a href="#" class="btn btn-rinc-primary">Tratamiento <i class="bi bi-arrow-right ms-1"></i></a>
         </div>
-
     </div>
 
 </div>

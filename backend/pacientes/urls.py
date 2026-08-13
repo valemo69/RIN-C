@@ -65,19 +65,35 @@ urlpatterns = [
         views.muestra_eliminar, 
         name="muestra_eliminar"),
     
-    path("microbiologia/aislamientos/<int:pk>/editar/", 
+    path(
+        "microbiologia/aislamientos/<int:pk>/editar/", 
          views.aislamiento_editar, 
          name="aislamiento_editar"),
     
-    path("microbiologia/aislamientos/<int:pk>/eliminar/", 
+    path(
+        "microbiologia/aislamientos/<int:pk>/eliminar/", 
          views.aislamiento_eliminar, 
          name="aislamiento_eliminar"),
     
     path(
-        "estudios_procedimientos/",
-        views.estudios_procedimientos_view,
-        name="estudios_procedimientos",
-    ),
+        "internaciones/<int:pk>/estudios_procedimientos/", 
+         views.estudios_procedimientos_view, 
+         name="estudios_procedimientos"),
+    
+    path(
+        "internaciones/<int:internacion_pk>/tomografia/agregar/", 
+         views.tomografia_agregar, 
+         name="tomografia_agregar"),
+    
+    path(
+        "tomografia/<int:pk>/editar/", 
+         views.tomografia_editar, 
+         name="tomografia_editar"),
+    path(
+        "tomografia/<int:pk>/eliminar/", 
+         views.tomografia_eliminar, 
+         name="tomografia_eliminar"),
+    
     path(
         "internaciones/<int:pk>/tratamiento/",
         views.tratamiento_view,

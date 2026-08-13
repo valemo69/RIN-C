@@ -20,6 +20,7 @@ from .forms import (
     ResultadosTBCForm,
     SensibilidadMicrobiologicaForm,
     InternacionTratamientoAntimicrobianoForm,
+    TomografiaForm,
 )
 from .models import (
     AislamientoMicrobiologico,
@@ -34,11 +35,13 @@ from .models import (
     BaciloscopiaDetalle,
     CultivoDetalle,
     GeneXpertDetalle,
+    Tomografia,
 )
 
 # ==========================================================
 # INICIO - BÚSQUEDA DE PACIENTES
 # ==========================================================
+
 
 @login_required
 def inicio(request):
@@ -75,9 +78,11 @@ def inicio(request):
         },
     )
 
+
 # ==========================================================
 # FICHA DEL PACIENTE
 # ==========================================================
+
 
 @login_required
 def paciente_nuevo(request):
@@ -98,6 +103,7 @@ def paciente_nuevo(request):
             "es_nuevo": True,
         },
     )
+
 
 @login_required
 def paciente_editar(request, pk):
@@ -121,6 +127,7 @@ def paciente_editar(request, pk):
         },
     )
 
+
 @login_required
 def paciente_ver(request, pk):
     paciente = get_object_or_404(Paciente, pk=pk)
@@ -137,9 +144,11 @@ def paciente_ver(request, pk):
         },
     )
 
+
 # ==========================================================
 # INTERNACIÓN
 # ==========================================================
+
 
 @login_required
 def internaciones_paciente(request, paciente_pk):
@@ -159,37 +168,46 @@ def internaciones_paciente(request, paciente_pk):
 def internacion_nueva(request, paciente_pk):
     paciente = get_object_or_404(Paciente, pk=paciente_pk)
 
-    motivos_infecciosos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_INFECCIOSO", activo=True).order_by("orden", "descripcion")
-    motivos_obstructivos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_OBSTRUCTIVO", activo=True).order_by("orden", "descripcion")
-    motivos_intersticiales = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_INTERSTICIAL", activo=True).order_by("orden", "descripcion")
-    motivos_pleurales = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_PLEURAL", activo=True).order_by("orden", "descripcion")
-    motivos_vasculares = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_VASCULAR", activo=True).order_by("orden", "descripcion")
-    motivos_oncologicos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_ONCOLOGICO", activo=True).order_by("orden", "descripcion")
-    motivos_otros = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_OTROS", activo=True).order_by("orden", "descripcion")
+    motivos_infecciosos = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_INFECCIOSO", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_obstructivos = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_OBSTRUCTIVO", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_intersticiales = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_INTERSTICIAL", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_pleurales = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_PLEURAL", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_vasculares = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_VASCULAR", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_oncologicos = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_ONCOLOGICO", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_otros = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_OTROS", activo=True
+    ).order_by("orden", "descripcion")
 
     motivos_otros_habitos_inhalatorios = Catalogo.objects.filter(
-        tipo__codigo="OTROS_HABITOS_INHALATORIOS",
-        activo=True
+        tipo__codigo="OTROS_HABITOS_INHALATORIOS", activo=True
     ).order_by("orden", "descripcion")
 
     motivos_exposiciones_laborales = Catalogo.objects.filter(
-        tipo__codigo="EXPOSICION_OCUPACIONAL",
-        activo=True
+        tipo__codigo="EXPOSICION_OCUPACIONAL", activo=True
     ).order_by("orden", "descripcion")
 
     motivos_exposiciones_ambientales = Catalogo.objects.filter(
-        tipo__codigo="EXPOSICION_AMBIENTAL",
-        activo=True
+        tipo__codigo="EXPOSICION_AMBIENTAL", activo=True
     ).order_by("orden", "descripcion")
 
     motivos_antecedentes = Catalogo.objects.filter(
-        tipo__codigo__in=["ANTECEDENTE_RESPIRATORIO", "COMORBILIDAD"],
-        activo=True
+        tipo__codigo__in=["ANTECEDENTE_RESPIRATORIO", "COMORBILIDAD"], activo=True
     ).order_by("orden", "descripcion")
 
     motivos_soporte = Catalogo.objects.filter(
-        tipo__codigo="SOPORTE_RESPIRATORIO",
-        activo=True
+        tipo__codigo="SOPORTE_RESPIRATORIO", activo=True
     ).order_by("orden", "descripcion")
 
     if request.method == "POST":
@@ -206,25 +224,35 @@ def internacion_nueva(request, paciente_pk):
     else:
         form = InternacionForm()
 
-    otros_habitos_inhalatorios_ids = [
-        int(i) for i in request.POST.getlist("otros_habitos_inhalatorios")
-    ] if request.method == "POST" else []
+    otros_habitos_inhalatorios_ids = (
+        [int(i) for i in request.POST.getlist("otros_habitos_inhalatorios")]
+        if request.method == "POST"
+        else []
+    )
 
-    exposiciones_laborales_ids = [
-        int(i) for i in request.POST.getlist("exposiciones_laborales")
-    ] if request.method == "POST" else []
+    exposiciones_laborales_ids = (
+        [int(i) for i in request.POST.getlist("exposiciones_laborales")]
+        if request.method == "POST"
+        else []
+    )
 
-    exposiciones_ambientales_ids = [
-        int(i) for i in request.POST.getlist("exposiciones_ambientales")
-    ] if request.method == "POST" else []
+    exposiciones_ambientales_ids = (
+        [int(i) for i in request.POST.getlist("exposiciones_ambientales")]
+        if request.method == "POST"
+        else []
+    )
 
-    antecedentes_ids = [
-        int(i) for i in request.POST.getlist("antecedentes_respiratorios")
-    ] if request.method == "POST" else []
+    antecedentes_ids = (
+        [int(i) for i in request.POST.getlist("antecedentes_respiratorios")]
+        if request.method == "POST"
+        else []
+    )
 
-    soporte_ids = [
-        int(i) for i in request.POST.getlist("soporte_respiratorio")
-    ] if request.method == "POST" else []
+    soporte_ids = (
+        [int(i) for i in request.POST.getlist("soporte_respiratorio")]
+        if request.method == "POST"
+        else []
+    )
 
     return render(
         request,
@@ -234,7 +262,6 @@ def internacion_nueva(request, paciente_pk):
             "paciente": paciente,
             "internacion": None,
             "es_nueva": True,
-
             "motivos_infecciosos": motivos_infecciosos,
             "motivos_obstructivos": motivos_obstructivos,
             "motivos_intersticiales": motivos_intersticiales,
@@ -242,18 +269,14 @@ def internacion_nueva(request, paciente_pk):
             "motivos_vasculares": motivos_vasculares,
             "motivos_oncologicos": motivos_oncologicos,
             "motivos_otros": motivos_otros,
-
             "motivos_otros_habitos_inhalatorios": motivos_otros_habitos_inhalatorios,
             "motivos_exposiciones_laborales": motivos_exposiciones_laborales,
             "motivos_exposiciones_ambientales": motivos_exposiciones_ambientales,
-
             "motivos_antecedentes": motivos_antecedentes,
             "motivos_soporte": motivos_soporte,
-
             "otros_habitos_inhalatorios_ids": otros_habitos_inhalatorios_ids,
             "exposiciones_laborales_ids": exposiciones_laborales_ids,
             "exposiciones_ambientales_ids": exposiciones_ambientales_ids,
-
             "antecedentes_ids": antecedentes_ids,
             "soporte_ids": soporte_ids,
         },
@@ -264,42 +287,50 @@ def internacion_nueva(request, paciente_pk):
 def internacion_detalle(request, pk):
     internacion = get_object_or_404(Internacion, pk=pk)
 
-    motivos_infecciosos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_INFECCIOSO", activo=True).order_by("orden", "descripcion")
-    motivos_obstructivos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_OBSTRUCTIVO", activo=True).order_by("orden", "descripcion")
-    motivos_intersticiales = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_INTERSTICIAL", activo=True).order_by("orden", "descripcion")
-    motivos_pleurales = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_PLEURAL", activo=True).order_by("orden", "descripcion")
-    motivos_vasculares = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_VASCULAR", activo=True).order_by("orden", "descripcion")
-    motivos_oncologicos = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_ONCOLOGICO", activo=True).order_by("orden", "descripcion")
-    motivos_otros = Catalogo.objects.filter(tipo__codigo__iexact="MOTIVO_OTROS", activo=True).order_by("orden", "descripcion")
+    motivos_infecciosos = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_INFECCIOSO", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_obstructivos = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_OBSTRUCTIVO", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_intersticiales = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_INTERSTICIAL", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_pleurales = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_PLEURAL", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_vasculares = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_VASCULAR", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_oncologicos = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_ONCOLOGICO", activo=True
+    ).order_by("orden", "descripcion")
+    motivos_otros = Catalogo.objects.filter(
+        tipo__codigo__iexact="MOTIVO_OTROS", activo=True
+    ).order_by("orden", "descripcion")
 
     motivos_tabaquismo_pasivo = Catalogo.objects.filter(
-        tipo__codigo="TABAQUISMO_PASIVO", 
-        activo=True
+        tipo__codigo="TABAQUISMO_PASIVO", activo=True
     ).order_by("orden", "descripcion")
-    
+
     motivos_otros_habitos_inhalatorios = Catalogo.objects.filter(
-        tipo__codigo="OTROS_HABITOS_INHALATORIOS", 
-        activo=True
+        tipo__codigo="OTROS_HABITOS_INHALATORIOS", activo=True
     ).order_by("orden", "descripcion")
-    
+
     motivos_exposiciones_laborales = Catalogo.objects.filter(
-        tipo__codigo="EXPOSICION_OCUPACIONAL", 
-        activo=True
+        tipo__codigo="EXPOSICION_OCUPACIONAL", activo=True
     ).order_by("orden", "descripcion")
-    
+
     motivos_exposiciones_ambientales = Catalogo.objects.filter(
-        tipo__codigo="EXPOSICION_AMBIENTAL", 
-        activo=True
+        tipo__codigo="EXPOSICION_AMBIENTAL", activo=True
     ).order_by("orden", "descripcion")
-    
+
     motivos_antecedentes = Catalogo.objects.filter(
-        tipo__codigo__in=["ANTECEDENTE_RESPIRATORIO", "COMORBILIDAD"], 
-        activo=True
+        tipo__codigo__in=["ANTECEDENTE_RESPIRATORIO", "COMORBILIDAD"], activo=True
     ).order_by("orden", "descripcion")
-    
+
     motivos_soporte = Catalogo.objects.filter(
-        tipo__codigo="SOPORTE_RESPIRATORIO", 
-        activo=True
+        tipo__codigo="SOPORTE_RESPIRATORIO", activo=True
     ).order_by("orden", "descripcion")
 
     if request.method == "POST":
@@ -312,19 +343,41 @@ def internacion_detalle(request, pk):
         form = InternacionForm(instance=internacion)
 
     if request.method == "POST":
-        tabaquismo_pasivo_ids = [int(i) for i in request.POST.getlist("tabaquismo_pasivo")]
-        otros_habitos_inhalatorios_ids = [int(i) for i in request.POST.getlist("otros_habitos_inhalatorios")]
-        exposiciones_laborales_ids = [int(i) for i in request.POST.getlist("exposiciones_laborales")]
-        exposiciones_ambientales_ids = [int(i) for i in request.POST.getlist("exposiciones_ambientales")]
-        antecedentes_ids = [int(i) for i in request.POST.getlist("antecedentes_respiratorios")]
+        tabaquismo_pasivo_ids = [
+            int(i) for i in request.POST.getlist("tabaquismo_pasivo")
+        ]
+        otros_habitos_inhalatorios_ids = [
+            int(i) for i in request.POST.getlist("otros_habitos_inhalatorios")
+        ]
+        exposiciones_laborales_ids = [
+            int(i) for i in request.POST.getlist("exposiciones_laborales")
+        ]
+        exposiciones_ambientales_ids = [
+            int(i) for i in request.POST.getlist("exposiciones_ambientales")
+        ]
+        antecedentes_ids = [
+            int(i) for i in request.POST.getlist("antecedentes_respiratorios")
+        ]
         soporte_ids = [int(i) for i in request.POST.getlist("soporte_respiratorio")]
     else:
-        tabaquismo_pasivo_ids = list(internacion.tabaquismo_pasivo.values_list("id", flat=True))
-        otros_habitos_inhalatorios_ids = list(internacion.otros_habitos_inhalatorios.values_list("id", flat=True))
-        exposiciones_laborales_ids = list(internacion.exposiciones_laborales.values_list("id", flat=True))
-        exposiciones_ambientales_ids = list(internacion.exposiciones_ambientales.values_list("id", flat=True))
-        antecedentes_ids = list(internacion.antecedentes_respiratorios.values_list("id", flat=True))
-        soporte_ids = list(internacion.soporte_respiratorio.values_list("id", flat=True))
+        tabaquismo_pasivo_ids = list(
+            internacion.tabaquismo_pasivo.values_list("id", flat=True)
+        )
+        otros_habitos_inhalatorios_ids = list(
+            internacion.otros_habitos_inhalatorios.values_list("id", flat=True)
+        )
+        exposiciones_laborales_ids = list(
+            internacion.exposiciones_laborales.values_list("id", flat=True)
+        )
+        exposiciones_ambientales_ids = list(
+            internacion.exposiciones_ambientales.values_list("id", flat=True)
+        )
+        antecedentes_ids = list(
+            internacion.antecedentes_respiratorios.values_list("id", flat=True)
+        )
+        soporte_ids = list(
+            internacion.soporte_respiratorio.values_list("id", flat=True)
+        )
 
     return render(
         request,
@@ -356,11 +409,15 @@ def internacion_detalle(request, pk):
         },
     )
 
+
 # ==========================================================
 # COMORBILIDADES
 # ==========================================================
 
-def _sincronizar_catalogos(internacion, tipo_codigo, catalogos_seleccionados, request=None):
+
+def _sincronizar_catalogos(
+    internacion, tipo_codigo, catalogos_seleccionados, request=None
+):
     actuales = InternacionCatalogo.objects.filter(
         internacion=internacion,
         catalogo__tipo__codigo=tipo_codigo,
@@ -387,7 +444,7 @@ def _sincronizar_catalogos(internacion, tipo_codigo, catalogos_seleccionados, re
             if "Antigripal" not in item.descripcion and "COVID" not in item.descripcion:
                 campo_nombre = f"inmunizacion_fecha_{item.pk}"
                 fecha_ingresada = request.POST.get(campo_nombre)
-                
+
                 if fecha_ingresada is not None:
                     relacion = InternacionCatalogo.objects.filter(
                         internacion=internacion, catalogo=item
@@ -418,19 +475,29 @@ def comorbilidades_view(request, pk):
     print("Grupos agrupados:", comorbilidades_por_grupo.keys())
 
     ids_seleccionados = set(comorbilidades_seleccionadas.values_list("pk", flat=True))
-    
+
     ids_inmunizaciones_seleccionadas = set(
-        Catalogo.objects.filter(internaciones__internacion=internacion, tipo__codigo="INMUNIZACION").values_list("pk", flat=True)
+        Catalogo.objects.filter(
+            internaciones__internacion=internacion, tipo__codigo="INMUNIZACION"
+        ).values_list("pk", flat=True)
     )
-    
+
     inmunizaciones_con_fecha = []
-    for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True).order_by("orden"):
-        relacion = InternacionCatalogo.objects.filter(internacion=internacion, catalogo=item).first()
-        inmunizaciones_con_fecha.append({
-            "item": item,
-            "seleccionado": item.pk in ids_inmunizaciones_seleccionadas,
-            "fecha": relacion.observacion if relacion and relacion.observacion else "",
-        })
+    for item in Catalogo.objects.filter(
+        tipo__codigo="INMUNIZACION", activo=True
+    ).order_by("orden"):
+        relacion = InternacionCatalogo.objects.filter(
+            internacion=internacion, catalogo=item
+        ).first()
+        inmunizaciones_con_fecha.append(
+            {
+                "item": item,
+                "seleccionado": item.pk in ids_inmunizaciones_seleccionadas,
+                "fecha": (
+                    relacion.observacion if relacion and relacion.observacion else ""
+                ),
+            }
+        )
 
     if request.method == "POST":
         form = ComorbilidadesForm(request.POST)
@@ -442,8 +509,13 @@ def comorbilidades_view(request, pk):
             catalogos_inmu = Catalogo.objects.filter(pk__in=inmunizaciones_ids)
             _sincronizar_catalogos(internacion, "INMUNIZACION", catalogos_inmu)
 
-            for item in Catalogo.objects.filter(tipo__codigo="INMUNIZACION", activo=True):
-                if "Antigripal" not in item.descripcion and "COVID" not in item.descripcion:
+            for item in Catalogo.objects.filter(
+                tipo__codigo="INMUNIZACION", activo=True
+            ):
+                if (
+                    "Antigripal" not in item.descripcion
+                    and "COVID" not in item.descripcion
+                ):
                     campo_nombre = f"inmunizacion_fecha_{item.pk}"
                     fecha_ingresada = request.POST.get(campo_nombre)
                     if fecha_ingresada is not None:
@@ -479,7 +551,7 @@ def comorbilidades_view(request, pk):
         },
     )
 
-    
+
 # ==========================================================
 # MICROBIOLOGÍA
 # ==========================================================
@@ -510,6 +582,7 @@ def muestra_editar(request, pk):
         },
     )
 
+
 @login_required
 def muestra_eliminar(request, pk):
     muestra = get_object_or_404(MuestraMicrobiologica, pk=pk)
@@ -530,6 +603,7 @@ def muestra_eliminar(request, pk):
         },
     )
 
+
 @login_required
 def microbiologia_view(request, pk):
     internacion = get_object_or_404(Internacion, pk=pk)
@@ -538,15 +612,15 @@ def microbiologia_view(request, pk):
     # OBTENER MUESTRAS (ordenadas: más nuevas primero)
     # ==========================================================
     muestras = (
-        internacion.muestras_microbiologicas
-        .all()
-        .order_by('-fecha_toma', '-creado')
+        internacion.muestras_microbiologicas.all()
+        .order_by("-fecha_toma", "-creado")
         .prefetch_related(
             "estudios__aislamientos__sensibilidades",
             "estudios__tipo_estudio",
         )
     )
 
+    # ==========================================================
     # ==========================================================
     # FILTRAR GÉRMENES POR DESTINO (para cada muestra)
     # ==========================================================
@@ -556,8 +630,12 @@ def microbiologia_view(request, pk):
 
         if destino_codigo == 'BAC':          # Bacteriología
             germenes = Catalogo.objects.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
-        elif destino_codigo == 'MTB':        # Micobacterias
-            germenes = Catalogo.objects.germenes_bacterias().filter(descripcion__icontains='Mycobacterium')
+        elif destino_codigo == 'MTB':        # Micobacterias (solo TBC y MNT)
+            germenes = Catalogo.objects.filter(
+                tipo__codigo='GERMEN',
+                codigo__in=['MTB_TBC', 'MTB_NONTB'],
+                activo=True
+            ).order_by('orden', 'descripcion')
         elif destino_codigo == 'MIC':        # Micología
             germenes = Catalogo.objects.germenes_hongos()
         elif destino_codigo == 'VIR':        # Virología
@@ -581,30 +659,28 @@ def microbiologia_view(request, pk):
                 germen = aislamiento.germen
 
                 # Determinar el queryset de antimicrobianos según el germen
-                if germen.tipo_microorganismo == 'bacteria':
-                    if germen.grupo == 'TBC':
+                if germen.tipo_microorganismo == "bacteria":
+                    if germen.grupo == "TBC":
                         qs = Catalogo.objects.filter(
-                            tipo__codigo='ANTIMICROBIANO',
-                            grupo='ANTIMICOBACTERIANO_TBC',
-                            activo=True
+                            tipo__codigo="ANTIMICROBIANO",
+                            grupo="ANTIMICOBACTERIANO_TBC",
+                            activo=True,
                         )
-                    elif germen.grupo == 'NO_TBC':
+                    elif germen.grupo == "NO_TBC":
                         qs = Catalogo.objects.filter(
-                            tipo__codigo='ANTIMICROBIANO',
-                            grupo='ANTIBIOTICO',
-                            activo=True
+                            tipo__codigo="ANTIMICROBIANO",
+                            grupo="ANTIMICOBACTERIANO_NO_TBC",
+                            activo=True,
                         )
                     else:
                         qs = Catalogo.objects.filter(
-                            tipo__codigo='ANTIMICROBIANO',
-                            grupo='ANTIBIOTICO',
-                            activo=True
+                            tipo__codigo="ANTIMICROBIANO",
+                            grupo="ANTIBIOTICO",
+                            activo=True,
                         )
-                elif germen.tipo_microorganismo == 'hongo':
+                elif germen.tipo_microorganismo == "hongo":
                     qs = Catalogo.objects.filter(
-                        tipo__codigo='ANTIMICROBIANO',
-                        grupo='ANTIFUNGICO',
-                        activo=True
+                        tipo__codigo="ANTIMICROBIANO", grupo="ANTIFUNGICO", activo=True
                     )
                 else:
                     qs = Catalogo.objects.none()
@@ -626,38 +702,67 @@ def microbiologia_view(request, pk):
             # Crear estudio automáticamente según destino
             destino_codigo = muestra.destino.codigo if muestra.destino else None
             mapeo_destino_estudio = {
-                'BAC': 'CULTIVO',
-                'MTB': 'CULTIVO',
-                'MIC': 'CULTIVO',
-                'VIR': 'PANEL_VIRAL',
-                'PAR': 'CULTIVO',
-                'PAT': 'ANATOMIA_PATOLOGICA',
+                "BAC": "CULTIVO",
+                "MTB": "CULTIVO",
+                "MIC": "CULTIVO",
+                "VIR": "PANEL_VIRAL",
+                "PAR": "CULTIVO",
+                "PAT": "ANATOMIA_PATOLOGICA",
             }
-            codigo_estudio = mapeo_destino_estudio.get(destino_codigo, 'CULTIVO')
+            codigo_estudio = mapeo_destino_estudio.get(destino_codigo, "CULTIVO")
             try:
                 tipo_estudio = Catalogo.objects.get(
-                    tipo__codigo='TIPO_ESTUDIO_MICROBIOLOGICO',
+                    tipo__codigo="TIPO_ESTUDIO_MICROBIOLOGICO",
                     codigo=codigo_estudio,
-                    activo=True
+                    activo=True,
                 )
                 EstudioMicrobiologico.objects.create(
-                    muestra=muestra,
-                    tipo_estudio=tipo_estudio,
-                    estado='PE'  # Pendiente
+                    muestra=muestra, tipo_estudio=tipo_estudio, estado="PE"  # Pendiente
                 )
-                messages.success(request, f"Muestra agregada con estudio {codigo_estudio}.")
+                messages.success(
+                    request, f"Muestra agregada con estudio {codigo_estudio}."
+                )
             except Catalogo.DoesNotExist:
-                messages.warning(request, f"No se encontró el tipo de estudio '{codigo_estudio}'. La muestra se creó sin estudio.")
+                messages.warning(
+                    request,
+                    f"No se encontró el tipo de estudio '{codigo_estudio}'. La muestra se creó sin estudio.",
+                )
 
             # Redirigir con ancla a la muestra creada
             url = reverse("pacientes:microbiologia", kwargs={"pk": internacion.pk})
             return HttpResponseRedirect(f"{url}#muestra-{muestra.pk}")
-
     # ==========================================================
     # FORMULARIOS AUXILIARES
     # ==========================================================
     estudio_form = EstudioMicrobiologicoForm()
-    aislamiento_form = AislamientoMicrobiologicoForm(germen_queryset=Catalogo.objects.none())
+    aislamiento_form = AislamientoMicrobiologicoForm(
+        germen_queryset=Catalogo.objects.none()
+    )
+
+    # Opciones para selects de micobacterias
+    from .models import BaciloscopiaDetalle, CultivoDetalle, GeneXpertDetalle
+    baciloscopia_opciones = BaciloscopiaDetalle.Resultado.choices
+    baciloscopia_graduacion_opciones = BaciloscopiaDetalle.Graduacion.choices
+    cultivo_opciones = CultivoDetalle.Resultado.choices
+    genexpert_opciones = GeneXpertDetalle.Resultado.choices
+    
+    # ==========================================================
+    # OBTENER RESULTADOS MTB POR ESTUDIO
+    # ==========================================================
+    resultados_mtb_por_estudio = {}
+    for muestra in muestras:
+        for estudio in muestra.estudios.all():
+            if muestra.destino and muestra.destino.codigo == 'MTB':
+                bacilo = BaciloscopiaDetalle.objects.filter(estudio=estudio).first()
+                cultivo = CultivoDetalle.objects.filter(estudio=estudio).first()
+                genexpert = GeneXpertDetalle.objects.filter(estudio=estudio).first()
+                resultados_mtb_por_estudio[estudio.pk] = {
+                    'baciloscopia_resultado': bacilo.resultado if bacilo else '',
+                    'baciloscopia_graduacion': bacilo.graduacion if bacilo else '',
+                    'cultivo_resultado': cultivo.resultado if cultivo else '',
+                    'genexpert_mtb': genexpert.mtb_detectado if genexpert else '',
+                    'genexpert_rif': genexpert.resistencia_rifampicina if genexpert else '',
+                }
 
     # ==========================================================
     # RENDER
@@ -674,9 +779,14 @@ def microbiologia_view(request, pk):
             "germenes_por_muestra": germenes_por_muestra,
             "estudio_form": estudio_form,
             "antimicrobianos_por_aislamiento": antimicrobianos_por_aislamiento,
+            "baciloscopia_opciones": baciloscopia_opciones,
+            "baciloscopia_graduacion_opciones": baciloscopia_graduacion_opciones,
+            "cultivo_opciones": cultivo_opciones,
+            "genexpert_opciones": genexpert_opciones,
+            "resultados_mtb_por_estudio": resultados_mtb_por_estudio,   
         },
-    )
-    
+)
+
 @login_required
 def aislamiento_agregar(request, muestra_pk):
     muestra = get_object_or_404(MuestraMicrobiologica, pk=muestra_pk)
@@ -693,8 +803,12 @@ def aislamiento_agregar(request, muestra_pk):
 
     if destino_codigo == 'BAC':          # Bacteriología
         germenes = Catalogo.objects.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
-    elif destino_codigo == 'MTB':        # Micobacterias
-        germenes = Catalogo.objects.germenes_bacterias().filter(descripcion__icontains='Mycobacterium')
+    elif destino_codigo == 'MTB':        # Micobacterias (solo TBC y MNT)
+        germenes = Catalogo.objects.filter(
+            tipo__codigo='GERMEN',
+            codigo__in=['MTB_TBC', 'MTB_NONTB'],
+            activo=True
+        ).order_by('orden', 'descripcion')
     elif destino_codigo == 'MIC':        # Micología
         germenes = Catalogo.objects.germenes_hongos()
     elif destino_codigo == 'VIR':        # Virología
@@ -711,7 +825,7 @@ def aislamiento_agregar(request, muestra_pk):
     # ==========================================================
     print("=== GERMENES FILTRADOS ===")
     print(f"Destino: {destino_codigo}, Cantidad: {germenes.count()}")
-    print("Primeros 5 IDs:", list(germenes.values_list('pk', flat=True)[:5]))
+    print("Primeros 5 IDs:", list(germenes.values_list("pk", flat=True)[:5]))
 
     if request.method == "POST":
         print("=== POST DATA (aislamiento) ===")
@@ -720,7 +834,9 @@ def aislamiento_agregar(request, muestra_pk):
         form = AislamientoMicrobiologicoForm(request.POST, germen_queryset=germenes)
 
         print("=== QUERYSET DEL FORMULARIO ===")
-        print(form.fields['germen'].queryset.count())  # Debe ser el mismo que germenes.count()
+        print(
+            form.fields["germen"].queryset.count()
+        )  # Debe ser el mismo que germenes.count()
 
         if form.is_valid():
             aislamiento = form.save(commit=False)
@@ -737,7 +853,8 @@ def aislamiento_agregar(request, muestra_pk):
 
     # Si es GET o falló el POST, redirigimos
     return redirect("pacientes:microbiologia", pk=muestra.internacion.pk)
-    
+
+
 @login_required
 def aislamiento_editar(request, pk):
     aislamiento = get_object_or_404(AislamientoMicrobiologico, pk=pk)
@@ -747,31 +864,35 @@ def aislamiento_editar(request, pk):
 
     # Obtener los gérmenes filtrados por destino de la muestra
     destino_codigo = muestra.destino.codigo if muestra.destino else None
-    if destino_codigo == 'BAC':
-        germenes = Catalogo.objects.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
-    elif destino_codigo == 'MTB':
-        germenes = Catalogo.objects.germenes_bacterias().filter(descripcion__icontains='Mycobacterium')
-    elif destino_codigo == 'MIC':
+    if destino_codigo == "BAC":
+        germenes = Catalogo.objects.germenes_bacterias().exclude(
+            descripcion__icontains="Mycobacterium"
+        )
+    elif destino_codigo == "MTB":
+        germenes = Catalogo.objects.germenes_bacterias().filter(
+            descripcion__icontains="Mycobacterium"
+        )
+    elif destino_codigo == "MIC":
         germenes = Catalogo.objects.germenes_hongos()
-    elif destino_codigo == 'VIR':
+    elif destino_codigo == "VIR":
         germenes = Catalogo.objects.germenes_virus()
-    elif destino_codigo == 'PAR':
+    elif destino_codigo == "PAR":
         germenes = Catalogo.objects.germenes_parasitos()
-    elif destino_codigo == 'PAT':
+    elif destino_codigo == "PAT":
         germenes = Catalogo.objects.germenes()
     else:
         germenes = Catalogo.objects.germenes()
 
     if request.method == "POST":
         form = AislamientoMicrobiologicoEditForm(request.POST, instance=aislamiento)
-        form.fields['germen'].queryset = germenes
+        form.fields["germen"].queryset = germenes
         if form.is_valid():
             form.save()
             messages.success(request, "Aislamiento actualizado correctamente.")
             return redirect("pacientes:microbiologia", pk=internacion.pk)
     else:
         form = AislamientoMicrobiologicoEditForm(instance=aislamiento)
-        form.fields['germen'].queryset = germenes
+        form.fields["germen"].queryset = germenes
 
     return render(
         request,
@@ -784,6 +905,7 @@ def aislamiento_editar(request, pk):
             "internacion": internacion,
         },
     )
+
 
 @login_required
 def aislamiento_eliminar(request, pk):
@@ -806,30 +928,32 @@ def aislamiento_eliminar(request, pk):
             "internacion": internacion,
         },
     )
-    
+
+
 @login_required
 def sensibilidad_agregar(request, aislamiento_pk):
     aislamiento = get_object_or_404(AislamientoMicrobiologico, pk=aislamiento_pk)
     muestra = aislamiento.estudio.muestra
     internacion = muestra.internacion
 
-    if request.method == 'POST':
-        antibiotico_id = request.POST.get('antibiotico')
-        resultado = request.POST.get('resultado')
+    if request.method == "POST":
+        antibiotico_id = request.POST.get("antibiotico")
+        resultado = request.POST.get("resultado")
 
         if antibiotico_id and resultado:
             antibiotico = get_object_or_404(Catalogo, pk=antibiotico_id)
             SensibilidadMicrobiologica.objects.create(
-                aislamiento=aislamiento,
-                antibiotico=antibiotico,
-                resultado=resultado
+                aislamiento=aislamiento, antibiotico=antibiotico, resultado=resultado
             )
             messages.success(request, "Sensibilidad agregada correctamente.")
         else:
-            messages.error(request, "Debe seleccionar un antimicrobiano y un resultado.")
+            messages.error(
+                request, "Debe seleccionar un antimicrobiano y un resultado."
+            )
         return redirect("pacientes:microbiologia", pk=internacion.pk)
 
     return redirect("pacientes:microbiologia", pk=internacion.pk)
+
 
 @login_required
 def resultados_tbc(request, estudio_pk):
@@ -837,88 +961,204 @@ def resultados_tbc(request, estudio_pk):
     muestra = estudio.muestra
     internacion = muestra.internacion
 
-    # Verificar que el destino sea MTB (opcional)
     if muestra.destino.codigo != 'MTB':
         messages.warning(request, "Esta muestra no es para micobacterias.")
         return redirect("pacientes:microbiologia", pk=internacion.pk)
 
     if request.method == 'POST':
-        form = ResultadosTBCForm(request.POST)
-        if form.is_valid():
-            # --- Baciloscopía ---
-            if form.cleaned_data['baciloscopia_resultado']:
-                BaciloscopiaDetalle.objects.update_or_create(
-                    estudio=estudio,
-                    defaults={
-                        'resultado': form.cleaned_data['baciloscopia_resultado'],
-                        'graduacion': form.cleaned_data['baciloscopia_graduacion'],
-                    }
-                )
-            else:
-                BaciloscopiaDetalle.objects.filter(estudio=estudio).delete()
-
-            # --- Cultivo ---
-            if form.cleaned_data['cultivo_resultado']:
-                CultivoDetalle.objects.update_or_create(
-                    estudio=estudio,
-                    defaults={
-                        'tipo_cultivo': 'MTB',
-                        'resultado': form.cleaned_data['cultivo_resultado'],
-                    }
-                )
-            else:
-                CultivoDetalle.objects.filter(estudio=estudio).delete()
-
-            # --- GeneXpert ---
-            if form.cleaned_data['genexpert_mtb']:
-                GeneXpertDetalle.objects.update_or_create(
-                    estudio=estudio,
-                    defaults={
-                        'mtb_detectado': form.cleaned_data['genexpert_mtb'],
-                        'resistencia_rifampicina': form.cleaned_data['genexpert_rif'],
-                    }
-                )
-            else:
-                GeneXpertDetalle.objects.filter(estudio=estudio).delete()
-
-            messages.success(request, "Resultados TBC guardados correctamente.")
-            return redirect("pacientes:microbiologia", pk=internacion.pk)
+        # Baciloscopía
+        bac_resultado = request.POST.get('baciloscopia_resultado')
+        bac_graduacion = request.POST.get('baciloscopia_graduacion')
+        if bac_resultado:
+            BaciloscopiaDetalle.objects.update_or_create(
+                estudio=estudio,
+                defaults={
+                    'resultado': bac_resultado,
+                    'graduacion': bac_graduacion or '',
+                }
+            )
         else:
-            messages.error(request, "Error al guardar los resultados. Revise los campos.")
-    else:
-        # Cargar datos existentes
-        initial = {}
-        bacilo = BaciloscopiaDetalle.objects.filter(estudio=estudio).first()
-        if bacilo:
-            initial['baciloscopia_resultado'] = bacilo.resultado
-            initial['baciloscopia_graduacion'] = bacilo.graduacion
-        cultivo = CultivoDetalle.objects.filter(estudio=estudio).first()
-        if cultivo:
-            initial['cultivo_resultado'] = cultivo.resultado
-        genexpert = GeneXpertDetalle.objects.filter(estudio=estudio).first()
-        if genexpert:
-            initial['genexpert_mtb'] = genexpert.mtb_detectado
-            initial['genexpert_rif'] = genexpert.resistencia_rifampicina
-        form = ResultadosTBCForm(initial=initial)
+            BaciloscopiaDetalle.objects.filter(estudio=estudio).delete()
 
-    return render(request, "pacientes/resultados_tbc.html", {
-        "form": form,
-        "estudio": estudio,
-        "muestra": muestra,
-        "paciente": internacion.paciente,
-        "internacion": internacion,
-    })
+        # Cultivo
+        cultivo_resultado = request.POST.get('cultivo_resultado')
+        if cultivo_resultado:
+            CultivoDetalle.objects.update_or_create(
+                estudio=estudio,
+                defaults={
+                    'tipo_cultivo': 'MTB',
+                    'resultado': cultivo_resultado,
+                }
+            )
+        else:
+            CultivoDetalle.objects.filter(estudio=estudio).delete()
+
+        # GeneXpert
+        genexpert_mtb = request.POST.get('genexpert_mtb')
+        genexpert_rif = request.POST.get('genexpert_rif')
+        if genexpert_mtb:
+            GeneXpertDetalle.objects.update_or_create(
+                estudio=estudio,
+                defaults={
+                    'mtb_detectado': genexpert_mtb,
+                    'resistencia_rifampicina': genexpert_rif or '',
+                }
+            )
+        else:
+            GeneXpertDetalle.objects.filter(estudio=estudio).delete()
+
+        messages.success(request, "Resultados de micobacterias guardados correctamente.")
+        return redirect("pacientes:microbiologia", pk=internacion.pk)
+
+    # Si es GET, redirigir a microbiología (ya no usamos template)
+    return redirect("pacientes:microbiologia", pk=internacion.pk)
+
 
 # ==========================================================
 # ESTUDIOS Y PROCEDIMIENTOS
 # ==========================================================
 
+
 @login_required
-def estudios_procedimientos_view(request):
+def estudios_procedimientos_view(request, pk):
+    internacion = get_object_or_404(Internacion, pk=pk)
+    paciente = internacion.paciente
+
+    seccion = request.GET.get("seccion", "tomografias")
+
+    context = {
+        "internacion": internacion,
+        "paciente": paciente,
+        "seccion": seccion,
+        "tomografias": (
+            internacion.tomografias.all().order_by("-fecha")
+            if seccion == "tomografias"
+            else None
+        ),
+    }
+
+    return render(request, "pacientes/estudios_procedimientos.html", context)
+
+
+@login_required
+def tomografia_agregar(request, internacion_pk):
+    internacion = get_object_or_404(Internacion, pk=internacion_pk)
+
+    # Obtener el tipo de la URL (GET)
+    tipo_codigo = request.GET.get("tipo")
+
+    if request.method == "POST":
+        form = TomografiaForm(request.POST)
+        if form.is_valid():
+            tomografia = form.save(commit=False)
+            tomografia.internacion = internacion
+            tomografia.save()
+            if "hallazgos" in request.POST:
+                tomografia.hallazgos.set(request.POST.getlist("hallazgos"))
+            messages.success(request, "Tomografía agregada correctamente.")
+            return redirect("pacientes:estudios_procedimientos", pk=internacion_pk)
+    else:
+        # GET: inicializar con el tipo seleccionado (si existe)
+        initial = {}
+        if tipo_codigo:
+            initial["tipo"] = tipo_codigo
+        form = TomografiaForm(initial=initial)
+
+    # Construir hallazgos según el tipo seleccionado
+    hallazgos_agrupados = {}
+    if tipo_codigo == "TORAX":
+        hallazgos_agrupados["TORAX"] = Catalogo.objects.filter(
+            tipo__codigo="HALLAZGO_TORAX", activo=True
+        ).order_by("descripcion")
+    elif tipo_codigo == "ANGIO_TORAX":
+        hallazgos_agrupados["ANGIO"] = Catalogo.objects.filter(
+            tipo__codigo="HALLAZGO_ANGIO", activo=True
+        ).order_by("descripcion")
+    elif tipo_codigo == "MACIZO_FACIAL":
+        hallazgos_agrupados["MACIZO"] = Catalogo.objects.filter(
+            tipo__codigo="HALLAZGO_MACIZO", activo=True
+        ).order_by("descripcion")
+    # Si no hay tipo, no mostrar ningún grupo
+
     return render(
         request,
-        "pacientes/estudios_procedimientos.html",
+        "pacientes/tomografia_form.html",
+        {
+            "form": form,
+            "internacion": internacion,
+            "paciente": internacion.paciente,
+            "hallazgos_agrupados": hallazgos_agrupados,
+            "tipo_seleccionado": tipo_codigo,
+        },
     )
+
+
+@login_required
+def tomografia_editar(request, pk):
+    tomografia = get_object_or_404(Tomografia, pk=pk)
+    internacion = tomografia.internacion
+
+    tipo_codigo = (
+        request.GET.get("tipo") or tomografia.tipo.codigo if tomografia.tipo else None
+    )
+
+    if request.method == "POST":
+        form = TomografiaForm(request.POST, instance=tomografia)
+        if form.is_valid():
+            form.save()
+            if "hallazgos" in request.POST:
+                tomografia.hallazgos.set(request.POST.getlist("hallazgos"))
+            messages.success(request, "Tomografía actualizada.")
+            return redirect("pacientes:estudios_procedimientos", pk=internacion.pk)
+    else:
+        form = TomografiaForm(instance=tomografia)
+
+    hallazgos_agrupados = {}
+    if tipo_codigo == "TORAX":
+        hallazgos_agrupados["TORAX"] = Catalogo.objects.filter(
+            tipo__codigo="HALLAZGO_TORAX", activo=True
+        ).order_by("descripcion")
+    elif tipo_codigo == "ANGIO_TORAX":
+        hallazgos_agrupados["ANGIO"] = Catalogo.objects.filter(
+            tipo__codigo="HALLAZGO_ANGIO", activo=True
+        ).order_by("descripcion")
+    elif tipo_codigo == "MACIZO_FACIAL":
+        hallazgos_agrupados["MACIZO"] = Catalogo.objects.filter(
+            tipo__codigo="HALLAZGO_MACIZO", activo=True
+        ).order_by("descripcion")
+
+    return render(
+        request,
+        "pacientes/tomografia_form.html",
+        {
+            "form": form,
+            "internacion": internacion,
+            "paciente": internacion.paciente,
+            "hallazgos_agrupados": hallazgos_agrupados,
+            "tipo_seleccionado": tipo_codigo,
+            "tomografia": tomografia,
+        },
+    )
+
+
+@login_required
+def tomografia_eliminar(request, pk):
+    tomografia = get_object_or_404(Tomografia, pk=pk)
+    internacion = tomografia.internacion
+    if request.method == "POST":
+        tomografia.delete()
+        messages.success(request, "Tomografía eliminada correctamente.")
+        return redirect("pacientes:estudios_procedimientos", pk=internacion.pk)
+    return render(
+        request,
+        "pacientes/tomografia_confirm_delete.html",
+        {
+            "tomografia": tomografia,
+            "internacion": internacion,
+            "paciente": internacion.paciente,
+        },
+    )
+
 
 # ==========================================================
 # TRATAMIENTO

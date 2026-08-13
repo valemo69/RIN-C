@@ -1121,3 +1121,42 @@ class SensibilidadMicrobiologica(ModeloBase):
 
     def __str__(self):
         return f"{self.antibiotico.descripcion} ({self.resultado})"
+    
+# ==========================================================
+# estudios complementarios 
+# ==========================================================
+
+class Tomografia(ModeloBase):
+    internacion = models.ForeignKey(
+        Internacion,
+        on_delete=models.CASCADE,
+        related_name="tomografias",
+        verbose_name="Internación"
+    )
+    tipo = models.ForeignKey(
+        Catalogo,
+        on_delete=models.PROTECT,
+        limit_choices_to={"tipo__codigo": "TIPO_TOMOGRAFIA", "activo": True},
+        related_name="tomografias_tipo",
+        verbose_name="Tipo de tomografía"
+    )
+    fecha = models.DateField(verbose_name="Fecha del estudio")
+    hallazgos = models.ManyToManyField(
+        Catalogo,
+        limit_choices_to={
+            "tipo__codigo__in": ["HALLAZGO_TORAX", "HALLAZGO_ANGIO", "HALLAZGO_MACIZO"],
+            "activo": True
+        },
+        blank=True,
+        related_name="tomografias_hallazgos",
+        verbose_name="Hallazgos"
+    )
+    observaciones = models.TextField(blank=True, verbose_name="Observaciones")
+
+    class Meta:
+        verbose_name = "Tomografía"
+        verbose_name_plural = "Tomografías"
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"{self.tipo.descripcion} - {self.fecha.strftime('%d/%m/%Y')}"
