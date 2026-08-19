@@ -1,0 +1,36 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+    Eliminar Ecocardiograma - {{ paciente.apellido }}, {{ paciente.nombre }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card rinc-card border-danger">
+                <div class="card-header rinc-card-header bg-danger text-white">
+                    <h4>Confirmar eliminación</h4>
+                </div>
+                <div class="card-body rinc-card-body">
+                    <p>¿Estás seguro de que deseas eliminar este ecocardiograma?</p>
+                    <ul>
+                        <li><strong>Fecha:</strong> {{ ecocardiograma.fecha|date:"d/m/Y" }}</li>
+                    </ul>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{% url 'pacientes:estudios_procedimientos' internacion.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

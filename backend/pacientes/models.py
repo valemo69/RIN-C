@@ -87,7 +87,7 @@ class TipoCatalogo(ModeloBase):
 # ==========================================================
 
 
-from django.db import models
+
 
 class Catalogo(ModeloBase):
     objects = CatalogoManager()
@@ -103,7 +103,7 @@ class Catalogo(ModeloBase):
     grupo = models.CharField(max_length=100, blank=True, verbose_name="Grupo")
     subgrupo = models.CharField(max_length=100, blank=True, verbose_name="Subgrupo")
     orden = models.PositiveIntegerField(default=0, verbose_name="Orden")
-    activo = models.BooleanField(default=True, verbose_name="Activo")
+   
 
     # NUEVO CAMPO: clasificación para microorganismos (solo aplica si el tipo es "Germen")
     TIPO_MICROORGANISMO_CHOICES = [
@@ -1160,3 +1160,317 @@ class Tomografia(ModeloBase):
 
     def __str__(self):
         return f"{self.tipo.descripcion} - {self.fecha.strftime('%d/%m/%Y')}"
+    
+class Ecocardiograma(ModeloBase):
+    internacion = models.ForeignKey(
+        Internacion,
+        on_delete=models.CASCADE,
+        related_name="ecocardiogramas",
+        verbose_name="Internación"
+    )
+    fecha = models.DateField(verbose_name="Fecha del estudio")
+
+    # ==========================================================
+    # FUNCIÓN VENTRICULAR IZQUIERDA (VI)
+    # ==========================================================
+    fevi = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="FEVI (%)"
+    )
+    fevi_categoria = models.CharField(
+        max_length=20,
+        choices=[
+            ('CONSERVADA', 'Conservada ≥ 50%'),
+            ('LEVE', 'Levemente reducida 40-49%'),
+            ('MODERADA', 'Moderadamente reducida 30-39%'),
+            ('SEVERA', 'Severamente reducida < 30%'),
+        ],
+        blank=True,
+        verbose_name="Categoría FEVI"
+    )
+    ivai = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="IVAI (ml/m²)"
+    )
+    funcion_diastolica = models.CharField(
+        max_length=10,
+        choices=[
+            ('', '---'),
+            ('I', 'Grado I (disfunción diastólica leve)'),
+            ('II', 'Grado II (disfunción diastólica moderada)'),
+            ('III', 'Grado III (disfunción diastólica severa)'),
+        ],
+        blank=True,
+        verbose_name="Función diastólica"
+    )
+
+    # ==========================================================
+    # FUNCIÓN VENTRICULAR DERECHA (VD) E HIPERTENSIÓN PULMONAR
+    # ==========================================================
+    tamano_vd = models.CharField(
+    max_length=20,
+    choices=[
+        ('NORMAL', 'Normal'),
+        ('LEVE', 'Dilatado leve'),
+        ('MODERADO', 'Dilatado moderado'),
+        ('SEVERO', 'Dilatado severo'),
+    ],
+    blank=True,
+    verbose_name="Tamaño VD"
+    )
+    tapse = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="TAPSE (mm)"
+    )
+    funcion_vd_cualitativa = models.CharField(
+        max_length=20,
+        choices=[
+            ('CONSERVADA', 'Conservada'),
+            ('LEVE', 'Levemente disminuida'),
+            ('MODERADA', 'Moderadamente disminuida'),
+            ('SEVERA', 'Severamente disminuida'),
+        ],
+        blank=True,
+        verbose_name="Función VD"
+    )
+    paps = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="PAPs (mmHg)"
+    )
+    pad = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="PAD (mmHg)"
+    )
+    area_ad = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Área de la aurícula derecha (cm²)"
+    )
+
+    # ==========================================================
+    # VÁLVULAS Y VCI
+    # ==========================================================
+    insuf_mitral = models.CharField(
+        max_length=20,
+        choices=[('', '---'), ('LEVE', 'Leve'), ('MODERADA', 'Moderada'), ('SEVERA', 'Severa')],
+        blank=True,
+        verbose_name="Insuficiencia mitral"
+    )
+    insuf_aortica = models.CharField(
+        max_length=20,
+        choices=[('', '---'), ('LEVE', 'Leve'), ('MODERADA', 'Moderada'), ('SEVERA', 'Severa')],
+        blank=True,
+        verbose_name="Insuficiencia aórtica"
+    )
+    velocidad_it = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        verbose_name="Velocidad chorro IT (m/s)"
+    )
+    insuf_tricuspidea = models.CharField(
+        max_length=20,
+        choices=[('', '---'), ('LEVE', 'Leve'), ('MODERADA', 'Moderada'), ('SEVERA', 'Severa')],
+        blank=True,
+        verbose_name="Clasificación IT"
+    )
+    estenosis_aortica = models.CharField(
+        max_length=20,
+        choices=[('', '---'), ('LEVE', 'Leve'), ('MODERADA', 'Moderada'), ('SEVERA', 'Severa')],
+        blank=True,
+        verbose_name="Estenosis aórtica"
+    )
+
+    # VCI dividida en dos campos
+    vci_tamano = models.CharField(
+        max_length=20,
+        choices=[('', '---'), ('NORMAL', 'Normal'), ('DILATADA', 'Dilatada')],
+        blank=True,
+        verbose_name="VCI - Tamaño"
+    )
+    vci_colapso = models.CharField(
+        max_length=20,
+        choices=[('', '---'), ('MENOS_50', 'Colapso < 50%'), ('MAS_50', 'Colapso > 50%')],
+        blank=True,
+        verbose_name="VCI - Colapso"
+    )
+
+    # ==========================================================
+    # OTROS HALLAZGOS
+    # ==========================================================
+    derrame_pericardico = models.CharField(
+        max_length=20,
+        choices=[('', '---'), ('LEVE', 'Leve'), ('MODERADO', 'Moderado'), ('SEVERO', 'Severo')],
+        blank=True,
+        verbose_name="Derrame pericárdico"
+    )
+    trombo_presente = models.BooleanField(
+        default=False,
+        verbose_name="Trombo intracavitario"
+    )
+    trombo_localizacion = models.CharField(
+        max_length=20,
+        choices=[
+            ('AI', 'Aurícula izquierda'),
+            ('VI', 'Ventrículo izquierdo'),
+            ('AD', 'Aurícula derecha'),
+            ('VD', 'Ventrículo derecho'),
+        ],
+        blank=True,
+        verbose_name="Localización del trombo"
+    )
+
+    # ==========================================================
+    # PROPIEDADES CALCULADAS
+    # ==========================================================
+
+    @property
+    def gradiente_it(self):
+        if self.velocidad_it is not None:
+            return round(4 * (self.velocidad_it ** 2), 1)
+        return None
+
+    @property
+    def tapse_pasp_ratio(self):
+        if self.tapse is not None and self.paps is not None and self.paps > 0:
+            return round(self.tapse / self.paps, 2)
+        return None
+
+    @property
+    def tapse_pasp_interpretacion(self):
+        ratio = self.tapse_pasp_ratio
+        if ratio is None:
+            return None
+        if ratio > 0.36:
+            return {'texto': 'Acoplamiento VD-AP conservado', 'color': 'success'}
+        elif 0.30 <= ratio <= 0.36:
+            return {'texto': 'Acoplamiento VD-AP intermedio (borde)', 'color': 'warning'}
+        else:
+            return {'texto': 'Acoplamiento VD-AP alterado (disfunción VD)', 'color': 'danger'}
+
+    @property
+    def tiene_hallazgos_valvulares_pericardicos(self):
+        """
+        Devuelve True si hay al menos un hallazgo valvular, VCI,
+        derrame pericárdico o trombo intracavitario.
+        """
+        return any([
+            self.insuf_mitral,
+            self.insuf_aortica,
+            self.velocidad_it,
+            self.insuf_tricuspidea,
+            self.estenosis_aortica,
+            self.vci_tamano,
+            self.vci_colapso,
+            self.derrame_pericardico,
+            self.trombo_presente,
+        ])
+
+    # ==========================================================
+    # NUEVO MÉTODO: LISTA DE HALLAZGOS VALVULARES
+    # ==========================================================
+    @property
+    def hallazgos_valvulares_lista(self):
+        """
+        Devuelve una lista de strings con los hallazgos valvulares
+        y pericárdicos que están presentes en este ecocardiograma.
+        """
+        hallazgos = []
+
+        if self.insuf_mitral:
+            hallazgos.append(f"Insuf. Mitral: {self.get_insuf_mitral_display()}")
+
+        if self.insuf_aortica:
+            hallazgos.append(f"Insuf. Aórtica: {self.get_insuf_aortica_display()}")
+
+        if self.velocidad_it:
+            texto = f"Velocidad IT: {self.velocidad_it} m/s"
+            if self.gradiente_it:
+                texto += f" (gradiente: {self.gradiente_it} mmHg)"
+            if self.insuf_tricuspidea:
+                texto += f" · Clasificación: {self.get_insuf_tricuspidea_display()}"
+            hallazgos.append(texto)
+
+        if self.estenosis_aortica:
+            hallazgos.append(f"Estenosis Aórtica: {self.get_estenosis_aortica_display()}")
+
+        if self.vci_tamano or self.vci_colapso:
+            partes = []
+            if self.vci_tamano:
+                partes.append(self.get_vci_tamano_display())
+            if self.vci_colapso:
+                partes.append(self.get_vci_colapso_display())
+            hallazgos.append(f"VCI: {' · '.join(partes)}")
+
+        if self.derrame_pericardico:
+            hallazgos.append(f"Derrame pericárdico: {self.get_derrame_pericardico_display()}")
+
+        if self.trombo_presente:
+            texto = "Trombo intracavitario"
+            if self.trombo_localizacion:
+                texto += f" ({self.get_trombo_localizacion_display()})"
+            hallazgos.append(texto)
+
+        return hallazgos
+
+    # ==========================================================
+    # META Y STR
+    # ==========================================================
+    class Meta:
+        verbose_name = "Ecocardiograma"
+        verbose_name_plural = "Ecocardiogramas"
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"Ecocardiograma - {self.fecha.strftime('%d/%m/%Y')}"
+    
+class Fibrobroncoscopia(ModeloBase):
+    internacion = models.ForeignKey(
+        Internacion,
+        on_delete=models.CASCADE,
+        related_name="fibrobroncoscopias",
+        verbose_name="Internación"
+    )
+    fecha = models.DateField(verbose_name="Fecha del estudio")
+
+    hallazgos = models.ManyToManyField(
+        Catalogo,
+        limit_choices_to={"tipo__codigo": "HALLAZGO_BRONCOSCOPICO", "activo": True},
+        blank=True,
+        related_name="fibrobroncoscopias_hallazgos",
+        verbose_name="Hallazgos"
+    )
+
+    procedimientos = models.ManyToManyField(
+        Catalogo,
+        limit_choices_to={"tipo__codigo": "PROCEDIMIENTO_BRONCOSCOPICO", "activo": True},
+        blank=True,
+        related_name="fibrobroncoscopias_procedimientos",
+        verbose_name="Procedimientos realizados"
+    )
+
+    bal_realizado = models.BooleanField(default=False, verbose_name="BAL realizado")
+    bal_resultado = models.TextField(blank=True, verbose_name="Resultado del BAL")
+
+    biopsia_realizada = models.BooleanField(default=False, verbose_name="Biopsia realizada")
+    biopsia_resultado = models.TextField(blank=True, verbose_name="Resultado de la biopsia")
+
+    observaciones = models.TextField(blank=True, verbose_name="Observaciones")
+
+    class Meta:
+        verbose_name = "Fibrobroncoscopia"
+        verbose_name_plural = "Fibrobroncoscopias"
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"Fibrobroncoscopia - {self.fecha.strftime('%d/%m/%Y')}"

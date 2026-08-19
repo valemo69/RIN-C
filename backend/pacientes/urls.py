@@ -99,4 +99,34 @@ urlpatterns = [
         views.tratamiento_view,
         name="tratamiento",
     ),
+    
+    path("internaciones/<int:internacion_pk>/ecocardiograma/agregar/", 
+         views.ecocardiograma_agregar, 
+         name="ecocardiograma_agregar"
+         ),
+    
+    path("ecocardiograma/<int:pk>/editar/", 
+         views.ecocardiograma_editar, 
+         name="ecocardiograma_editar"
+         ),
+    
+    path("ecocardiograma/<int:pk>/eliminar/", 
+         views.ecocardiograma_eliminar, 
+         name="ecocardiograma_eliminar"
+         ),
+    
+    path('fibrobroncoscopia/agregar/<int:internacion_pk>/', 
+         views.fibrobroncoscopia_agregar, 
+         name='fibrobroncoscopia_agregar'
+         ),
+    
+    path('fibrobroncoscopia/editar/<int:pk>/', 
+         views.fibrobroncoscopia_editar, 
+         name='fibrobroncoscopia_editar'
+         ),
+    
+    path('fibrobroncoscopia/eliminar/<int:pk>/', 
+         views.fibrobroncoscopia_eliminar, 
+         name='fibrobroncoscopia_eliminar'
+         ),
 ]

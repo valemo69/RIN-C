@@ -17,6 +17,8 @@ from .models import (
     CultivoDetalle,
     GeneXpertDetalle,
     Tomografia,
+    Ecocardiograma,
+    Fibrobroncoscopia, 
 )
 
 
@@ -545,14 +547,69 @@ class ResultadosTBCForm(forms.Form):
 class TomografiaForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Tomografia
-        fields = ["tipo", "fecha", "hallazgos"]  # ← quitamos observaciones
+        fields = ["tipo", "fecha", "hallazgos"]
         widgets = {
-            "fecha": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "fecha": forms.DateInput(attrs={"type": "date", "class": "form-control", "id": "id_fecha"}),
             "tipo": forms.Select(attrs={"class": "form-select", "id": "id_tipo_tomografia"}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['hallazgos'].required = False
-        self.fields['hallazgos'].queryset = Catalogo.objects.none()
     
+    
+class EcocardiogramaForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = Ecocardiograma
+        fields = [
+            "fecha",
+            "fevi",
+            "ivai",
+            "funcion_diastolica",
+            "tamano_vd",
+            "tapse",
+            "funcion_vd_cualitativa",
+            "paps",
+            "pad",
+            "area_ad",
+            "insuf_mitral",
+            "insuf_aortica",
+            "velocidad_it",
+            "insuf_tricuspidea",
+            "estenosis_aortica",
+            "vci_tamano",        # NUEVO
+            "vci_colapso",       # NUEVO
+            "derrame_pericardico",
+            "trombo_presente",
+            "trombo_localizacion",
+        ]
+        widgets = {
+            "fecha": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "fevi": forms.NumberInput(attrs={"class": "form-control", "min": 0, "max": 100}),
+            "ivai": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+            "tapse": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "paps": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "pad": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "area_ad": forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+            "velocidad_it": forms.NumberInput(attrs={"class": "form-control", "step": "0.1", "min": 0}),
+            "trombo_presente": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+        
+        
+class FibrobroncoscopiaForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = Fibrobroncoscopia
+        fields = [
+            "fecha",
+            "hallazgos",
+            "procedimientos",
+            "bal_realizado",
+            "bal_resultado",
+            "biopsia_realizada",
+            "biopsia_resultado",
+            "observaciones",
+        ]
+        widgets = {
+            "fecha": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "hallazgos": forms.SelectMultiple(attrs={"class": "form-select"}),
+            "procedimientos": forms.SelectMultiple(attrs={"class": "form-select"}),
+            "bal_resultado": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "biopsia_resultado": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "observaciones": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+        }        

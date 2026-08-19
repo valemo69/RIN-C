@@ -21,10 +21,13 @@ from .forms import (
     SensibilidadMicrobiologicaForm,
     InternacionTratamientoAntimicrobianoForm,
     TomografiaForm,
+    EcocardiogramaForm,
+    FibrobroncoscopiaForm,
 )
 from .models import (
     AislamientoMicrobiologico,
     Catalogo,
+    Ecocardiograma,
     EstudioMicrobiologico,
     Internacion,
     InternacionCatalogo,
@@ -36,6 +39,7 @@ from .models import (
     CultivoDetalle,
     GeneXpertDetalle,
     Tomografia,
+    Fibrobroncoscopia,
 )
 
 # ==========================================================
@@ -220,7 +224,7 @@ def internacion_nueva(request, paciente_pk):
             messages.success(request, "Internación creada correctamente.")
             return redirect("pacientes:internacion_detalle", pk=internacion.pk)
         else:
-            print("--- ERRORES DEL FORMULARIO ---", form.errors)
+            pass
     else:
         form = InternacionForm()
 
@@ -468,11 +472,7 @@ def comorbilidades_view(request, pk):
     vasculitis_anca = Catalogo.objects.vasculitis_anca()
     vasculitis_no_anca = Catalogo.objects.vasculitis_no_anca()
 
-    print("=== COMORBILIDADES - DEBUG ===")
-    print("Reumatológicas (excluyendo vasculitis):", reumatologicas.count())
-    print("Vasculitis ANCA:", vasculitis_anca.count())
-    print("Vasculitis no ANCA:", vasculitis_no_anca.count())
-    print("Grupos agrupados:", comorbilidades_por_grupo.keys())
+    
 
     ids_seleccionados = set(comorbilidades_seleccionadas.values_list("pk", flat=True))
 
@@ -621,32 +621,12 @@ def microbiologia_view(request, pk):
     )
 
     # ==========================================================
-    # ==========================================================
     # FILTRAR GÉRMENES POR DESTINO (para cada muestra)
     # ==========================================================
     germenes_por_muestra = {}
     for muestra in muestras:
         destino_codigo = muestra.destino.codigo if muestra.destino else None
-
-        if destino_codigo == 'BAC':          # Bacteriología
-            germenes = Catalogo.objects.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
-        elif destino_codigo == 'MTB':        # Micobacterias (solo TBC y MNT)
-            germenes = Catalogo.objects.filter(
-                tipo__codigo='GERMEN',
-                codigo__in=['MTB_TBC', 'MTB_NONTB'],
-                activo=True
-            ).order_by('orden', 'descripcion')
-        elif destino_codigo == 'MIC':        # Micología
-            germenes = Catalogo.objects.germenes_hongos()
-        elif destino_codigo == 'VIR':        # Virología
-            germenes = Catalogo.objects.germenes_virus()
-        elif destino_codigo == 'PAR':        # Parasitología
-            germenes = Catalogo.objects.germenes_parasitos()
-        elif destino_codigo == 'PAT':        # Anatomía patológica
-            germenes = Catalogo.objects.germenes()
-        else:
-            germenes = Catalogo.objects.germenes()  # fallback
-
+        germenes = Catalogo.objects.germenes_por_destino(destino_codigo)
         germenes_por_muestra[muestra.pk] = germenes
 
     # ==========================================================
@@ -796,48 +776,11 @@ def aislamiento_agregar(request, muestra_pk):
         messages.error(request, "La muestra no posee un estudio microbiológico.")
         return redirect("pacientes:microbiologia", pk=muestra.internacion.pk)
 
-    # ==========================================================
-    # FILTRAR GÉRMENES SEGÚN EL DESTINO DE LA MUESTRA
-    # ==========================================================
     destino_codigo = muestra.destino.codigo if muestra.destino else None
-
-    if destino_codigo == 'BAC':          # Bacteriología
-        germenes = Catalogo.objects.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
-    elif destino_codigo == 'MTB':        # Micobacterias (solo TBC y MNT)
-        germenes = Catalogo.objects.filter(
-            tipo__codigo='GERMEN',
-            codigo__in=['MTB_TBC', 'MTB_NONTB'],
-            activo=True
-        ).order_by('orden', 'descripcion')
-    elif destino_codigo == 'MIC':        # Micología
-        germenes = Catalogo.objects.germenes_hongos()
-    elif destino_codigo == 'VIR':        # Virología
-        germenes = Catalogo.objects.germenes_virus()
-    elif destino_codigo == 'PAR':        # Parasitología
-        germenes = Catalogo.objects.germenes_parasitos()
-    elif destino_codigo == 'PAT':        # Anatomía patológica
-        germenes = Catalogo.objects.germenes()
-    else:
-        germenes = Catalogo.objects.germenes()  # fallback
-
-    # ==========================================================
-    # DEPURACIÓN: VER QUÉ QUERYSET ESTÁ LLEGANDO
-    # ==========================================================
-    print("=== GERMENES FILTRADOS ===")
-    print(f"Destino: {destino_codigo}, Cantidad: {germenes.count()}")
-    print("Primeros 5 IDs:", list(germenes.values_list("pk", flat=True)[:5]))
+    germenes = Catalogo.objects.germenes_por_destino(destino_codigo)
 
     if request.method == "POST":
-        print("=== POST DATA (aislamiento) ===")
-        print(request.POST)  # Muestra todo el POST
-
         form = AislamientoMicrobiologicoForm(request.POST, germen_queryset=germenes)
-
-        print("=== QUERYSET DEL FORMULARIO ===")
-        print(
-            form.fields["germen"].queryset.count()
-        )  # Debe ser el mismo que germenes.count()
-
         if form.is_valid():
             aislamiento = form.save(commit=False)
             aislamiento.estudio = estudio
@@ -845,15 +788,11 @@ def aislamiento_agregar(request, muestra_pk):
             messages.success(request, "Aislamiento agregado correctamente.")
             return redirect("pacientes:microbiologia", pk=muestra.internacion.pk)
         else:
-            print("=== ERRORES DEL FORMULARIO ===")
-            print(form.errors)
             for campo, errores in form.errors.items():
                 for error in errores:
                     messages.error(request, f"{campo}: {error}")
 
-    # Si es GET o falló el POST, redirigimos
     return redirect("pacientes:microbiologia", pk=muestra.internacion.pk)
-
 
 @login_required
 def aislamiento_editar(request, pk):
@@ -862,26 +801,9 @@ def aislamiento_editar(request, pk):
     muestra = estudio.muestra
     internacion = muestra.internacion
 
-    # Obtener los gérmenes filtrados por destino de la muestra
+    # Obtener los gérmenes filtrados por destino de la muestra (USANDO EL NUEVO MÉTODO)
     destino_codigo = muestra.destino.codigo if muestra.destino else None
-    if destino_codigo == "BAC":
-        germenes = Catalogo.objects.germenes_bacterias().exclude(
-            descripcion__icontains="Mycobacterium"
-        )
-    elif destino_codigo == "MTB":
-        germenes = Catalogo.objects.germenes_bacterias().filter(
-            descripcion__icontains="Mycobacterium"
-        )
-    elif destino_codigo == "MIC":
-        germenes = Catalogo.objects.germenes_hongos()
-    elif destino_codigo == "VIR":
-        germenes = Catalogo.objects.germenes_virus()
-    elif destino_codigo == "PAR":
-        germenes = Catalogo.objects.germenes_parasitos()
-    elif destino_codigo == "PAT":
-        germenes = Catalogo.objects.germenes()
-    else:
-        germenes = Catalogo.objects.germenes()
+    germenes = Catalogo.objects.germenes_por_destino(destino_codigo)
 
     if request.method == "POST":
         form = AislamientoMicrobiologicoEditForm(request.POST, instance=aislamiento)
@@ -1023,20 +945,16 @@ def resultados_tbc(request, estudio_pk):
 def estudios_procedimientos_view(request, pk):
     internacion = get_object_or_404(Internacion, pk=pk)
     paciente = internacion.paciente
-
-    seccion = request.GET.get("seccion", "tomografias")
+    seccion = request.GET.get('seccion', 'tomografias')
 
     context = {
         "internacion": internacion,
         "paciente": paciente,
         "seccion": seccion,
-        "tomografias": (
-            internacion.tomografias.all().order_by("-fecha")
-            if seccion == "tomografias"
-            else None
-        ),
+        "tomografias": internacion.tomografias.all().order_by("-fecha") if seccion == 'tomografias' else None,
+        "ecocardiogramas": internacion.ecocardiogramas.all().order_by("-fecha") if seccion == 'ecocardiogramas' else None,
+        "fibrobroncoscopias": internacion.fibrobroncoscopias.all().order_by("-fecha") if seccion == 'fibrobroncoscopias' else None,
     }
-
     return render(request, "pacientes/estudios_procedimientos.html", context)
 
 
@@ -1044,8 +962,10 @@ def estudios_procedimientos_view(request, pk):
 def tomografia_agregar(request, internacion_pk):
     internacion = get_object_or_404(Internacion, pk=internacion_pk)
 
-    # Obtener el tipo de la URL (GET)
-    tipo_codigo = request.GET.get("tipo")
+    # 🔹 INICIALIZAR VARIABLES AL PRINCIPIO (esto corrige el bug)
+    tipo_codigo = None
+    tipo_seleccionado = None
+    hallazgos_agrupados = {}
 
     if request.method == "POST":
         form = TomografiaForm(request.POST)
@@ -1053,46 +973,46 @@ def tomografia_agregar(request, internacion_pk):
             tomografia = form.save(commit=False)
             tomografia.internacion = internacion
             tomografia.save()
-            if "hallazgos" in request.POST:
-                tomografia.hallazgos.set(request.POST.getlist("hallazgos"))
+            if 'hallazgos' in request.POST:
+                tomografia.hallazgos.set(request.POST.getlist('hallazgos'))
             messages.success(request, "Tomografía agregada correctamente.")
             return redirect("pacientes:estudios_procedimientos", pk=internacion_pk)
+        # Si el form no es válido, el código sigue adelante
+        # pero tipo_codigo ya está definido (aunque sea None)
     else:
-        # GET: inicializar con el tipo seleccionado (si existe)
+        tipo_pk = request.GET.get('tipo')
+        fecha = request.GET.get('fecha')
         initial = {}
-        if tipo_codigo:
-            initial["tipo"] = tipo_codigo
+        if tipo_pk:
+            try:
+                tipo_obj = Catalogo.objects.get(pk=tipo_pk, tipo__codigo='TIPO_TOMOGRAFIA', activo=True)
+                initial['tipo'] = tipo_obj.pk
+                tipo_codigo = tipo_obj.codigo
+            except Catalogo.DoesNotExist:
+                pass
+        if fecha:
+            initial['fecha'] = fecha
         form = TomografiaForm(initial=initial)
 
-    # Construir hallazgos según el tipo seleccionado
-    hallazgos_agrupados = {}
-    if tipo_codigo == "TORAX":
-        hallazgos_agrupados["TORAX"] = Catalogo.objects.filter(
-            tipo__codigo="HALLAZGO_TORAX", activo=True
-        ).order_by("descripcion")
-    elif tipo_codigo == "ANGIO_TORAX":
-        hallazgos_agrupados["ANGIO"] = Catalogo.objects.filter(
-            tipo__codigo="HALLAZGO_ANGIO", activo=True
-        ).order_by("descripcion")
-    elif tipo_codigo == "MACIZO_FACIAL":
-        hallazgos_agrupados["MACIZO"] = Catalogo.objects.filter(
-            tipo__codigo="HALLAZGO_MACIZO", activo=True
-        ).order_by("descripcion")
-    # Si no hay tipo, no mostrar ningún grupo
+    # 🔹 AHORA tipo_codigo SIEMPRE existe (inicializado en None si no se seteó)
+    tipo_seleccionado = tipo_codigo if tipo_codigo else None
 
-    return render(
-        request,
-        "pacientes/tomografia_form.html",
-        {
-            "form": form,
-            "internacion": internacion,
-            "paciente": internacion.paciente,
-            "hallazgos_agrupados": hallazgos_agrupados,
-            "tipo_seleccionado": tipo_codigo,
-        },
-    )
+    if tipo_seleccionado == 'TORAX':
+        hallazgos_agrupados['TORAX'] = Catalogo.objects.filter(tipo__codigo='HALLAZGO_TORAX', activo=True).order_by('descripcion')
+    elif tipo_seleccionado == 'ANGIO_TORAX':
+        hallazgos_agrupados['ANGIO'] = Catalogo.objects.filter(tipo__codigo='HALLAZGO_ANGIO', activo=True).order_by('descripcion')
+    elif tipo_seleccionado == 'MACIZO_FACIAL':
+        hallazgos_agrupados['MACIZO'] = Catalogo.objects.filter(tipo__codigo='HALLAZGO_MACIZO', activo=True).order_by('descripcion')
 
-
+    return render(request, "pacientes/tomografia_form.html", {
+        "form": form,
+        "internacion": internacion,
+        "paciente": internacion.paciente,
+        "hallazgos_agrupados": hallazgos_agrupados,
+        "tipo_seleccionado": tipo_seleccionado,
+    })
+    
+    
 @login_required
 def tomografia_editar(request, pk):
     tomografia = get_object_or_404(Tomografia, pk=pk)
@@ -1159,7 +1079,144 @@ def tomografia_eliminar(request, pk):
         },
     )
 
+@login_required
+def ecocardiograma_agregar(request, internacion_pk):
+    internacion = get_object_or_404(Internacion, pk=internacion_pk)
+    if request.method == "POST":
+        form = EcocardiogramaForm(request.POST)
+        if form.is_valid():
+            eco = form.save(commit=False)
+            eco.internacion = internacion
+            if eco.fevi is not None:
+                if eco.fevi >= 50:
+                    eco.fevi_categoria = 'CONSERVADA'
+                elif 40 <= eco.fevi <= 49:
+                    eco.fevi_categoria = 'LEVE'
+                elif 30 <= eco.fevi <= 39:
+                    eco.fevi_categoria = 'MODERADA'
+                else:
+                    eco.fevi_categoria = 'SEVERA'
+            eco.save()
+            form.save_m2m()
+            messages.success(request, "Ecocardiograma agregado correctamente.")
+            return redirect(f"{reverse('pacientes:estudios_procedimientos', kwargs={'pk': internacion_pk})}?seccion=ecocardiogramas")
+    else:
+        form = EcocardiogramaForm()
+    return render(request, "pacientes/ecocardiograma_form.html", {
+        "form": form,
+        "internacion": internacion,
+        "paciente": internacion.paciente,
+    })
 
+@login_required
+def ecocardiograma_editar(request, pk):
+    eco = get_object_or_404(Ecocardiograma, pk=pk)
+    internacion = eco.internacion
+
+    if request.method == "POST":
+        form = EcocardiogramaForm(request.POST, instance=eco)
+        if form.is_valid():
+            eco = form.save(commit=False)
+            if eco.fevi is not None:
+                if eco.fevi >= 50:
+                    eco.fevi_categoria = 'CONSERVADA'
+                elif 40 <= eco.fevi <= 49:
+                    eco.fevi_categoria = 'LEVE'
+                elif 30 <= eco.fevi <= 39:
+                    eco.fevi_categoria = 'MODERADA'
+                else:
+                    eco.fevi_categoria = 'SEVERA'
+            eco.save()
+            form.save_m2m()
+            messages.success(request, "Ecocardiograma actualizado.")
+            return redirect(f"{reverse('pacientes:estudios_procedimientos', kwargs={'pk': internacion.pk})}?seccion=ecocardiogramas")
+    else:
+        form = EcocardiogramaForm(instance=eco)
+        if not eco.trombo_presente:
+            form.fields['trombo_localizacion'].disabled = True
+            form.fields['trombo_localizacion'].required = False
+
+    return render(request, "pacientes/ecocardiograma_form.html", {
+        "form": form,
+        "internacion": internacion,
+        "paciente": internacion.paciente,
+        "ecocardiograma": eco,
+    })
+
+@login_required
+def ecocardiograma_eliminar(request, pk):
+    eco = get_object_or_404(Ecocardiograma, pk=pk)
+    internacion = eco.internacion
+
+    if request.method == "POST":
+        eco.delete()
+        messages.success(request, "Ecocardiograma eliminado.")
+        return redirect(f"{reverse('pacientes:estudios_procedimientos', kwargs={'pk': internacion.pk})}?seccion=ecocardiogramas")
+
+    # Si la request es GET, mostramos la página de confirmación
+    return render(request, "pacientes/ecocardiograma_confirm_delete.html", {
+        "ecocardiograma": eco,
+        "internacion": internacion,
+        "paciente": internacion.paciente,
+    })
+        
+        
+@login_required
+def fibrobroncoscopia_agregar(request, internacion_pk):
+    internacion = get_object_or_404(Internacion, pk=internacion_pk)
+    if request.method == "POST":
+        form = FibrobroncoscopiaForm(request.POST)
+        if form.is_valid():
+            fibro = form.save(commit=False)
+            fibro.internacion = internacion
+            fibro.save()
+            form.save_m2m()
+            messages.success(request, "Fibrobroncoscopia agregada correctamente.")
+            return redirect(f"{reverse('pacientes:estudios_procedimientos', kwargs={'pk': internacion_pk})}?seccion=fibrobroncoscopias")
+    else:
+        form = FibrobroncoscopiaForm()
+    return render(request, "pacientes/fibrobroncoscopia_form.html", {
+        "form": form,
+        "internacion": internacion,
+        "paciente": internacion.paciente,
+    })
+
+@login_required
+def fibrobroncoscopia_editar(request, pk):
+    fibro = get_object_or_404(Fibrobroncoscopia, pk=pk)
+    internacion = fibro.internacion
+    if request.method == "POST":
+        form = FibrobroncoscopiaForm(request.POST, instance=fibro)
+        if form.is_valid():
+            fibro = form.save(commit=False)
+            fibro.save()
+            form.save_m2m()
+            messages.success(request, "Fibrobroncoscopia actualizada.")
+            return redirect(f"{reverse('pacientes:estudios_procedimientos', kwargs={'pk': internacion.pk})}?seccion=fibrobroncoscopias")
+    else:
+        form = FibrobroncoscopiaForm(instance=fibro)
+    return render(request, "pacientes/fibrobroncoscopia_form.html", {
+        "form": form,
+        "internacion": internacion,
+        "paciente": internacion.paciente,
+        "fibrobroncoscopia": fibro,
+    })
+
+@login_required
+def fibrobroncoscopia_eliminar(request, pk):
+    fibro = get_object_or_404(Fibrobroncoscopia, pk=pk)
+    internacion = fibro.internacion
+    if request.method == "POST":
+        fibro.delete()
+        messages.success(request, "Fibrobroncoscopia eliminada.")
+        return redirect(f"{reverse('pacientes:estudios_procedimientos', kwargs={'pk': internacion.pk})}?seccion=fibrobroncoscopias")
+    return render(request, "pacientes/fibrobroncoscopia_confirm_delete.html", {
+        "fibrobroncoscopia": fibro,
+        "internacion": internacion,
+        "paciente": internacion.paciente,
+    })        
+    
+    
 # ==========================================================
 # TRATAMIENTO
 # ==========================================================

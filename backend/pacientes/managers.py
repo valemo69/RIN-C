@@ -92,3 +92,19 @@ class CatalogoManager(models.Manager):
     def germenes_parasitos(self):
         return self.filter(tipo__codigo='GERMEN', activo=True, tipo_microorganismo='parasito').order_by('orden', 'descripcion')
     
+       
+    def germenes_por_destino(self, destino_codigo):
+        if destino_codigo == 'BAC':
+            return self.germenes_bacterias().exclude(descripcion__icontains='Mycobacterium')
+        elif destino_codigo == 'MTB':
+            return self.filter(tipo__codigo='GERMEN', codigo__in=['MTB_TBC', 'MTB_NONTB'], activo=True).order_by('orden', 'descripcion')
+        elif destino_codigo == 'MIC':
+            return self.germenes_hongos()
+        elif destino_codigo == 'VIR':
+            return self.germenes_virus()
+        elif destino_codigo == 'PAR':
+            return self.germenes_parasitos()
+        elif destino_codigo == 'PAT':
+            return self.germenes()
+        else:
+            return self.germenes()

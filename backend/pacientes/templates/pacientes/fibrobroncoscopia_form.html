@@ -1,0 +1,106 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+{% if fibrobroncoscopia %}Editar{% else %}Agregar{% endif %} Fibrobroncoscopia - {{ paciente.apellido }}, {{ paciente.nombre }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card rinc-card">
+                <div class="card-header rinc-card-header">
+                    <h4 class="mb-0">
+                        {% if fibrobroncoscopia %}Editar{% else %}Agregar{% endif %} Fibrobroncoscopia
+                    </h4>
+                </div>
+                <div class="card-body rinc-card-body">
+                    <form method="post" id="fibrobroncoscopia-form">
+                        {% csrf_token %}
+
+                        <!-- Fecha -->
+                        <div class="mb-3">
+                            <label class="form-label">Fecha del estudio</label>
+                            {{ form.fecha }}
+                        </div>
+
+                        <!-- Hallazgos -->
+                        <div class="mb-3">
+                            <label class="form-label">Hallazgos</label>
+                            {{ form.hallazgos }}
+                            <small class="text-white-50">Mantenga presionada Ctrl para seleccionar múltiples.</small>
+                        </div>
+
+                        <!-- Procedimientos -->
+                        <div class="mb-3">
+                            <label class="form-label">Procedimientos realizados</label>
+                            {{ form.procedimientos }}
+                            <small class="text-white-50">Mantenga presionada Ctrl para seleccionar múltiples.</small>
+                        </div>
+
+                        <!-- BAL -->
+                        <div class="card bg-secondary bg-opacity-25 mb-3">
+                            <div class="card-header">
+                                <h6 class="text-white mb-0">Lavado Broncoalveolar (BAL)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    {{ form.bal_realizado }}
+                                    <label class="form-check-label text-white" for="id_bal_realizado">
+                                        BAL realizado
+                                    </label>
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label text-white">Resultado</label>
+                                    {{ form.bal_resultado }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Biopsia -->
+                        <div class="card bg-secondary bg-opacity-25 mb-3">
+                            <div class="card-header">
+                                <h6 class="text-white mb-0">Biopsia</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    {{ form.biopsia_realizada }}
+                                    <label class="form-check-label text-white" for="id_biopsia_realizada">
+                                        Biopsia realizada
+                                    </label>
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label text-white">Resultado</label>
+                                    {{ form.biopsia_resultado }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="mb-3">
+                            <label class="form-label">Observaciones</label>
+                            {{ form.observaciones }}
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{% url 'pacientes:estudios_procedimientos' internacion.pk %}?seccion=fibrobroncoscopias"
+                                class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'pacientes/js/fibrobroncoscopia.js' %}"></script>
+{% endblock %}

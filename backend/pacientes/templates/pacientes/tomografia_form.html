@@ -19,17 +19,17 @@
                     <form method="post">
                         {% csrf_token %}
 
-                        <!-- FECHA (arriba) -->
+                        <!-- FECHA -->
                         <div class="mb-3">
                             <label class="form-label">Fecha del estudio</label>
                             {{ form.fecha }}
                         </div>
 
-                        <!-- TIPO (abajo) con recarga por GET al cambiar -->
+                        <!-- TIPO -->
                         <div class="mb-3">
                             <label class="form-label">Tipo de tomografía</label>
                             <select name="tipo" id="id_tipo_tomografia" class="form-select"
-                                    onchange="window.location.href = '?tipo=' + this.value;">
+                                    onchange="if (this.value) { window.location.href = '?tipo=' + this.value + '&fecha=' + document.getElementById('id_fecha').value; } else { window.location.href = window.location.pathname; }">
                                 <option value="">Seleccione un tipo...</option>
                                 {% for option in form.tipo.field.choices %}
                                     <option value="{{ option.0 }}" {% if option.0 == form.tipo.value %}selected{% endif %}>
@@ -39,7 +39,7 @@
                             </select>
                         </div>
 
-                        <!-- HALLAZGOS (filtrados según el tipo seleccionado) -->
+                        <!-- HALLAZGOS -->
                         <div class="mb-3">
                             <label class="form-label">Hallazgos</label>
                             <div id="hallazgos-container">

@@ -1,0 +1,218 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+{% if ecocardiograma %}Editar{% else %}Agregar{% endif %} Ecocardiograma - {{ paciente.apellido }}, {{ paciente.nombre
+}}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card rinc-card">
+                <div class="card-header rinc-card-header">
+                    <h4 class="mb-0">
+                        {% if ecocardiograma %}Editar{% else %}Agregar{% endif %} Ecocardiograma
+                    </h4>
+                </div>
+                <div class="card-body rinc-card-body">
+                    <form method="post" id="ecocardiograma-form">
+                        {% csrf_token %}
+
+                        <!-- ========================================== -->
+                        <!-- FECHA                                      -->
+                        <!-- ========================================== -->
+                        <div class="mb-3">
+                            <label class="form-label">Fecha del estudio</label>
+                            {{ form.fecha }}
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- FUNCIÓN VI                                -->
+                        <!-- ========================================== -->
+                        <div class="card bg-secondary bg-opacity-25 mb-3">
+                            <div class="card-header">
+                                <h6 class="text-white mb-0">Función Ventricular Izquierda</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">FEVI (%)</label>
+                                        {{ form.fevi }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">IVAI (ml/m²)</label>
+                                        {{ form.ivai }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">Función diastólica</label>
+                                        {{ form.funcion_diastolica }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-white">Categoría FEVI</label>
+                                        <div id="fevi-categoria-display" class="form-control bg-dark text-white-50"
+                                            style="border: 1px solid #444; padding: 0.375rem 0.75rem; height: auto; min-height: 38px;">
+                                            ---
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- FUNCIÓN VD                                -->
+                        <!-- ========================================== -->
+                        <div class="card bg-secondary bg-opacity-25 mb-3">
+                            <div class="card-header">
+                                <h6 class="text-white mb-0">Función Ventricular Derecha</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label text-white">Tamaño VD</label>
+                                        {{ form.tamano_vd }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label text-white">TAPSE (mm)</label>
+                                        {{ form.tapse }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label text-white">Función VD</label>
+                                        {{ form.funcion_vd_cualitativa }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label text-white">Área AD (cm²)</label>
+                                        {{ form.area_ad }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label text-white">PAPs (mmHg)</label>
+                                        {{ form.paps }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label text-white">PAD (mmHg)</label>
+                                        {{ form.pad }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-white">Índice TAPSE/PASP</label>
+                                        <div class="d-flex align-items-center">
+                                            <span id="tapse-pasp-ratio-display" class="text-white me-2"
+                                                style="font-weight: bold; font-size: 1.1rem;">---</span>
+                                            <span id="tapse-pasp-interpretacion-display"
+                                                class="badge bg-secondary">Ingrese TAPSE y PAPs</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- VÁLVULAS Y VCI                             -->
+                        <!-- ========================================== -->
+                        <div class="card bg-secondary bg-opacity-25 mb-3">
+                            <div class="card-header">
+                                <h6 class="text-white mb-0">Válvulas y VCI</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">Insuf. Mitral</label>
+                                        {{ form.insuf_mitral }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">Insuf. Aórtica</label>
+                                        {{ form.insuf_aortica }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">Estenosis Aórtica</label>
+                                        {{ form.estenosis_aortica }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">Velocidad IT (m/s)</label>
+                                        {{ form.velocidad_it }}
+                                        <small class="text-white-50 d-block mt-1">
+                                            Gradiente IT: <span id="gradiente-it-display" class="fw-bold">---</span>
+                                            mmHg
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">Clasificación IT</label>
+                                        {{ form.insuf_tricuspidea }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">VCI - Tamaño</label>
+                                        {{ form.vci_tamano }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">VCI - Colapso</label>
+                                        {{ form.vci_colapso }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- DERRAME PERICÁRDICO                       -->
+                        <!-- ========================================== -->
+                        <div class="card bg-secondary bg-opacity-25 mb-3">
+                            <div class="card-header">
+                                <h6 class="text-white mb-0">Derrame pericárdico</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">Derrame</label>
+                                        {{ form.derrame_pericardico }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- TROMBO                                     -->
+                        <!-- ========================================== -->
+                        <div class="card bg-secondary bg-opacity-25 mb-3">
+                            <div class="card-header">
+                                <h6 class="text-white mb-0">Trombo intracavitario</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-2">
+                                            {{ form.trombo_presente }}
+                                            <label class="form-check-label text-white" for="id_trombo_presente">
+                                                Presente
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-white">Localización</label>
+                                        {{ form.trombo_localizacion }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- BOTONES                                    -->
+                        <!-- ========================================== -->
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{% url 'pacientes:estudios_procedimientos' internacion.pk %}"
+                                class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'pacientes/js/ecocardiograma.js' %}"></script>
+{% endblock %}

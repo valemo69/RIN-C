@@ -17,8 +17,10 @@ RIN-C | Estudios y Procedimientos
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'pacientes:inicio' %}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'pacientes:internaciones_paciente' paciente.pk %}">Pacientes e Internaciones</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'pacientes:internacion_detalle' internacion.pk %}">Internación</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'pacientes:internaciones_paciente' paciente.pk %}">Pacientes e
+                    Internaciones</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'pacientes:internacion_detalle' internacion.pk %}">Internación</a></li>
             <li class="breadcrumb-item active">Estudios y Procedimientos</li>
         </ol>
     </nav>
@@ -50,34 +52,39 @@ RIN-C | Estudios y Procedimientos
         </div>
     </div>
 
-    <!-- ========================================================== -->
-    <!-- MENÚ DE ESTUDIOS (centrado)                                -->
-    <!-- ========================================================== -->
+    <!-- MENÚ DE ESTUDIOS -->
     <div class="card rinc-card mb-3">
         <div class="card-header rinc-card-header text-center">
             <h5 class="mb-0"><i class="bi bi-grid-3x3-gap-fill"></i> Seleccione un estudio</h5>
         </div>
         <div class="card-body rinc-card-body">
             <div class="d-flex flex-wrap justify-content-center gap-2">
-                <a href="?seccion=tomografias" class="btn btn-outline-light {% if seccion == 'tomografias' %}active{% endif %}">
+                <a href="?seccion=tomografias"
+                    class="btn btn-outline-light {% if seccion == 'tomografias' %}active{% endif %}">
                     <i class="bi bi-image"></i> Tomografías
                 </a>
-                <a href="?seccion=ecocardiogramas" class="btn btn-outline-light {% if seccion == 'ecocardiogramas' %}active{% endif %}">
+                <a href="?seccion=ecocardiogramas"
+                    class="btn btn-outline-light {% if seccion == 'ecocardiogramas' %}active{% endif %}">
                     <i class="bi bi-heart-pulse"></i> Ecocardiogramas
                 </a>
-                <a href="?seccion=fibrobroncoscopias" class="btn btn-outline-light {% if seccion == 'fibrobroncoscopias' %}active{% endif %}">
+                <a href="?seccion=fibrobroncoscopias"
+                    class="btn btn-outline-light {% if seccion == 'fibrobroncoscopias' %}active{% endif %}">
                     <i class="bi bi-lungs"></i> Fibrobroncoscopias
                 </a>
-                <a href="?seccion=arteriografias" class="btn btn-outline-light {% if seccion == 'arteriografias' %}active{% endif %}">
+                <a href="?seccion=arteriografias"
+                    class="btn btn-outline-light {% if seccion == 'arteriografias' %}active{% endif %}">
                     <i class="bi bi-droplet"></i> Arteriografías
                 </a>
-                <a href="?seccion=espirometrias" class="btn btn-outline-light {% if seccion == 'espirometrias' %}active{% endif %}">
+                <a href="?seccion=espirometrias"
+                    class="btn btn-outline-light {% if seccion == 'espirometrias' %}active{% endif %}">
                     <i class="bi bi-graph-up-arrow"></i> Espirometrías
                 </a>
-                <a href="?seccion=toracocentesis" class="btn btn-outline-light {% if seccion == 'toracocentesis' %}active{% endif %}">
+                <a href="?seccion=toracocentesis"
+                    class="btn btn-outline-light {% if seccion == 'toracocentesis' %}active{% endif %}">
                     <i class="bi bi-droplet-half"></i> Toracocentesis
                 </a>
-                <a href="?seccion=anatomia_patologica" class="btn btn-outline-light {% if seccion == 'anatomia_patologica' %}active{% endif %}">
+                <a href="?seccion=anatomia_patologica"
+                    class="btn btn-outline-light {% if seccion == 'anatomia_patologica' %}active{% endif %}">
                     <i class="bi bi-microscope"></i> Anatomía Patológica
                 </a>
             </div>
@@ -91,69 +98,239 @@ RIN-C | Estudios y Procedimientos
     <div class="card rinc-card mb-3">
         <div class="card-header rinc-card-header d-flex flex-wrap justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-image"></i> Tomografías</h5>
-            <a href="{% url 'pacientes:tomografia_agregar' internacion.pk %}" class="btn btn-sm btn-outline-light mt-1 mt-sm-0">
+            <a href="{% url 'pacientes:tomografia_agregar' internacion.pk %}"
+                class="btn btn-sm btn-outline-light mt-1 mt-sm-0">
                 <i class="bi bi-plus-circle"></i> Agregar
             </a>
         </div>
         <div class="card-body rinc-card-body">
             {% if tomografias %}
-                {% for t in tomografias %}
-                <div class="card bg-dark text-white border-secondary mb-2">
-                    <div class="card-body py-2 px-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong class="text-info">{{ t.fecha|date:"d/m/Y" }}</strong>
-                                <span class="badge bg-secondary ms-2">{{ t.tipo.descripcion }}</span>
-                            </div>
-                            <div class="d-flex gap-1">
-                                <a href="{% url 'pacientes:tomografia_editar' t.pk %}" class="btn btn-sm btn-outline-light" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="{% url 'pacientes:tomografia_eliminar' t.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
+            {% for t in tomografias %}
+            <div class="card bg-dark text-white border-secondary mb-3">
+                <div class="card-body">
+                    <div
+                        class="d-flex justify-content-between align-items-start border-bottom border-secondary pb-2 mb-2">
+                        <div>
+                            <strong class="text-info h5">{{ t.fecha|date:"d/m/Y" }}</strong>
+                            <span class="text-white-50 ms-3">{{ t.tipo.descripcion }}</span>
                         </div>
-                        <div class="small text-white-50 mt-1">
-                            {% for h in t.hallazgos.all %}<span class="badge bg-secondary">{{ h.descripcion }}</span> {% endfor %}
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'pacientes:tomografia_editar' t.pk %}" class="btn btn-sm btn-outline-light"
+                                title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'pacientes:tomografia_eliminar' t.pk %}"
+                                class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </div>
-                        {% if t.observaciones %}
-                        <div class="small text-white-50 mt-1"><em>{{ t.observaciones|truncatechars:60 }}</em></div>
-                        {% endif %}
                     </div>
+
+                    {% if t.hallazgos.all %}
+                    <ul class="list-unstyled text-white-50 small" style="columns: 2; column-gap: 20px;">
+                        {% for h in t.hallazgos.all %}
+                        <li style="margin-bottom: 4px; break-inside: avoid;">
+                            <span style="color: #6c757d;">•</span> {{ h.descripcion }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-white-50 small fst-italic">Sin hallazgos registrados.</p>
+                    {% endif %}
+
+                    {% if t.observaciones %}
+                    <div class="mt-2 border-top border-secondary pt-2">
+                        <span class="text-white-50 small fw-semibold">Observaciones:</span>
+                        <span class="text-white-50 small">{{ t.observaciones }}</span>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endfor %}
+            </div>
+            {% endfor %}
             {% else %}
-                <p class="text-white-50 small">No hay tomografías cargadas.</p>
+            <p class="text-white-50 small">No hay tomografías cargadas.</p>
             {% endif %}
         </div>
     </div>
     {% endif %}
 
     <!-- ========================================================== -->
-    <!-- SECCIÓN ECOCARDIOGRAMAS (placeholder)                       -->
+    <!-- SECCIÓN ECOCARDIOGRAMAS (CORREGIDA y SIMPLIFICADA)          -->
     <!-- ========================================================== -->
     {% if seccion == 'ecocardiogramas' %}
     <div class="card rinc-card mb-3">
-        <div class="card-header rinc-card-header">
+        <div class="card-header rinc-card-header d-flex flex-wrap justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Ecocardiogramas</h5>
+            <a href="{% url 'pacientes:ecocardiograma_agregar' internacion.pk %}"
+                class="btn btn-sm btn-outline-light mt-1 mt-sm-0">
+                <i class="bi bi-plus-circle"></i> Agregar
+            </a>
         </div>
         <div class="card-body rinc-card-body">
-            <p class="text-white-50 small">Próximamente</p>
+            {% if ecocardiogramas %}
+            {% for eco in ecocardiogramas %}
+            <div class="card bg-dark text-white border-secondary mb-2">
+                <div class="card-body py-2 px-3">
+                    <!-- Encabezado -->
+                    <div
+                        class="d-flex justify-content-between align-items-start border-bottom border-secondary pb-1 mb-1">
+                        <div>
+                            <span class="text-info">{{ eco.fecha|date:"d/m/Y" }}</span>
+                            <span class="text-white-50 ms-2">Ecocardiograma Doppler</span>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'pacientes:ecocardiograma_editar' eco.pk %}"
+                                class="btn btn-sm btn-outline-light" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'pacientes:ecocardiograma_eliminar' eco.pk %}"
+                                class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Datos principales -->
+                    <div class="text-white-50">
+                        <span>FEVI: <strong class="text-white">{{ eco.fevi|default:"---" }}%</strong>
+                            {% if eco.fevi_categoria %}({{ eco.get_fevi_categoria_display }}){% endif %}
+                        </span>
+                        <span class="mx-1">·</span>
+                        <span>TAPSE: <strong class="text-white">{{ eco.tapse|default:"---" }} mm</strong></span>
+                        <span class="mx-1">·</span>
+                        <span>PAPs: <strong class="text-white">{{ eco.paps|default:"---" }} mmHg</strong>
+                            {% if eco.paps > 35 %}(HP probable){% elif eco.paps > 25 %}(HP posible){% elif eco.paps
+                            %}(HP improbable){% endif %}
+                        </span>
+                        <span class="mx-1">·</span>
+                        <span>Tamaño VD: <strong class="text-white">{{ eco.get_tamano_vd_display|default:"---"}}</strong></span>
+                                
+                        {% if eco.tapse_pasp_ratio %}
+                        <span class="mx-1">·</span>
+                        <span>Índice TAPSE/PASP: <strong class="text-white">{{ eco.tapse_pasp_ratio }}</strong>
+                            ({{ eco.tapse_pasp_interpretacion.texto }})</span>
+                        {% endif %}
+                        {% if eco.ivai %}
+                        <span class="mx-1">·</span>
+                        <span>IVAI: <strong class="text-white">{{ eco.ivai }}</strong> ml/m²</span>
+                        {% endif %}
+                        {% if eco.funcion_diastolica %}
+                        <span class="mx-1">·</span>
+                        <span>Diástole: <strong class="text-white">{{ eco.get_funcion_diastolica_display}}</strong></span>
+                                
+                        {% endif %}
+                        {% if eco.area_ad %}
+                        <span class="mx-1">·</span>
+                        <span>Área AD: <strong class="text-white">{{ eco.area_ad }}</strong> cm²</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Válvulas y otros hallazgos (USANDO EL NUEVO MÉTODO) -->
+                    <div class="text-white-50">
+                        {% if eco.hallazgos_valvulares_lista %}
+                        {{ eco.hallazgos_valvulares_lista|join:" · " }}
+                        {% else %}
+                        <span class="text-white-50 fst-italic">Sin hallazgos valvulares o pericárdicos.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-white-50">No hay ecocardiogramas cargados.</p>
+            {% endif %}
         </div>
     </div>
     {% endif %}
 
     <!-- ========================================================== -->
-    <!-- SECCIÓN FIBROBRONCOSCOPIAS (placeholder)                    -->
+    <!-- SECCIÓN FIBROBRONCOSCOPIAS (IMPLEMENTADA)                   -->
     <!-- ========================================================== -->
     {% if seccion == 'fibrobroncoscopias' %}
     <div class="card rinc-card mb-3">
-        <div class="card-header rinc-card-header">
+        <div class="card-header rinc-card-header d-flex flex-wrap justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-lungs"></i> Fibrobroncoscopias</h5>
+            <a href="{% url 'pacientes:fibrobroncoscopia_agregar' internacion.pk %}"
+                class="btn btn-sm btn-outline-light mt-1 mt-sm-0">
+                <i class="bi bi-plus-circle"></i> Agregar
+            </a>
         </div>
         <div class="card-body rinc-card-body">
-            <p class="text-white-50 small">Próximamente</p>
+            {% if fibrobroncoscopias %}
+            {% for fibro in fibrobroncoscopias %}
+            <div class="card bg-dark text-white border-secondary mb-2">
+                <div class="card-body py-2 px-3">
+                    <!-- Encabezado -->
+                    <div
+                        class="d-flex justify-content-between align-items-start border-bottom border-secondary pb-1 mb-1">
+                        <div>
+                            <span class="text-info">{{ fibro.fecha|date:"d/m/Y" }}</span>
+                            <span class="text-white-50 ms-2">Fibrobroncoscopia</span>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'pacientes:fibrobroncoscopia_editar' fibro.pk %}"
+                                class="btn btn-sm btn-outline-light" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'pacientes:fibrobroncoscopia_eliminar' fibro.pk %}"
+                                class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Hallazgos -->
+                    <div class="text-white-50">
+                        {% if fibro.hallazgos.all %}
+                        <span>Hallazgos:
+                            {% for h in fibro.hallazgos.all %}
+                            <span class="badge bg-secondary me-1">{{ h.descripcion }}</span>
+                            {% endfor %}
+                        </span>
+                        {% else %}
+                        <span class="fst-italic">Sin hallazgos registrados.</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Procedimientos -->
+                    <div class="text-white-50">
+                        {% if fibro.procedimientos.all %}
+                        <span>Procedimientos:
+                            {% for p in fibro.procedimientos.all %}
+                            <span class="badge bg-secondary me-1">{{ p.descripcion }}</span>
+                            {% endfor %}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- BAL -->
+                    {% if fibro.bal_realizado %}
+                    <div class="text-white-50">
+                        <span><strong class="text-info">BAL:</strong> {{ fibro.bal_resultado|default:"Sin resultado"}}</span>
+                            
+                    </div>
+                    {% endif %}
+
+                    <!-- Biopsia -->
+                    {% if fibro.biopsia_realizada %}
+                    <div class="text-white-50">
+                        <span><strong class="text-info">Biopsia:</strong> {{ fibro.biopsia_resultado|default:"Sin 
+                            
+                    </div>
+                    {% endif %}
+
+                    <!-- Observaciones -->
+                    {% if fibro.observaciones %}
+                    <div class="text-white-50 border-top border-secondary pt-1 mt-1">
+                        <span class="fst-italic">{{ fibro.observaciones }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-white-50">No hay fibrobroncoscopias cargadas.</p>
+            {% endif %}
         </div>
     </div>
     {% endif %}
@@ -222,8 +399,9 @@ RIN-C | Estudios y Procedimientos
             <i class="bi bi-arrow-left me-1"></i> Microbiología
         </a>
         <div class="rinc-actions-right">
-            <button type="button" class="btn btn-rinc-secondary me-2">Guardar</button>
-            <a href="#" class="btn btn-rinc-primary">Tratamiento <i class="bi bi-arrow-right ms-1"></i></a>
+            <a href="{% url 'pacientes:tratamiento' internacion.pk %}" class="btn btn-rinc-primary">
+                Tratamiento <i class="bi bi-arrow-right ms-1"></i>
+            </a>
         </div>
     </div>
 
